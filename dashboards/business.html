@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Business Dashboard - ExperienceMe</title>
+    <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav>
+        <div class="nav-container">
+            <a href="../landing.html" class="logo">ExperienceMe</a>
+            <div class="nav-links">
+                <a href="#" onclick="showSection('experiences')" id="navExperiences">My Experiences</a>
+                <a href="#" onclick="showSection('create')" id="navCreate">Create New</a>
+                <a href="#" onclick="showSection('profile')" id="navProfile">Business Profile</a>
+                <button id="logoutBtn" class="btn btn-secondary">Logout</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Dashboard Content -->
+    <section class="section">
+        <div class="container">
+            <!-- Welcome Header -->
+            <div id="welcomeHeader" style="margin-bottom: 2rem;">
+                <h1>Business Dashboard</h1>
+                <div id="userInfo"></div>
+            </div>
+
+            <!-- Experiences Section -->
+            <div id="experiencesSection" class="dashboard-section">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                    <h2>My Experiences</h2>
+                    <button class="btn btn-primary" onclick="showSection('create')">+ Create New Experience</button>
+                </div>
+
+                <!-- Filter Tabs -->
+                <div class="status-tabs" style="margin-bottom: 2rem;">
+                    <button class="status-tab active" onclick="filterExperiences('all')">All</button>
+                    <button class="status-tab" onclick="filterExperiences('draft')">Drafts</button>
+                    <button class="status-tab" onclick="filterExperiences('pending')">Pending Approval</button>
+                    <button class="status-tab" onclick="filterExperiences('approved')">Approved</button>
+                    <button class="status-tab" onclick="filterExperiences('rejected')">Rejected</button>
+                </div>
+
+                <!-- Experiences Grid -->
+                <div id="experiencesList">
+                    <div class="loading">Loading your experiences...</div>
+                </div>
+            </div>
+
+            <!-- Create Experience Section -->
+            <div id="createSection" class="dashboard-section hidden">
+                <h2 style="margin-bottom: 2rem;">Create New Experience</h2>
+                <div id="createAlert"></div>
+
+                <form id="createExperienceForm" class="experience-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="title">Experience Title *</label>
+                            <input type="text" id="title" required placeholder="e.g., Hot Air Balloon Ride over Cork">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="description">Description *</label>
+                        <textarea id="description" rows="6" required placeholder="Describe the experience in detail..."></textarea>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="category">Category *</label>
+                            <select id="category" required>
+                                <option value="">Select a category...</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="county">County *</label>
+                            <select id="county" required>
+                                <option value="">Select a county...</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="minPrice">Minimum Price (€)</label>
+                            <input type="number" id="minPrice" min="0" step="0.01" placeholder="0.00">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="maxPrice">Maximum Price (€)</label>
+                            <input type="number" id="maxPrice" min="0" step="0.01" placeholder="0.00">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="priceTier">Price Tier</label>
+                            <select id="priceTier">
+                                <option value="">Select tier...</option>
+                                <option value="budget">Budget (€)</option>
+                                <option value="moderate">Moderate (€€)</option>
+                                <option value="premium">Premium (€€€)</option>
+                                <option value="luxury">Luxury (€€€€)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Image Upload Section -->
+                    <div class="form-group">
+                        <label>Images (Max 5 images) *</label>
+                        <p style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 0.5rem;">
+                            Upload images from your device. The first image will be your primary/bookmark image. Supported formats: JPG, PNG, WebP (Max 5MB each)
+                        </p>
+
+                        <!-- Image Upload Area -->
+                        <div class="image-upload-container">
+                            <div class="image-upload-dropzone" id="imageDropzone">
+                                <input type="file" id="imageFileInput" accept="image/jpeg,image/png,image/webp" multiple style="display: none;">
+                                <div class="upload-icon">📷</div>
+                                <p><strong>Click to upload</strong> or drag and drop</p>
+                                <p style="font-size: 0.875rem; color: var(--text-secondary);">JPG, PNG or WebP (Max 5MB each)</p>
+                            </div>
+                        </div>
+
+                        <!-- Image Previews -->
+                        <div id="imagePreviews" class="image-previews-grid"></div>
+
+                        <!-- Upload Progress -->
+                        <div id="uploadProgress" class="upload-progress hidden"></div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" onclick="saveDraft()">Save as Draft</button>
+                        <button type="submit" class="btn btn-primary">Submit for Approval</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Profile Section -->
+            <div id="profileSection" class="dashboard-section hidden">
+                <h2 style="margin-bottom: 2rem;">Business Profile</h2>
+                <div id="businessInfo"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-content">
+            <p>&copy; 2025 ExperienceMe. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- Supabase CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- Supabase Client -->
+    <script src="../lib/supabaseClient.js"></script>
+    <!-- Business Dashboard Script -->
+    <script src="business.js"></script>
+</body>
+</html>

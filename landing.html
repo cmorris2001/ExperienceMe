@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ExperienceMe - Discover Amazing Experiences</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Navigation at top-->
+    <nav>
+        <div class="nav-container">
+            <a href="landing.html" class="logo">ExperienceMe</a>
+            <div class="nav-links">
+                <a href="#features">Features</a> <!-- stays on same page just section  -->
+                <a href="#about">About</a> <!-- stays on same page just moves to section -->
+                <a href="auth/login.html" class="btn btn-secondary">Login</a> <!-- Goes to login.html -->
+                <a href="auth/register.html" class="btn btn-primary">Sign Up</a> <!-- Goes to  register.html -->
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section with Search -->
+    <section class="hero">
+        <div class="hero-content">
+            <!-- slogan above the search bar -->
+            <h1>Turning Irish Experiences<br>into Unforgettable Adventures!</h1>
+            <p>Discover and book amazing local experiences across Ireland</p>
+            <div class="hero-search">
+                <input type="text" id="heroSearch" placeholder="Find an experience..." class="search-input"> <!-- actual search bar with placeholder -->
+                <button class="btn btn-primary btn-large" onclick="handleSearch()">Search</button> <!-- search button  -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Categories Section -->
+    <section id="categories" class="section">
+        <div class="container">
+            <h2 class="section-title">Search by Experience</h2>
+            <div id="categoriesGrid" class="image-grid"> <!--Image cards of the categories -->
+                <!-- Categories will be loaded here from supabase  -->
+                <div class="loading">Loading experiences...</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Counties Section -->
+    <section id="counties" class="section" style="background-color: var(--surface);">
+        <div class="container">
+            <h2 class="section-title">Search by Location</h2>
+            <div id="countiesGrid" class="image-grid"> <!--Image cards of the counties -->
+                <!-- Counties will be loaded here from supabase -->
+                <div class="loading">Loading locations...</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="section">
+        <div class="container">
+            <h2 class="section-title">Why Choose ExperienceMe?</h2>
+            <div class="features-simple">
+                <div class="feature-item">
+                    <h3> Perfect Gifts</h3>
+                    <p>Give unforgettable experiences that create lasting memories</p>
+                </div>
+                <div class="feature-item">
+                    <h3>All of Ireland</h3>
+                    <p>Discover experiences across all 26 counties</p>
+                </div>
+                <div class="feature-item">
+                    <h3> Supporting Local</h3>
+                    <p>Local experiences by local irish vendors</p>
+                </div>
+                <div class="feature-item">
+                    <h3> New and Exciting</h3>
+                    <p>New experiences to ExperienceMe platform, Discover NOW!</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer same on all pages, got to keep my rights -->
+    <footer>
+        <div class="footer-content">
+            <p>&copy; 2025 ExperienceMe. All rights reserved.</p>
+            <p style="margin-top: 0.5rem;">Connecting people with unforgettable experiences.</p>
+        </div>
+    </footer>
+
+    <!-- Supabase CDN SUPABASE TOOLKIT -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- Supabase Client API key -->
+    <script src="lib/supabaseClient.js"></script>
+    <!-- Landing Page Script -->
+    <script src="landing.js"></script>
+</body>
+</html>

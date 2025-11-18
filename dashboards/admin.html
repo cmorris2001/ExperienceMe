@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin Dashboard - ExperienceMe</title>
+  <link rel="stylesheet" href="../styles.css" />
+</head>
+<body>
+  <!-- =========================
+       NAVIGATION
+       ========================= -->
+  <nav>
+    <div class="nav-container">
+      <a href="../landing.html" class="logo">ExperienceMe</a>
+
+      <div class="nav-links">
+        <a href="#" id="navDashboard"  data-section="dashboard">Dashboard</a>
+        <a href="#" id="navExperiences" data-section="experiences">Experiences</a>
+        <a href="#" id="navBusinesses"  data-section="businesses">Businesses</a>
+        <a href="#" id="navUsers"       data-section="users">Users</a>
+        <button id="logoutBtn" class="btn btn-secondary">Logout</button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- =========================
+       MAIN CONTENT
+       ========================= -->
+  <section class="section">
+    <div class="container">
+      <h1>Admin Dashboard</h1>
+      <div id="adminInfo"></div>
+
+      <!-- ===== Dashboard (default) ===== -->
+      <div id="dashboardSection" class="dashboard-section">
+        <h2>Overview</h2>
+        <p>Welcome to the admin dashboard. Select a section from the navigation to get started.</p>
+
+        <div class="stats-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:1.5rem;margin-top:2rem;">
+          <div class="stat-card card">
+            <h3>Pending Approvals</h3>
+            <p class="stat-number" id="pendingCount">0</p>
+          </div>
+          <div class="stat-card card">
+            <h3>Total Experiences</h3>
+            <p class="stat-number" id="totalExperiences">0</p>
+          </div>
+          <div class="stat-card card">
+            <h3>Total Businesses</h3>
+            <p class="stat-number" id="totalBusinesses">0</p>
+          </div>
+          <div class="stat-card card">
+            <h3>Total Users</h3>
+            <p class="stat-number" id="totalUsers">0</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== Experiences ===== -->
+      <div id="experiencesSection" class="dashboard-section hidden">
+        <h2>Experiences</h2>
+
+        <!-- Filter tabs (no inline JS; JS binds once) -->
+        <div class="status-tabs">
+          <button class="status-tab" data-filter="all">All</button>
+          <button class="status-tab active" data-filter="pending">Pending</button>
+          <button class="status-tab" data-filter="approved">Approved</button>
+          <button class="status-tab" data-filter="rejected">Rejected</button>
+        </div>
+
+        <!-- List container -->
+        <div id="experiencesList"></div>
+
+        <!-- Template for experience cards -->
+        <template id="experienceCardTemplate">
+          <div class="experience-card">
+            <div class="experience-image" data-field="image">
+              <span class="status-badge" data-field="statusBadge"></span>
+            </div>
+            <div class="experience-content">
+              <h3 data-field="title"></h3>
+              <p class="experience-meta" data-field="meta"></p>
+              <p class="experience-description" data-field="description"></p>
+              <div class="experience-footer">
+                <span class="experience-price" data-field="price"></span>
+                <div class="experience-actions">
+                  <button class="btn-icon btn-approve" title="Approve">Approve</button>
+                  <button class="btn-icon btn-reject" title="Reject">Reject</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </template>
+      </div>
+
+      <!-- ===== Businesses ===== -->
+      <div id="businessesSection" class="dashboard-section hidden">
+        <h2>Manage Businesses</h2>
+        <p>Business management will go here…</p>
+      </div>
+
+      <!-- ===== Users ===== -->
+      <div id="usersSection" class="dashboard-section hidden">
+        <h2>Manage Users</h2>
+        <p>User management will go here…</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- =========================
+       FOOTER
+       ========================= -->
+  <footer>
+    <div class="footer-content">
+      <p>&copy; 2025 ExperienceMe. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <!-- =========================
+       SCRIPTS
+       ========================= -->
+  <!-- Supabase CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <!-- Supabase Client init -->
+  <script src="../lib/supabaseClient.js"></script>
+  <!-- Admin Step 2 logic (clones template, binds events, showSection, hash routing) -->
+  <script src="admin.js"></script>
+</body>
+</html>
+
