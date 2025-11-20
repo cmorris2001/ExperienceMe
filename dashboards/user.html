@@ -1,39 +1,45 @@
-<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html> <!-- Standard HTML5 document declaration -->
+<html lang="en"> <!-- Page language set to English -->
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>User Dashboard - ExperienceMe</title>
-    <link rel="stylesheet" href="../styles.css" />
+    <meta charset="UTF-8" /> <!-- Use UTF-8 so all characters display correctly -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /> <!-- Makes layout mobile responsive -->
+    <title>User Dashboard - ExperienceMe</title> <!-- Browser tab title for user dashboard -->
+    <link rel="stylesheet" href="../styles.css" /> <!-- Shared main stylesheet for whole app -->
 </head>
 <body>
-    <!-- Navigation -->
+    <!-- Navigation (top bar for logged-in users) -->
     <nav>
         <div class="nav-container">
+            <!-- Logo brings user back to main landing page -->
             <a href="../landing.html" class="logo">ExperienceMe</a>
             <div class="nav-links">
+                <!-- Each link calls showSection() in user.js to swap visible section -->
                 <a href="#" onclick="showSection('explore')">Explore</a>
                 <a href="#" onclick="showSection('favorites')">My Favorites</a>
                 <a href="#" onclick="showSection('profile')">Profile</a>
+                <!-- Logout button handled by JS in user.js -->
                 <button id="logoutBtn" class="btn btn-secondary">Logout</button>
             </div>
         </div>
     </nav>
 
     <!-- =======================
-         PROFILE SECTION
+         PROFILE SECTION (default visible)
          ======================= -->
     <div id="profileSection" class="user-section">
         <section class="section">
             <div class="container">
                 <h1 style="margin-bottom: 1rem;">Your Profile</h1>
 
+                <!-- User info (name, email, etc.) injected here by user.js -->
                 <div id="userInfo" style="margin-bottom: 2rem;"></div>
 
+                <!-- Simple success alert telling user they are logged in as "User" role -->
                 <div class="alert alert-success">
                     ✅ You are successfully logged in as a User!
                 </div>
 
+                <!-- Getting started card with basic “what you can do” info -->
                 <div class="card" style="margin-top: 2rem;">
                     <h2>Getting Started</h2>
                     <p>Welcome to ExperienceMe! Here are some things you can do:</p>
@@ -53,12 +59,13 @@
          (landing-style hero + recently added)
          ======================= -->
     <div id="exploreSection" class="user-section hidden">
-        <!-- Hero: EXACT same style as landing.html (full width) -->
+        <!-- Hero: same style as landing page hero for consistency -->
         <section class="hero">
             <div class="hero-content">
                 <h1>Turning Irish Experiences<br>into Unforgettable Adventures!</h1>
                 <p>Discover and book amazing local experiences across Ireland</p>
                 <div class="hero-search">
+                    <!-- Search input for exploring experiences, logic in user.js (searchExplore) -->
                     <input
                         type="text"
                         id="heroSearch"
@@ -72,7 +79,7 @@
             </div>
         </section>
 
-        <!-- Recently Added Experiences -->
+        <!-- Recently Added Experiences (read-only cards with favorite toggle) -->
         <section class="section">
             <div class="container">
                 <h2 class="section-title">Recently Added Experiences</h2>
@@ -80,18 +87,20 @@
                     Showing the latest approved experiences. Use the search above to filter by title or county.
                 </p>
 
+                <!-- Explore results list, filled by JS once data is loaded from Supabase -->
                 <div id="exploreResults"></div>
 
-                <!-- Template for explore cards -->
+                <!-- Template for explore cards (cloned in user.js) -->
                 <template id="exploreCardTemplate">
                     <div class="experience-card">
                         <div class="experience-content">
                             <div class="experience-header" style="display:flex;justify-content:space-between;align-items:center;gap:0.5rem;">
-                                <h4 data-field="title"></h4>
+                                <h4 data-field="title"></h4> <!-- Experience title -->
+                                <!-- Favorite toggle button (♡ to add to favorites) -->
                                 <button class="btn-icon favorite-toggle" title="Add to favorites">♡</button>
                             </div>
-                            <p class="experience-meta" data-field="meta"></p>
-                            <p class="experience-price" data-field="price"></p>
+                            <p class="experience-meta" data-field="meta"></p> <!-- Meta info like county, category, etc. -->
+                            <p class="experience-price" data-field="price"></p> <!-- Price display -->
                         </div>
                     </div>
                 </template>
@@ -110,18 +119,20 @@
                     These are the experiences you’ve saved.
                 </p>
 
+                <!-- Favorites list (cards for saved experiences) -->
                 <div id="favoritesList"></div>
 
-                <!-- Template for favorite cards -->
+                <!-- Template for favorite cards (similar to explore but heart filled) -->
                 <template id="favoriteCardTemplate">
                     <div class="experience-card">
                         <div class="experience-content">
                             <div class="experience-header" style="display:flex;justify-content:space-between;align-items:center;gap:0.5rem;">
-                                <h4 data-field="title"></h4>
+                                <h4 data-field="title"></h4> <!-- Experience title -->
+                                <!-- Favorite toggle button (♥ to remove from favorites) -->
                                 <button class="btn-icon favorite-toggle" title="Remove from favorites">♥</button>
                             </div>
-                            <p class="experience-meta" data-field="meta"></p>
-                            <p class="experience-price" data-field="price"></p>
+                            <p class="experience-meta" data-field="meta"></p> <!-- Meta info again -->
+                            <p class="experience-price" data-field="price"></p> <!-- Price display again -->
                         </div>
                     </div>
                 </template>
@@ -129,18 +140,19 @@
         </section>
     </div>
 
-    <!-- Footer -->
+    <!-- Footer same as rest of site -->
     <footer>
         <div class="footer-content">
             <p>&copy; 2025 ExperienceMe. All rights reserved.</p>
         </div>
     </footer>
 
-    <!-- Supabase -->
+    <!-- Supabase JS SDK so this dashboard can talk to Supabase backend -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- My Supabase client config (URL + anon key + supabaseClient instance) -->
     <script src="../lib/supabaseClient.js"></script>
 
-    <!-- User Dashboard Logic -->
+    <!-- User Dashboard Logic (handles auth, explore, favorites, profile info) -->
     <script src="user.js"></script>
 </body>
 </html>

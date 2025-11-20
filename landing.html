@@ -1,61 +1,73 @@
-<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html> <!-- Standard HTML5 document type so browser knows how to render page -->
+<html lang="en"> <!-- Page language set to English -->
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ExperienceMe - Discover Amazing Experiences</title>
-    <link rel="stylesheet" href="styles.css">
+    <meta charset="UTF-8"> <!-- Character encoding so all symbols/letters show correctly -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- Makes layout responsive on phones/tablets -->
+    <title>ExperienceMe - Discover Amazing Experiences</title> <!-- Text that appears on browser tab -->
+    <link rel="stylesheet" href="styles.css"> <!-- Main CSS file for all styling on this page -->
 </head>
 <body>
-    <!-- Navigation at top-->
+    <!-- Navigation bar at the top of the page -->
     <nav>
         <div class="nav-container">
+            <!-- Clicking logo brings user back to landing page -->
             <a href="landing.html" class="logo">ExperienceMe</a>
             <div class="nav-links">
-                <a href="#features">Features</a> <!-- stays on same page just section  -->
-                <a href="#about">About</a> <!-- stays on same page just moves to section -->
+                <a href="#features">Features</a> <!-- Stays on same page, scrolls to Features section -->
+                <a href="#about">About</a> <!-- Stays on same page, scrolls to About section (when added) -->
                 <a href="auth/login.html" class="btn btn-secondary">Login</a> <!-- Goes to login.html -->
-                <a href="auth/register.html" class="btn btn-primary">Sign Up</a> <!-- Goes to  register.html -->
+                <a href="auth/register.html" class="btn btn-primary">Sign Up</a> <!-- Goes to register.html -->
             </div>
         </div>
     </nav>
 
-    <!-- Hero Section with Search -->
+    <!-- Hero Section with Search (big top banner) -->
     <section class="hero">
         <div class="hero-content">
-            <!-- slogan above the search bar -->
+            <!-- Main slogan above the search bar -->
             <h1>Turning Irish Experiences<br>into Unforgettable Adventures!</h1>
             <p>Discover and book amazing local experiences across Ireland</p>
+
+            <!-- Search bar section (search logic handled in landing.js) -->
             <div class="hero-search">
-                <input type="text" id="heroSearch" placeholder="Find an experience..." class="search-input"> <!-- actual search bar with placeholder -->
-                <button class="btn btn-primary btn-large" onclick="handleSearch()">Search</button> <!-- search button  -->
+                <!-- Actual search input where user types what they’re looking for -->
+                <input
+                    type="text"
+                    id="heroSearch"
+                    placeholder="Find an experience..."
+                    class="search-input"
+                >
+                <!-- Search button calls handleSearch() function from landing.js -->
+                <button class="btn btn-primary btn-large" onclick="handleSearch()">Search</button>
             </div>
         </div>
     </section>
 
-    <!-- Categories Section -->
+    <!-- Categories Section (search by type of experience) -->
     <section id="categories" class="section">
         <div class="container">
             <h2 class="section-title">Search by Experience</h2>
-            <div id="categoriesGrid" class="image-grid"> <!--Image cards of the categories -->
-                <!-- Categories will be loaded here from supabase  -->
-                <div class="loading">Loading experiences...</div>
+            <!-- Image cards of the categories will be injected here by JS -->
+            <div id="categoriesGrid" class="image-grid">
+                <!-- Categories will be loaded here from Supabase (via landing.js + supabaseClient.js) -->
+                <div class="loading">Loading experiences...</div> <!-- Placeholder message until data loads -->
             </div>
         </div>
     </section>
 
-    <!-- Counties Section -->
+    <!-- Counties Section (search by location) -->
     <section id="counties" class="section" style="background-color: var(--surface);">
         <div class="container">
             <h2 class="section-title">Search by Location</h2>
-            <div id="countiesGrid" class="image-grid"> <!--Image cards of the counties -->
-                <!-- Counties will be loaded here from supabase -->
-                <div class="loading">Loading locations...</div>
+            <!-- Image cards of the counties will be injected here by JS -->
+            <div id="countiesGrid" class="image-grid">
+                <!-- Counties will be loaded here from Supabase (again handled in landing.js) -->
+                <div class="loading">Loading locations...</div> <!-- Placeholder while counties load -->
             </div>
         </div>
     </section>
 
-    <!-- Features Section -->
+    <!-- Features Section (static info: why use ExperienceMe) -->
     <section id="features" class="section">
         <div class="container">
             <h2 class="section-title">Why Choose ExperienceMe?</h2>
@@ -70,7 +82,7 @@
                 </div>
                 <div class="feature-item">
                     <h3> Supporting Local</h3>
-                    <p>Local experiences by local irish vendors</p>
+                    <p>Local experiences by local Irish vendors</p>
                 </div>
                 <div class="feature-item">
                     <h3> New and Exciting</h3>
@@ -80,19 +92,19 @@
         </div>
     </section>
 
-    <!-- Footer same on all pages, got to keep my rights -->
+    <!-- Footer same on all pages, keeps my rights + short tagline -->
     <footer>
         <div class="footer-content">
-            <p>&copy; 2025 ExperienceMe. All rights reserved.</p>
-            <p style="margin-top: 0.5rem;">Connecting people with unforgettable experiences.</p>
+            <p>&copy; 2025 ExperienceMe. All rights reserved.</p> <!-- Copyright -->
+            <p style="margin-top: 0.5rem;">Connecting people with unforgettable experiences.</p> <!-- Tagline -->
         </div>
     </footer>
 
-    <!-- Supabase CDN SUPABASE TOOLKIT -->
+    <!-- Supabase CDN (Supabase JS SDK = my toolkit for talking to database/auth) -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <!-- Supabase Client API key -->
+    <!-- Supabase Client (creates supabaseClient with my project URL + API key, used in landing.js) -->
     <script src="lib/supabaseClient.js"></script>
-    <!-- Landing Page Script -->
+    <!-- Landing Page Script (handles search, loading categories/counties from Supabase, etc.) -->
     <script src="landing.js"></script>
 </body>
 </html>

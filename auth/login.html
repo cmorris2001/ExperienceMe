@@ -1,40 +1,49 @@
 
-<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html> <!-- Standard HTML5 document structure -->
+<html lang="en"> <!-- Page language set to English -->
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - ExperienceMe</title>
-    <link rel="stylesheet" href="../styles.css">
+    <meta charset="UTF-8"> <!-- Tells browser how to read all characters (UTF-8) -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- Makes layout responsive on phones -->
+    <title>Login - ExperienceMe</title> <!-- Title of this page -->
+    <link rel="stylesheet" href="../styles.css"> <!-- Linking my main global stylesheet -->
 </head>
+
 <body>
-    <!-- Navigation -->
+
+    <!-- Navigation (same style as landing page but simpler for auth pages) -->
     <nav>
         <div class="nav-container">
-            <a href="../landing.html" class="logo">ExperienceMe</a> <!--if user presses ExperienceMe directed to landing.html -->
+            <a href="../landing.html" class="logo">ExperienceMe</a> <!-- Clicking logo brings user back to landing page -->
+
             <div class="nav-links">
-                <a href="../landing.html#features">Features</a> <!--if user presses Features directed to landing.html -->
-                <a href="../landing.html#about">About</a> <!--if user presses About directed to landing.html -->
-                <a href="register.html">Don't have an account?</a> <!--if user presses "dont have an account" directed to register.html -->
+                <a href="../landing.html#features">Features</a> <!-- Scrolls user to features on landing page -->
+                <a href="../landing.html#about">About</a> <!-- Scrolls user to about section -->
+                <a href="register.html">Don't have an account?</a> <!-- Link to registration page -->
             </div>
         </div>
     </nav>
 
-    <!-- Login Form Section -->
+    <!-- Login Form Section (main area of this page) -->
     <section class="section">
         <div class="form-container">
             <div class="form-card">
-                <h1 style="text-align: center; margin-bottom: 0.5rem; color: var(--primary-color);">Welcome Back</h1>
+
+                <!-- Page heading + welcome text -->
+                <h1 style="text-align: center; margin-bottom: 0.5rem; color: var(--primary-color);">
+                    Welcome Back
+                </h1>
                 <p style="text-align: center; color: var(--text-secondary); margin-bottom: 2rem;">
                     Sign in to continue your adventure
                 </p>
 
-                <!-- Alert Messages -->
-                <div id="alertContainer"></div> <!-- This is here to say if log in was successful, originally put in for error handling but found it useful for actual platform -->
+                <!-- Alerts (success, errors, etc.) dynamically shown through JS -->
+                <div id="alertContainer"></div>
+                <!-- Originally planned only for errors but then became useful for success messages too -->
 
-                <!-- Login Form -->
+                <!-- Actual Login Form -->
                 <form id="loginForm">
-                    <!-- Email -->
+
+                    <!-- Email Input -->
                     <div class="form-group">
                         <label for="email">Email Address</label>
                         <input
@@ -43,9 +52,10 @@
                             name="email"
                             placeholder="you@example.com"
                             required
-                        >
+                        > <!-- Required so user must fill it -->
                     </div>
-                    <!-- Password input -->
+
+                    <!-- Password Input -->
                     <div class="form-group">
                         <label for="password">Password</label>
                         <input
@@ -56,45 +66,63 @@
                             required
                         >
                     </div>
-                     <!-- Remember me checkbox, so no nedd to re type in, basic login functionality from websites like Gera dovana, Tinggly -->
+
+                    <!-- Remember Me + Forgot Password Row -->
+                    <!-- Inspired by Gera Dovana, Tinggly, etc. Basic login UX -->
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+
+                        <!-- Remember Me checkbox (no typing password every time) -->
                         <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
                             <input type="checkbox" id="rememberMe">
-                            <span style="color: var(--text-secondary); font-size: 0.875rem;">Remember me</span>
+                            <span style="color: var(--text-secondary); font-size: 0.875rem;">
+                                Remember me
+                            </span>
                         </label>
-                        <!-- Forgot password button again just like gera dovana and tinggly except nothing happens when you press it  -->
+
+                        <!-- Forgot Password link (placeholder for now, not functional) -->
                         <a href="#" style="color: var(--primary-color); text-decoration: none; font-size: 0.875rem;">
                             Forgot password?
                         </a>
                     </div>
-                     <!-- submit button  -->
-                    <button type="submit" class="btn btn-primary" style="width: 100%;" id="submitBtn">
+
+                    <!-- Submit Button -->
+                    <button
+                        type="submit"
+                        class="btn btn-primary"
+                        style="width: 100%;"
+                        id="submitBtn"
+                    >
                         Sign In
                     </button>
                 </form>
-                    <!-- Dont have an account button the hrefs to register.html page -->
+
+                <!-- Link to register page if user doesn’t have an account -->
                 <p style="text-align: center; margin-top: 1.5rem; color: var(--text-secondary);">
                     Don't have an account?
                     <a href="register.html" style="color: var(--primary-color); text-decoration: none; font-weight: 500;">
                         Sign up
                     </a>
                 </p>
+
             </div>
         </div>
     </section>
 
-    <!-- Footer same on all pages, got to keep my rights -->
+    <!-- Footer (same on all site pages) -->
     <footer>
         <div class="footer-content">
             <p>&copy; 2025 ExperienceMe. All rights reserved.</p>
         </div>
     </footer>
 
-    <!-- Supabase Connect Delivery Network (CDN) basicaly my toolkit for supabase functions -->
+    <!-- Supabase CDN (main JS library for database/auth operations) -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <!-- Supabase Client which connects to my supabase project supabaseClient.js has my supabase url and api key -->
+
+    <!-- My Supabase Client (contains API keys and project URL) -->
     <script src="../lib/supabaseClient.js"></script>
-    <!-- Login Script this loads logic  -->
+
+    <!-- Page-specific login logic (validates form + calls Supabase auth) -->
     <script src="login.js"></script>
+
 </body>
 </html>

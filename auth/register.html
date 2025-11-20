@@ -1,38 +1,44 @@
-<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html> <!-- Standard HTML5 document declaration -->
+<html lang="en"> <!-- Page language set to English -->
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sign Up - ExperienceMe</title>
-    <link rel="stylesheet" href="../styles.css">
+    <meta charset="UTF-8"> <!-- Use UTF-8 so all characters display correctly -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- Makes layout responsive on mobile -->
+    <title>Sign Up - ExperienceMe</title> <!-- Title shown in browser tab -->
+    <link rel="stylesheet" href="../styles.css"> <!-- Main shared stylesheet for the site -->
 </head>
+
 <body>
-    <!-- Navigation -->
+    <!-- Navigation (top bar, same style as other pages) -->
     <nav>
         <div class="nav-container">
-            <a href="../landing.html" class="logo">ExperienceMe</a>
+            <a href="../landing.html" class="logo">ExperienceMe</a> <!-- Logo click sends user back to landing page -->
             <div class="nav-links">
-                <a href="../landing.html#features">Features</a>
-                <a href="../landing.html#about">About</a>
-                <a href="login.html">Already have an account?</a>
+                <a href="../landing.html#features">Features</a> <!-- Scrolls to Features section on landing page -->
+                <a href="../landing.html#about">About</a> <!-- Scrolls to About section on landing page -->
+                <a href="login.html">Already have an account?</a> <!-- Link to login page if user already registered -->
             </div>
         </div>
     </nav>
 
-    <!-- Registration Form Section -->
+    <!-- Registration Form Section (main content of this page) -->
     <section class="section">
         <div class="form-container">
             <div class="form-card">
-                <h1 style="text-align: center; margin-bottom: 0.5rem; color: var(--primary-color);">Create Your Account</h1>
+
+                <!-- Page heading + short description -->
+                <h1 style="text-align: center; margin-bottom: 0.5rem; color: var(--primary-color);">
+                    Create Your Account
+                </h1>
                 <p style="text-align: center; color: var(--text-secondary); margin-bottom: 2rem;">
                     Start discovering amazing experiences today
                 </p>
 
-                <!-- Alert Messages -->
+                <!-- Alert Messages (success / error messages shown here via JS) -->
                 <div id="alertContainer"></div>
 
-                <!-- Registration Form with name email password, confirm password, role-->
+                <!-- Registration Form with: name, email, password, confirm password, role -->
                 <form id="registerForm">
+                    <!-- Full Name -->
                     <div class="form-group">
                         <label for="fullName">Full Name</label>
                         <input
@@ -44,6 +50,7 @@
                         >
                     </div>
 
+                    <!-- Email Address -->
                     <div class="form-group">
                         <label for="email">Email Address</label>
                         <input
@@ -54,7 +61,8 @@
                             required
                         >
                     </div>
-                     <!-- Password criteria -->
+
+                    <!-- Password field with basic length rule -->
                     <div class="form-group">
                         <label for="password">Password</label>
                         <input
@@ -70,6 +78,7 @@
                         </small>
                     </div>
 
+                    <!-- Confirm Password (must match the password above, checked in JS) -->
                     <div class="form-group">
                         <label for="confirmPassword">Confirm Password</label>
                         <input
@@ -81,7 +90,8 @@
                             minlength="6"
                         >
                     </div>
-                    <!-- Role display and then actually value it holds if selecte3d e.g user (looking for experiences) selected then value is user -->
+
+                    <!-- Role selection: user vs business, stored as value in Supabase users table -->
                     <div class="form-group">
                         <label for="role">I am a...</label>
                         <select id="role" name="role" required>
@@ -90,33 +100,36 @@
                         </select>
                     </div>
 
+                    <!-- Submit button for creating account -->
                     <button type="submit" class="btn btn-primary" style="width: 100%;" id="submitBtn">
                         Create Account
                     </button>
                 </form>
-                <!-- Already have account then redirects to login.html  -->
+
+                <!-- If user already has an account, send them to login page -->
                 <p style="text-align: center; margin-top: 1.5rem; color: var(--text-secondary);">
                     Already have an account?
                     <a href="login.html" style="color: var(--primary-color); text-decoration: none; font-weight: 500;">
                         Sign in
                     </a>
                 </p>
+
             </div>
         </div>
     </section>
 
-    <!-- Footer Keeping rights -->
+    <!-- Footer keeping rights at the bottom of the page -->
     <footer>
         <div class="footer-content">
             <p> 2025 ExperienceMe. All rights reserved.</p>
         </div>
     </footer>
 
-    <!-- Supabase CDN supase toolkit called -->
+    <!-- Supabase CDN (Supabase JS SDK toolkit) -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <!-- Supabase Client API and URL -->
+    <!-- Supabase Client with API URL and key (centralised config) -->
     <script src="../lib/supabaseClient.js"></script>
-    <!-- Register Script -->
+    <!-- Register Script: handles form validation + Supabase sign up logic -->
     <script src="register.js"></script>
 </body>
 </html>

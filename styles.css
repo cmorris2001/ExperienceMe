@@ -6,79 +6,89 @@ Use CSS custom ExperienceMe color scheme with primary green (#00bf63), secondary
 /* ==========================================
    GLOBAL STYLES
    ========================================== */
+
+/* Reset default browser spacing and make box-model easier to work with */
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
 }
 
+/* CSS variables – central place for ExperienceMe colours, spacing, shadows etc. */
 :root {
-    --primary-color: #00bf63;
-    --primary-hover: #00a656;
-    --secondary-color: #7ed957;
-    --success-color: #00bf63;
-    --danger-color: #ef4444;
-    --warning-color: #f1d676;
-    --accent-yellow: #f1d676;
-    --background: #ffffff;
-    --surface: #f8fafc;
-    --text-primary: #000000;
-    --text-secondary: #4a5568;
-    --border-color: #e2e8f0;
-    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-    --radius-sm: 0.375rem;
-    --radius-md: 0.5rem;
-    --radius-lg: 0.75rem;
-    --radius-xl: 1rem;
+    --primary-color: #00bf63;         /* ExperienceMe main green */
+    --primary-hover: #00a656;         /* Slightly darker green for hover states */
+    --secondary-color: #7ed957;       /* Lime secondary colour */
+    --success-color: #00bf63;         /* Success uses same green */
+    --danger-color: #ef4444;          /* Red for errors / danger */
+    --warning-color: #f1d676;         /* Yellow for warnings */
+    --accent-yellow: #f1d676;         /* Accent yellow (highlight) */
+    --background: #ffffff;            /* Main page background */
+    --surface: #f8fafc;               /* Light grey for cards / sections */
+    --text-primary: #000000;          /* Main text colour */
+    --text-secondary: #4a5568;        /* Muted text colour */
+    --border-color: #e2e8f0;          /* Soft border colour */
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);   /* Small shadow for subtle depth */
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1); /* Medium shadow for hover */
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);/* Larger shadow for bigger cards */
+    --radius-sm: 0.375rem;            /* Small border radius */
+    --radius-md: 0.5rem;              /* Medium border radius */
+    --radius-lg: 0.75rem;             /* Large border radius */
+    --radius-xl: 1rem;                /* Extra large radius for forms/cards */
 }
 
+/* Base body styling for whole site */
 body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
         'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-        sans-serif;
+        sans-serif;                    /* System-style font stack */
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     background-color: var(--background);
     color: var(--text-primary);
-    line-height: 1.6;
+    line-height: 1.6;                  /* Better readability */
 }
 
 /* ==========================================
    NAVIGATION
    ========================================== */
+
+/* Main nav bar pinned to top */
 nav {
-    background-color: var(--background);
+    background-color: var(--background);      /* Same as page background */
     border-bottom: 1px solid var(--border-color);
     padding: 1rem 2rem;
-    position: sticky;
+    position: sticky;                         /* Sticks to top on scroll */
     top: 0;
-    z-index: 100;
-    box-shadow: var(--shadow-sm);
+    z-index: 100;                             /* Keeps nav above page content */
+    box-shadow: var(--shadow-sm);             /* Slight drop shadow */
 }
 
+/* Inner nav container – centres nav and sets max width */
 .nav-container {
     max-width: 1280px;
     margin: 0 auto;
     display: flex;
-    justify-content: space-between;
+    justify-content: space-between;  /* Logo on left, links on right */
     align-items: center;
 }
 
+/* ExperienceMe logo link */
 .logo {
     font-size: 1.5rem;
     font-weight: 700;
-    color: var(--primary-color);
+    color: var(--primary-color);     /* Green brand colour */
     text-decoration: none;
 }
 
+/* Wrapper for nav links */
 .nav-links {
     display: flex;
-    gap: 2rem;
+    gap: 2rem;                       /* Space between links */
     align-items: center;
 }
 
+/* Individual nav links */
 .nav-links a {
     text-decoration: none;
     color: var(--text-secondary);
@@ -87,6 +97,7 @@ nav {
     cursor: pointer;
 }
 
+/* Hover state for nav links */
 .nav-links a:hover {
     color: var(--primary-color);
 }
@@ -94,6 +105,8 @@ nav {
 /* ==========================================
    BUTTONS
    ========================================== */
+
+/* Base button style – reused for links that look like buttons as well */
 .btn {
     padding: 0.625rem 1.25rem;
     border-radius: var(--radius-md);
@@ -103,43 +116,50 @@ nav {
     transition: all 0.2s;
     border: none;
     text-decoration: none;
-    display: inline-block;
+    display: inline-block;           /* So anchors behave like buttons */
 }
 
+/* Main green button */
 .btn-primary {
     background-color: var(--primary-color);
     color: white;
 }
 
+/* Primary hover – lift + darker colour */
 .btn-primary:hover {
     background-color: var(--primary-hover);
     transform: translateY(-1px);
     box-shadow: var(--shadow-md);
 }
 
+/* Outline style button using primary colour */
 .btn-secondary {
     background-color: transparent;
     color: var(--primary-color);
     border: 1px solid var(--primary-color);
 }
 
+/* Secondary hover fills in with green */
 .btn-secondary:hover {
     background-color: var(--primary-color);
     color: white;
 }
 
+/* Yellow accent button – used for special CTAs */
 .btn-accent {
     background-color: var(--accent-yellow);
     color: var(--text-primary);
     border: none;
 }
 
+/* Accent hover – slightly darker yellow + lift */
 .btn-accent:hover {
     background-color: #e8c960;
     transform: translateY(-1px);
     box-shadow: var(--shadow-md);
 }
 
+/* Larger button version for hero area */
 .btn-large {
     padding: 0.875rem 2rem;
     font-size: 1rem;
@@ -148,18 +168,22 @@ nav {
 /* ==========================================
    HERO SECTION
    ========================================== */
+
+/* Big coloured top banner on landing + user explore page */
 .hero {
-    background: linear-gradient(135deg, #00bf63 0%, #7ed957 100%);
+    background: linear-gradient(135deg, #00bf63 0%, #7ed957 100%); /* Green → Lime gradient */
     color: white;
     padding: 6rem 2rem;
     text-align: center;
 }
 
+/* Centers hero content and limits width */
 .hero-content {
     max-width: 800px;
     margin: 0 auto;
 }
 
+/* Main headline text */
 .hero h1 {
     font-size: 3.5rem;
     margin-bottom: 1.5rem;
@@ -167,19 +191,22 @@ nav {
     line-height: 1.1;
 }
 
+/* Subheading text */
 .hero p {
     font-size: 1.25rem;
     margin-bottom: 2rem;
     opacity: 0.95;
 }
 
+/* Layout for hero buttons (if used) */
 .hero-buttons {
     display: flex;
     gap: 1rem;
     justify-content: center;
-    flex-wrap: wrap;
+    flex-wrap: wrap;          /* Wrap on mobile */
 }
 
+/* Search bar container in hero */
 .hero-search {
     display: flex;
     gap: 1rem;
@@ -188,6 +215,7 @@ nav {
     align-items: stretch;
 }
 
+/* Text input for search bar */
 .search-input {
     flex: 1;
     padding: 1rem 1.5rem;
@@ -197,6 +225,7 @@ nav {
     box-shadow: var(--shadow-md);
 }
 
+/* Focus state for search input – white outline inside gradient */
 .search-input:focus {
     outline: 3px solid rgba(255, 255, 255, 0.3);
 }
@@ -204,13 +233,16 @@ nav {
 /* ==========================================
    IMAGE GRID LAYOUT
    ========================================== */
+
+/* Generic grid used for categories + counties card layout */
 .image-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); /* Responsive columns */
     gap: 1.5rem;
     margin-top: 2rem;
 }
 
+/* Individual clickable image card (category/county) */
 .image-card {
     position: relative;
     border-radius: var(--radius-lg);
@@ -218,21 +250,24 @@ nav {
     cursor: pointer;
     transition: transform 0.3s, box-shadow 0.3s;
     box-shadow: var(--shadow-md);
-    aspect-ratio: 4/3;
+    aspect-ratio: 4/3;  /* Keeps consistent image aspect ratio */
 }
 
+/* Hover lift effect for cards */
 .image-card:hover {
     transform: translateY(-8px);
     box-shadow: var(--shadow-lg);
 }
 
+/* Base image inside card */
 .image-card img {
     width: 100%;
     height: 100%;
-    object-fit: cover;
+    object-fit: cover;  /* Crop instead of squashing */
     display: block;
 }
 
+/* Dark gradient overlay at bottom of card for text readability */
 .image-card-overlay {
     position: absolute;
     bottom: 0;
@@ -243,6 +278,7 @@ nav {
     color: white;
 }
 
+/* Category / county title on top of image */
 .image-card-title {
     font-size: 1.25rem;
     font-weight: 700;
@@ -250,6 +286,7 @@ nav {
     text-shadow: 0 2px 4px rgba(0,0,0,0.3);
 }
 
+/* Generic loading text style */
 .loading {
     text-align: center;
     color: var(--text-secondary);
@@ -260,6 +297,8 @@ nav {
 /* ==========================================
    FEATURES SIMPLE
    ========================================== */
+
+/* Simple feature grid used on landing page */
 .features-simple {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -267,16 +306,19 @@ nav {
     margin-top: 2rem;
 }
 
+/* Individual feature item */
 .feature-item {
     text-align: center;
 }
 
+/* Feature title */
 .feature-item h3 {
     font-size: 1.5rem;
     margin-bottom: 0.5rem;
     color: var(--text-primary);
 }
 
+/* Feature description */
 .feature-item p {
     color: var(--text-secondary);
 }
@@ -284,10 +326,13 @@ nav {
 /* ==========================================
    SECTIONS
    ========================================== */
+
+/* Generic section spacing used across pages */
 .section {
     padding: 4rem 2rem;
 }
 
+/* Standard section heading style */
 .section-title {
     font-size: 2.5rem;
     text-align: center;
@@ -296,6 +341,7 @@ nav {
     color: var(--text-primary);
 }
 
+/* Main width container used throughout app */
 .container {
     max-width: 1280px;
     margin: 0 auto;
@@ -304,6 +350,8 @@ nav {
 /* ==========================================
    CARDS / GRID
    ========================================== */
+
+/* Generic grid layout for cards */
 .card-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -311,6 +359,7 @@ nav {
     margin-top: 2rem;
 }
 
+/* Generic card style for information blocks */
 .card {
     background: var(--background);
     border: 1px solid var(--border-color);
@@ -320,17 +369,20 @@ nav {
     box-shadow: var(--shadow-sm);
 }
 
+/* Card hover effect – subtle lift */
 .card:hover {
     transform: translateY(-4px);
     box-shadow: var(--shadow-lg);
 }
 
+/* Card title */
 .card h3 {
     font-size: 1.5rem;
     margin-bottom: 1rem;
     color: var(--text-primary);
 }
 
+/* Card body text */
 .card p {
     color: var(--text-secondary);
     line-height: 1.6;
@@ -339,12 +391,15 @@ nav {
 /* ==========================================
    FORMS
    ========================================== */
+
+/* Wrapper for form pages (login/register) */
 .form-container {
     max-width: 450px;
     margin: 0 auto;
     padding: 2rem;
 }
 
+/* Form card styling (white card in middle) */
 .form-card {
     background: var(--background);
     padding: 2.5rem;
@@ -353,10 +408,12 @@ nav {
     border: 1px solid var(--border-color);
 }
 
+/* Group label + input together with spacing */
 .form-group {
     margin-bottom: 1.5rem;
 }
 
+/* Labels above inputs */
 .form-group label {
     display: block;
     margin-bottom: 0.5rem;
@@ -364,6 +421,7 @@ nav {
     color: var(--text-primary);
 }
 
+/* Text inputs, selects, textarea basic style */
 .form-group input,
 .form-group select,
 .form-group textarea {
@@ -373,9 +431,10 @@ nav {
     border-radius: var(--radius-md);
     font-size: 1rem;
     transition: border-color 0.2s;
-    font-family: inherit;
+    font-family: inherit; /* Keep same font as body */
 }
 
+/* Focus states for form elements */
 .form-group input:focus,
 .form-group select:focus,
 .form-group textarea:focus {
@@ -384,17 +443,20 @@ nav {
     box-shadow: 0 0 0 3px rgba(0, 191, 99, 0.1);
 }
 
+/* Allow textarea to grow only vertically */
 .form-group textarea {
     resize: vertical;
     min-height: 120px;
 }
 
+/* Error text under input */
 .form-error {
     color: var(--danger-color);
     font-size: 0.875rem;
     margin-top: 0.25rem;
 }
 
+/* Success text under input */
 .form-success {
     color: var(--success-color);
     font-size: 0.875rem;
@@ -404,6 +466,8 @@ nav {
 /* ==========================================
    ALERTS
    ========================================== */
+
+/* Base alert style (box for messages) */
 .alert {
     padding: 1rem 1.25rem;
     border-radius: var(--radius-md);
@@ -412,18 +476,21 @@ nav {
     font-size: 0.95rem;
 }
 
+/* Green success alert */
 .alert-success {
     background-color: #d1fae5;
     border-color: var(--success-color);
     color: #065f46;
 }
 
+/* Red error alert */
 .alert-error {
     background-color: #fee2e2;
     border-color: var(--danger-color);
     color: #991b1b;
 }
 
+/* Blue-ish info alert */
 .alert-info {
     background-color: #dbeafe;
     border-color: var(--primary-color);
@@ -433,6 +500,8 @@ nav {
 /* ==========================================
    FOOTER
    ========================================== */
+
+/* Footer shared across all pages */
 footer {
     background-color: var(--surface);
     border-top: 1px solid var(--border-color);
@@ -440,6 +509,7 @@ footer {
     margin-top: 4rem;
 }
 
+/* Footer inner content – centred text */
 .footer-content {
     max-width: 1280px;
     margin: 0 auto;
@@ -450,20 +520,25 @@ footer {
 /* ==========================================
    UTILITIES
    ========================================== */
+
+/* Helper class to centre text */
 .text-center {
     text-align: center;
 }
 
+/* Margin top utilities – used inline on elements */
 .mt-1 { margin-top: 0.5rem; }
 .mt-2 { margin-top: 1rem; }
 .mt-3 { margin-top: 1.5rem; }
 .mt-4 { margin-top: 2rem; }
 
+/* Margin bottom utilities */
 .mb-1 { margin-bottom: 0.5rem; }
 .mb-2 { margin-bottom: 1rem; }
 .mb-3 { margin-bottom: 1.5rem; }
 .mb-4 { margin-bottom: 2rem; }
 
+/* Utility to hide elements (used for sections/tabs) */
 .hidden {
     display: none;
 }
@@ -471,15 +546,19 @@ footer {
 /* ==========================================
    BUSINESS DASHBOARD
    ========================================== */
+
+/* Main wrapper class for a section in dashboard (also used in admin) */
 .dashboard-section {
-    animation: fadeIn 0.3s ease-in;
+    animation: fadeIn 0.3s ease-in; /* Simple fade-in animation on change */
 }
 
+/* Reusable fade in animation used above */
 @keyframes fadeIn {
     from { opacity: 0; transform: translateY(10px); }
     to { opacity: 1; transform: translateY(0); }
 }
 
+/* Tabs for filtering experiences (draft/pending/etc.) */
 .status-tabs {
     display: flex;
     gap: 0.5rem;
@@ -487,6 +566,7 @@ footer {
     margin-bottom: 1.5rem;
 }
 
+/* Individual filter tab */
 .status-tab {
     padding: 0.5rem 1rem;
     border: 1px solid var(--border-color);
@@ -497,25 +577,27 @@ footer {
     font-weight: 500;
 }
 
+/* Hover for filter tabs */
 .status-tab:hover {
     background: var(--surface);
     border-color: var(--primary-color);
 }
 
+/* Active tab – filled in with primary colour */
 .status-tab.active {
     background: var(--primary-color);
     color: white;
     border-color: var(--primary-color);
 }
 
-/* Experiences Grid Layout */
+/* Experiences Grid Layout – used on business + admin dashboards */
 .experiences-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
     gap: 1.5rem;
 }
 
-/* Experience Card - Grid Style */
+/* Experience Card container */
 .experience-card {
     background: white;
     border: 1px solid var(--border-color);
@@ -525,713 +607,41 @@ footer {
     box-shadow: var(--shadow-sm);
 }
 
+/* Experience Card hover */
 .experience-card:hover {
     transform: translateY(-4px);
     box-shadow: var(--shadow-lg);
 }
 
+/* Image area at top of experience card */
 .experience-image {
     position: relative;
     width: 100%;
     height: 200px;
     background-size: cover;
     background-position: center;
-    background-color: var(--surface);
+    background-color: var(--surface); /* Fallback if no image */
 }
 
+/* If image tag used instead of background image */
 .experience-image img {
     width: 100%;
     height: 100%;
     object-fit: cover;
 }
 
+/* Text content area of experience card */
 .experience-content {
     padding: 1.25rem;
 }
 
+/* Experience title */
 .experience-content h3 {
     margin: 0 0 0.5rem 0;
     font-size: 1.125rem;
     color: var(--text-primary);
 }
 
+/* Short description text inside card */
 .experience-description {
-    color: var(--text-secondary);
-    margin-bottom: 1rem;
-    font-size: 0.9rem;
-    line-height: 1.5;
-}
-
-.experience-meta {
-    display: flex;
-    gap: 0.5rem;
-    margin-bottom: 1rem;
-    color: var(--text-secondary);
-    font-size: 0.875rem;
-    flex-wrap: wrap;
-}
-
-.experience-footer {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding-top: 1rem;
-    border-top: 1px solid var(--border-color);
-    margin-top: 1rem;
-}
-
-.experience-price {
-    font-weight: 600;
-    color: var(--primary-color);
-    font-size: 1rem;
-}
-
-.experience-actions {
-    display: flex;
-    gap: 0.5rem;
-    flex-wrap: wrap;
-}
-
-.btn-icon {
-    background: none;
-    border: none;
-    font-size: 1.2rem;
-    cursor: pointer;
-    padding: 0.25rem 0.5rem;
-    border-radius: var(--radius-sm);
-    transition: background 0.2s;
-}
-
-.btn-icon:hover {
-    background: var(--surface);
-}
-
-.status-badge {
-    position: absolute;
-    top: 0.5rem;
-    right: 0.5rem;
-    padding: 0.35rem 0.75rem;
-    border-radius: 20px;
-    font-size: 0.75rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-
-.status-draft {
-    background: #e2e8f0;
-    color: #475569;
-}
-
-.status-pending {
-    background: #fef3c7;
-    color: #92400e;
-}
-
-.status-approved {
-    background: #d1fae5;
-    color: #065f46;
-}
-
-.status-rejected {
-    background: #fee2e2;
-    color: #991b1b;
-}
-
-.status-archived {
-    background: #f1f5f9;
-    color: #64748b;
-}
-
-.status-active {
-    background: #d1fae5;
-    color: #065f46;
-}
-
-.btn-sm {
-    padding: 0.375rem 0.75rem;
-    font-size: 0.875rem;
-}
-
-.empty-state {
-    text-align: center;
-    padding: 4rem 2rem;
-    color: var(--text-secondary);
-}
-
-.empty-state h3 {
-    margin-bottom: 0.5rem;
-    color: var(--text-primary);
-}
-
-.experience-form {
-    max-width: 900px;
-}
-
-.form-row {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 1.5rem;
-    margin-bottom: 1.5rem;
-}
-
-.image-input-group {
-    display: flex;
-    gap: 0.5rem;
-    align-items: center;
-    margin-bottom: 0.75rem;
-}
-
-.image-url-input {
-    flex: 1;
-    padding: 0.75rem;
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-md);
-    font-size: 0.95rem;
-}
-
-.image-url-input:focus {
-    outline: none;
-    border-color: var(--primary-color);
-    box-shadow: 0 0 0 3px rgba(0, 191, 99, 0.1);
-}
-
-.primary-badge {
-    background: var(--warning-color);
-    color: var(--text-primary);
-    padding: 0.35rem 0.75rem;
-    border-radius: 20px;
-    font-size: 0.75rem;
-    font-weight: 600;
-    white-space: nowrap;
-}
-
-.btn-remove {
-    background: var(--danger-color);
-    color: white;
-    border: none;
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    cursor: pointer;
-    font-size: 1.2rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: background 0.2s;
-}
-
-.btn-remove:hover {
-    background: #dc2626;
-}
-
-.form-actions {
-    display: flex;
-    gap: 1rem;
-    margin-top: 2rem;
-    padding-top: 2rem;
-    border-top: 1px solid var(--border-color);
-}
-
-.form-actions button {
-    flex: 1;
-}
-
-/* Image Upload Styles */
-.image-upload-container {
-    margin-bottom: 1.5rem;
-}
-
-.image-upload-dropzone {
-    border: 2px dashed var(--border-color);
-    border-radius: var(--radius-md);
-    padding: 3rem 2rem;
-    text-align: center;
-    cursor: pointer;
-    transition: all 0.3s;
-    background: var(--surface);
-}
-
-.image-upload-dropzone:hover {
-    border-color: var(--primary-color);
-    background: rgba(0, 191, 99, 0.05);
-}
-
-.upload-icon {
-    font-size: 3rem;
-    margin-bottom: 1rem;
-}
-
-.image-previews-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-    gap: 1rem;
-    margin-top: 1rem;
-}
-
-.image-preview-item {
-    position: relative;
-    aspect-ratio: 1;
-    border-radius: var(--radius-md);
-    overflow: hidden;
-    border: 2px solid var(--border-color);
-    background: var(--surface);
-}
-
-.image-preview-item img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
-.image-preview-overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.3);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    opacity: 0;
-    transition: opacity 0.2s;
-}
-
-.image-preview-item:hover .image-preview-overlay {
-    opacity: 1;
-}
-
-.btn-preview-remove {
-    background: var(--danger-color);
-    color: white;
-    border: none;
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    cursor: pointer;
-    font-size: 1.5rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.2s;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-}
-
-.btn-preview-remove:hover {
-    background: #dc2626;
-    transform: translate(-50%, -50%) scale(1.1);
-}
-
-.image-preview-overlay .primary-badge {
-    position: absolute;
-    top: 0.5rem;
-    left: 0.5rem;
-}
-
-.upload-success {
-    position: absolute;
-    top: 0.5rem;
-    right: 0.5rem;
-    background: var(--success-color);
-    color: white;
-    width: 28px;
-    height: 28px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: bold;
-    font-size: 1.125rem;
-}
-
-.upload-progress {
-    padding: 1rem;
-    background: var(--surface);
-    border-radius: var(--radius-md);
-    margin-top: 1rem;
-    text-align: center;
-}
-
-.upload-progress.hidden {
-    display: none;
-}
-
-/* ==========================================
-   RESPONSIVE - BUSINESS DASHBOARD
-   ========================================== */
-@media (max-width: 768px) {
-    .experiences-grid {
-        grid-template-columns: 1fr;
-    }
-
-    .experience-card {
-        flex-direction: column;
-    }
-
-    .experience-image {
-        width: 100%;
-        height: 200px;
-    }
-
-    .form-row {
-        grid-template-columns: 1fr;
-    }
-
-    .form-actions {
-        flex-direction: column;
-    }
-
-    .status-tabs {
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
-    }
-
-    .status-tab {
-        white-space: nowrap;
-    }
-
-    .image-upload-dropzone {
-        padding: 2rem 1rem;
-    }
-
-    .image-previews-grid {
-        grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-    }
-
-    .upload-icon {
-        font-size: 2rem;
-    }
-}
-
-/* ==========================================
-   RESPONSIVE
-   ========================================== */
-@media (max-width: 768px) {
-    .hero h1 {
-        font-size: 2.5rem;
-    }
-
-    .hero p {
-        font-size: 1rem;
-    }
-
-    .section-title {
-        font-size: 2rem;
-    }
-
-    .nav-links {
-        gap: 1rem;
-    }
-
-    .card-grid {
-        grid-template-columns: 1fr;
-    }
-}
-
-/* ==========================================
-   ADMIN DASHBOARD STYLES
-   ========================================== */
-
-/* Stats Grid for Dashboard Overview */
-.stats-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 1.5rem;
-    margin-top: 2rem;
-}
-
-.stat-card {
-    text-align: center;
-    padding: 2rem;
-}
-
-.stat-card h3 {
-    font-size: 0.9rem;
-    color: var(--text-secondary);
-    margin-bottom: 1rem;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-
-.stat-number {
-    font-size: 3rem;
-    font-weight: 700;
-    color: var(--primary-color);
-    margin: 0;
-}
-
-/* Admin Section Styles */
-.dashboard-section {
-    animation: fadeIn 0.3s ease-in;
-}
-
-.dashboard-section.hidden {
-    display: none;
-}
-
-/* Approval Queue Styles */
-.approval-stats {
-    display: flex;
-    gap: 1.5rem;
-    margin: 2rem 0;
-    flex-wrap: wrap;
-}
-
-.approval-stat {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    background: white;
-    padding: 1.5rem;
-    border-radius: var(--radius-lg);
-    border: 1px solid var(--border-color);
-    flex: 1;
-    min-width: 200px;
-}
-
-.stat-icon {
-    font-size: 2rem;
-}
-
-.stat-label {
-    font-size: 0.875rem;
-    color: var(--text-secondary);
-    margin-bottom: 0.25rem;
-}
-
-.stat-value {
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: var(--text-primary);
-}
-
-/* Approval Tabs */
-.approval-tabs {
-    display: flex;
-    gap: 0.5rem;
-    margin-bottom: 1.5rem;
-    flex-wrap: wrap;
-    align-items: center;
-}
-
-.approval-tab {
-    padding: 0.75rem 1.5rem;
-    background: white;
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-md);
-    cursor: pointer;
-    transition: all 0.2s;
-    font-weight: 500;
-}
-
-.approval-tab:hover {
-    border-color: var(--primary-color);
-    background: rgba(0, 191, 99, 0.05);
-}
-
-.approval-tab.active {
-    background: var(--primary-color);
-    color: white;
-    border-color: var(--primary-color);
-}
-
-/* RBAC Notice */
-.rbac-notice {
-    background: #f0f9ff;
-    border-left: 4px solid #0ea5e9;
-    padding: 1rem 1.5rem;
-    margin-bottom: 2rem;
-    border-radius: var(--radius-md);
-    font-size: 0.875rem;
-    color: #075985;
-}
-
-.rbac-notice a {
-    text-decoration: underline;
-}
-
-/* Approval Queue Cards */
-.approval-queue {
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-}
-
-.approval-card {
-    display: grid;
-    grid-template-columns: 100px 1fr auto;
-    gap: 1.5rem;
-    background: white;
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-lg);
-    padding: 1.5rem;
-    transition: box-shadow 0.2s;
-}
-
-.approval-card:hover {
-    box-shadow: var(--shadow-md);
-}
-
-.approval-thumbnail {
-    width: 100px;
-    height: 100px;
-    border-radius: var(--radius-md);
-    object-fit: cover;
-    background: var(--surface);
-}
-
-.approval-content {
-    flex: 1;
-}
-
-.approval-header {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    margin-bottom: 0.5rem;
-}
-
-.approval-badge {
-    padding: 0.25rem 0.75rem;
-    border-radius: 20px;
-    font-size: 0.75rem;
-    font-weight: 600;
-    text-transform: uppercase;
-}
-
-.badge-submitted {
-    background: #fef3c7;
-    color: #92400e;
-}
-
-.badge-pending {
-    background: #dbeafe;
-    color: #1e40af;
-}
-
-.approval-title {
-    font-size: 1.25rem;
-    font-weight: 600;
-    color: var(--text-primary);
-    margin: 0;
-}
-
-.approval-meta {
-    display: flex;
-    gap: 1.5rem;
-    font-size: 0.875rem;
-    color: var(--text-secondary);
-    margin: 0.5rem 0;
-}
-
-.approval-meta span {
-    display: flex;
-    align-items: center;
-    gap: 0.25rem;
-}
-
-.approval-details {
-    margin-top: 1rem;
-    padding-top: 1rem;
-    border-top: 1px solid var(--border-color);
-}
-
-.approval-detail-item {
-    margin-bottom: 0.75rem;
-}
-
-.approval-detail-label {
-    font-size: 0.75rem;
-    color: var(--text-secondary);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    margin-bottom: 0.25rem;
-}
-
-.approval-detail-value {
-    font-size: 0.875rem;
-    color: var(--text-primary);
-}
-
-.approval-actions {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-    align-items: flex-end;
-}
-
-.approval-notes {
-    width: 100%;
-    max-width: 300px;
-}
-
-.approval-notes textarea {
-    width: 100%;
-    padding: 0.75rem;
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-md);
-    font-size: 0.875rem;
-    resize: vertical;
-    min-height: 80px;
-}
-
-.approval-buttons {
-    display: flex;
-    gap: 0.5rem;
-}
-
-.btn-reject {
-    background: var(--danger-color);
-    color: white;
-    padding: 0.5rem 1rem;
-    border-radius: var(--radius-md);
-    border: none;
-    cursor: pointer;
-    font-weight: 500;
-    transition: all 0.2s;
-}
-
-.btn-reject:hover {
-    background: #dc2626;
-    transform: translateY(-1px);
-}
-
-.btn-approve {
-    background: var(--success-color);
-    color: white;
-    padding: 0.5rem 1rem;
-    border-radius: var(--radius-md);
-    border: none;
-    cursor: pointer;
-    font-weight: 500;
-    transition: all 0.2s;
-}
-
-.btn-approve:hover {
-    background: #059669;
-    transform: translateY(-1px);
-}
-
-/* Responsive */
-@media (max-width: 768px) {
-    .approval-card {
-        grid-template-columns: 1fr;
-    }
-
-    .approval-thumbnail {
-        width: 100%;
-        height: 200px;
-    }
-
-    .approval-actions {
-        align-items: stretch;
-    }
-
-    .approval-notes {
-        max-width: 100%;
-    }
-}
+    color: var(--text-se
