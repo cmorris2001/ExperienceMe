@@ -644,4 +644,475 @@ footer {
 
 /* Short description text inside card */
 .experience-description {
-    color: var(--text-se
+    color: var(--text-section)
+}
+
+/* ==========================================
+   EXPLORE PAGE (experiences.html) LAYOUT FIX
+   - Sidebar filters on left
+   - 3 cards per row
+   - Scoped so it doesn't affect dashboard cards
+   ========================================== */
+
+.container-wide {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+.explore-layout {
+  display: grid;
+  grid-template-columns: 280px 1fr; /* sidebar + results */
+  gap: 2rem;
+  align-items: start;
+  padding: 2rem 0;
+}
+
+/* Sidebar */
+.filters-sidebar {
+  background: var(--surface);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 1.25rem;
+  box-shadow: var(--shadow-sm);
+  position: sticky;
+  top: 90px; /* sits under your sticky nav */
+}
+
+.filters-title {
+  font-size: 1.1rem;
+  margin-bottom: 1rem;
+}
+
+.filter-block {
+  margin-bottom: 1rem;
+}
+
+.filter-label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 0.35rem;
+  color: var(--text-primary);
+}
+
+.select-input {
+  width: 100%;
+  padding: 0.65rem 0.8rem;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  background: #fff;
+}
+
+.filters-actions {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 0.75rem;
+}
+
+.filters-actions .btn {
+  width: 100%;
+}
+
+/* Results panel */
+.results-panel {
+  min-width: 0; /* prevents grid overflow */
+}
+
+.results-topbar {
+  display: flex;
+  justify-content: center;
+  padding: 0.25rem 0 1rem 0;
+  color: var(--text-secondary);
+}
+
+/* Card grid: 3 per row */
+.explore-marketplace .cards-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1.5rem;
+}
+
+/* Scoped card styles for Explore page ONLY (prevents dashboard CSS conflicts) */
+.explore-marketplace .experience-card {
+  background: #fff;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  transition: transform 0.2s, box-shadow 0.2s;
+  cursor: pointer;
+}
+
+.explore-marketplace .experience-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-lg);
+}
+
+.explore-marketplace .experience-card-img {
+  width: 100%;
+  height: 180px;        /* key: stops massive images */
+  object-fit: cover;
+  display: block;
+}
+
+.explore-marketplace .experience-card-body {
+  padding: 1rem;
+}
+
+.explore-marketplace .experience-card-body h3 {
+  font-size: 1.1rem;
+  margin: 0 0 0.35rem 0;
+  line-height: 1.25;
+}
+
+.explore-marketplace .experience-card-body .location {
+  margin: 0 0 0.5rem 0;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+.explore-marketplace .experience-card-body .description {
+  margin: 0 0 0.75rem 0;
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+}
+
+.explore-marketplace .experience-card-body .business {
+  margin: 0;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+/* Responsive: 2 per row, then 1 per row + sidebar stacks */
+@media (max-width: 1024px) {
+  .explore-layout {
+    grid-template-columns: 260px 1fr;
+  }
+  .explore-marketplace .cards-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 768px) {
+  .explore-layout {
+    grid-template-columns: 1fr;
+  }
+  .filters-sidebar {
+    position: static;
+  }
+  .explore-marketplace .cards-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ==========================================
+   DETAILED EXPERIENCE PAGE (detailed_experience.html)
+   - Green header like mock
+   - Gallery card + thumbs + chips
+   - Sticky booking card on right
+   ========================================== */
+
+.detail-page {
+  background: #ffffff;
+}
+
+/* Breadcrumb */
+.detail-page .breadcrumb {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  padding: 1.25rem 0 0.75rem 0;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+.detail-page .breadcrumb a {
+  color: var(--text-secondary);
+  text-decoration: none;
+}
+.detail-page .breadcrumb a:hover {
+  color: var(--primary-color);
+}
+
+/* Green header block (title + meta) */
+.detail-page .detail-header {
+  background: linear-gradient(135deg, #00bf63 0%, #7ed957 100%);
+  border-radius: var(--radius-lg);
+  padding: 2rem 2rem;
+  color: #fff;
+  box-shadow: var(--shadow-sm);
+  margin-bottom: 1.75rem;
+}
+.detail-page .detail-header h1 {
+  font-size: 2.25rem;
+  font-weight: 800;
+  line-height: 1.1;
+  margin: 0 0 0.5rem 0;
+}
+.detail-page .detail-meta {
+  margin: 0;
+  opacity: 0.95;
+  font-weight: 500;
+}
+
+/* Two-column layout */
+.detail-page .detail-layout {
+  display: grid;
+  grid-template-columns: 1.6fr 1fr;
+  gap: 1.75rem;
+  align-items: start;
+}
+
+/* LEFT: gallery card */
+.detail-page .detail-gallery {
+  background: #fff;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  padding: 1.25rem;
+}
+
+/* Main image */
+.detail-page .detail-main-image {
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  border: 1px solid var(--border-color);
+  background: var(--surface);
+}
+.detail-page .detail-main-image img {
+  width: 100%;
+  height: 360px;           /* keeps it like the mock */
+  object-fit: cover;
+  display: block;
+}
+
+/* Thumbnails row */
+.detail-page .detail-thumbnails {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin-top: 0.9rem;
+}
+.detail-page .detail-thumb {
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  border: 1px solid var(--border-color);
+  background: var(--surface);
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+.detail-page .detail-thumb:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+.detail-page .detail-thumb img {
+  width: 100%;
+  height: 86px;
+  object-fit: cover;
+  display: block;
+}
+
+/* Chips (if you keep chipsRow in HTML) */
+.detail-page .detail-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin-top: 1rem;
+}
+.detail-page .detail-chip {
+  background: var(--surface);
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  padding: 0.35rem 0.7rem;
+  border-radius: 999px;
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+/* Description */
+.detail-page .detail-description {
+  margin-top: 1rem;
+  color: var(--text-secondary);
+  line-height: 1.65;
+  font-size: 1rem;
+}
+
+/* Section blocks on left (Host etc.) */
+.detail-page .detail-section {
+  margin-top: 1.25rem;
+}
+.detail-page .detail-section h3 {
+  font-size: 1.05rem;
+  margin: 0;
+  font-weight: 800;
+}
+
+/* RIGHT: booking + sections */
+.detail-page .detail-side {
+  position: relative;
+}
+
+/* Booking card */
+.detail-page .booking-card {
+  position: sticky;
+  top: 92px; /* sits under sticky nav */
+  background: #fff;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  padding: 1.25rem;
+}
+
+/* Top row (From + badge) */
+.detail-page .booking-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 0.9rem;
+}
+
+.detail-page .booking-price {
+  font-size: 1.75rem;
+  font-weight: 900;
+  line-height: 1;
+  margin-top: 0.25rem;
+}
+
+/* Small pill badge (free cancellation / duration etc.) */
+.detail-page .badge-pill {
+  background: var(--surface);
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  padding: 0.35rem 0.7rem;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+/* Price box */
+.detail-page .price-box {
+  background: var(--surface);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 0.9rem;
+  margin-bottom: 0.9rem;
+}
+.detail-page .price-box-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+}
+.detail-page .price-box-row strong {
+  color: var(--text-primary);
+}
+
+/* Booking note */
+.detail-page .booking-note {
+  background: #f0fdf4; /* subtle green tint */
+  border: 1px solid rgba(0,191,99,0.25);
+  color: #166534;
+  padding: 0.85rem 0.9rem;
+  border-radius: var(--radius-lg);
+  font-size: 0.9rem;
+  line-height: 1.5;
+  margin-bottom: 0.9rem;
+}
+
+/* Primary CTA button */
+.detail-page .btn-booking {
+  width: 100%;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 0.9rem 1rem;
+  border-radius: 999px;
+  background: var(--primary-color);
+  color: #fff;
+  text-decoration: none;
+  font-weight: 800;
+  transition: transform 0.15s, background-color 0.15s, box-shadow 0.15s;
+  box-shadow: var(--shadow-sm);
+}
+.detail-page .btn-booking:hover {
+  background: var(--primary-hover);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
+/* Save + Share buttons */
+.detail-page .booking-actions {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 0.9rem;
+}
+.detail-page .btn-light {
+  flex: 1;
+  background: #fff;
+  border: 1px solid var(--border-color);
+  border-radius: 999px;
+  padding: 0.65rem 0.85rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.15s, border-color 0.15s, color 0.15s;
+}
+.detail-page .btn-light:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+  border-color: rgba(0,191,99,0.45);
+  color: var(--primary-color);
+}
+
+/* Right-side detail sections */
+.detail-page .detail-sections {
+  margin-top: 1rem;
+  display: grid;
+  gap: 1rem;
+}
+.detail-page .detail-sections .detail-section {
+  background: #fff;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  padding: 1.1rem 1.25rem;
+}
+.detail-page .detail-sections ul {
+  margin-top: 0.6rem;
+  padding-left: 1.1rem;
+  color: var(--text-secondary);
+}
+.detail-page .detail-sections li {
+  margin: 0.35rem 0;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .detail-page .detail-layout {
+    grid-template-columns: 1fr;
+  }
+  .detail-page .booking-card {
+    position: static;
+  }
+  .detail-page .detail-main-image img {
+    height: 320px;
+  }
+}
+
+@media (max-width: 640px) {
+  .detail-page .detail-header {
+    padding: 1.5rem 1.25rem;
+  }
+  .detail-page .detail-header h1 {
+    font-size: 1.75rem;
+  }
+  .detail-page .detail-thumbnails {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .detail-page .detail-thumb img {
+    height: 96px;
+  }
+}

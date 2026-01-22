@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ExperienceMe - Explore Experiences</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <!-- =============================
+       TOP NAV (Guest vs Logged-in)
+       ============================= -->
+  <nav>
+    <div class="nav-container">
+      <a href="landing.html" class="logo">ExperienceMe</a>
+
+      <!-- Guest nav -->
+      <div class="nav-links" id="navGuest">
+        <a href="experiences.html">Explore</a>
+        <a href="landing.html#features">Features</a>
+        <a href="auth/login.html" class="btn btn-secondary">Login</a>
+        <a href="auth/register.html" class="btn btn-primary">Sign Up</a>
+      </div>
+
+      <!-- Logged-in nav -->
+      <div class="nav-links" id="navUser" style="display:none;">
+        <a href="experiences.html">Explore</a>
+        <a href="dashboards/user.html">Favourites</a>
+        <a href="giftfinder.html">Gift Finder</a>
+        <button class="btn btn-secondary" id="btnSignOut" type="button">Sign Out</button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- =============================
+       HERO (Search lives here)
+       ============================= -->
+  <section class="hero hero-small">
+    <div class="hero-content">
+      <h1>Explore Irish Experiences</h1>
+      <p>Search and filter experiences across Ireland</p>
+
+      <div class="hero-search">
+        <input
+          type="text"
+          id="heroSearch"
+          placeholder="Find an experience..."
+          class="search-input"
+          autocomplete="off"
+        />
+        <button class="btn btn-primary btn-large" id="btnHeroSearch" type="button">
+          Search
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- =============================
+       EXPLORE LAYOUT (Filters + Results)
+       ============================= -->
+  <section class="explore-marketplace">
+    <div class="container-wide">
+      <div class="explore-layout">
+
+        <!-- Filters sidebar -->
+        <aside class="filters-sidebar">
+          <div class="filters-header">
+            <h3 class="filters-title">Filters</h3>
+          </div>
+
+          <div class="filter-block">
+            <label class="filter-label" for="categorySelect">Category</label>
+            <select id="categorySelect" class="select-input">
+              <option value="">All Categories</option>
+            </select>
+          </div>
+
+          <div class="filter-block">
+            <label class="filter-label" for="countySelect">County</label>
+            <select id="countySelect" class="select-input">
+              <option value="">All Counties</option>
+            </select>
+          </div>
+
+          <div class="filter-block">
+            <label class="filter-label" for="budgetSelect">Budget</label>
+            <select id="budgetSelect" class="select-input">
+              <option value="">Any Budget</option>
+              <option value="under_50">Under €50</option>
+              <option value="50_100">€50 - €100</option>
+              <option value="100_200">€100 - €200</option>
+              <option value="200_plus">€200+</option>
+            </select>
+          </div>
+
+          <div class="filters-actions">
+            <button class="btn btn-secondary" id="btnClearFilters" type="button">Clear</button>
+            <button class="btn btn-primary" id="btnApplyFilters" type="button">Apply</button>
+          </div>
+        </aside>
+
+        <!-- Results -->
+        <main class="results-panel">
+          <div class="results-topbar">
+            <div id="resultsMeta" class="loading">Loading experiences...</div>
+          </div>
+
+          <div id="experiencesGrid" class="cards-grid"></div>
+        </main>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- =============================
+       FOOTER
+       ============================= -->
+  <footer>
+    <div class="footer-content">
+      <p>&copy; 2026 ExperienceMe. All rights reserved.</p>
+      <p style="margin-top: 0.5rem;">Connecting people with unforgettable experiences.</p>
+    </div>
+  </footer>
+
+  <!-- =============================
+       SCRIPTS
+       ============================= -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="lib/supabaseClient.js"></script>
+  <script src="experiences.js"></script>
+</body>
+</html>

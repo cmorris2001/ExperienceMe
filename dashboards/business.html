@@ -1,100 +1,116 @@
-<!DOCTYPE html> <!-- Standard HTML5 document declaration -->
-<html lang="en"> <!-- Page language set to English -->
+<html lang="en">
 <head>
-    <meta charset="UTF-8"> <!-- Use UTF-8 so all characters display correctly -->
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- Make layout responsive on mobile -->
-    <title>Business Dashboard - ExperienceMe</title> <!-- Browser tab title -->
-    <link rel="stylesheet" href="../styles.css"> <!-- Shared main stylesheet for the app -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Business Dashboard - ExperienceMe</title>
+    <link rel="stylesheet" href="../styles.css">
 </head>
 <body>
-    <!-- Navigation at top for business users -->
     <nav>
         <div class="nav-container">
-            <!-- Logo brings business user back to main landing page -->
             <a href="../landing.html" class="logo">ExperienceMe</a>
 
-            <!-- Navigation links between different dashboard sections -->
             <div class="nav-links">
-                <!-- Inline onclick calls showSection() in business.js to switch content -->
                 <a href="#" onclick="showSection('experiences')" id="navExperiences">My Experiences</a>
                 <a href="#" onclick="showSection('create')" id="navCreate">Create New</a>
                 <a href="#" onclick="showSection('profile')" id="navProfile">Business Profile</a>
-                <!-- Logout button (logic handled in business.js) -->
                 <button id="logoutBtn" class="btn btn-secondary">Logout</button>
             </div>
         </div>
     </nav>
 
-    <!-- Dashboard Content main area -->
     <section class="section">
         <div class="container">
-            <!-- Welcome Header (dynamic info injected via JS) -->
             <div id="welcomeHeader" style="margin-bottom: 2rem;">
                 <h1>Business Dashboard</h1>
-                <!-- userInfo filled with business user details like name, email -->
                 <div id="userInfo"></div>
             </div>
 
-            <!-- Experiences Section (default visible section) -->
             <div id="experiencesSection" class="dashboard-section">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
                     <h2>My Experiences</h2>
-                    <!-- Shortcut button to open Create New Experience section -->
                     <button class="btn btn-primary" onclick="showSection('create')">
                         + Create New Experience
                     </button>
                 </div>
 
-                <!-- Filter Tabs for experiences by status -->
                 <div class="status-tabs" style="margin-bottom: 2rem;">
-                    <!-- Each tab uses filterExperiences() in business.js to filter experiences list -->
-                    <button class="status-tab active" onclick="filterExperiences('all')">All</button>
-                    <button class="status-tab" onclick="filterExperiences('draft')">Drafts</button>
-                    <button class="status-tab" onclick="filterExperiences('pending')">Pending Approval</button>
-                    <button class="status-tab" onclick="filterExperiences('approved')">Approved</button>
-                    <button class="status-tab" onclick="filterExperiences('rejected')">Rejected</button>
+                    <button class="status-tab active" onclick="filterExperiences('all', event)">All</button>
+                    <button class="status-tab" onclick="filterExperiences('draft', event)">Drafts</button>
+                    <button class="status-tab" onclick="filterExperiences('pending', event)">Pending Approval</button>
+                    <button class="status-tab" onclick="filterExperiences('approved', event)">Approved</button>
+                    <button class="status-tab" onclick="filterExperiences('rejected', event)">Rejected</button>
                 </div>
 
-                <!-- Experiences Grid (cards loaded here via JS from Supabase) -->
                 <div id="experiencesList">
-                    <div class="loading">Loading your experiences...</div> <!-- Shown until data has loaded -->
+                    <div class="loading">Loading your experiences...</div>
                 </div>
             </div>
 
-            <!-- Create Experience Section (hidden by default, shown when user wants to create) -->
             <div id="createSection" class="dashboard-section hidden">
-                <h2 style="margin-bottom: 2rem;">Create New Experience</h2>
+                <h2 id="createSectionHeading" style="margin-bottom: 2rem;">Create New Experience</h2>
 
-                <!-- Alerts for form validation / success messages -->
                 <div id="createAlert"></div>
 
-                <!-- Create Experience Form -->
                 <form id="createExperienceForm" class="experience-form">
-                    <!-- Experience title -->
+                    <!-- Title -->
                     <div class="form-row">
                         <div class="form-group">
                             <label for="title">Experience Title *</label>
-                            <input
-                                type="text"
-                                id="title"
-                                required
-                                placeholder="e.g., Hot Air Balloon Ride over Cork"
-                            >
+                            <input type="text" id="title" required placeholder="e.g., Hot Air Balloon Ride over Cork">
                         </div>
                     </div>
 
-                    <!-- Description textarea -->
+                    <!-- Short description (for cards / preview) -->
                     <div class="form-group">
-                        <label for="description">Description *</label>
+                        <label for="shortDescription">Short Description *</label>
                         <textarea
-                            id="description"
-                            rows="6"
+                            id="shortDescription"
+                            rows="3"
                             required
-                            placeholder="Describe the experience in detail..."
+                            placeholder="A short summary shown on the experience card (1–2 lines ideally)..."
                         ></textarea>
+                        <p style="font-size: 0.875rem; color: var(--text-secondary); margin-top: 0.5rem;">
+                            Tip: Keep this concise. The longer description goes below.
+                        </p>
                     </div>
 
-                    <!-- Category + County dropdowns (populated by JS from Supabase lookup tables) -->
+                    <!-- Long description -->
+                    <div class="form-group">
+                        <label for="description">Detailed Description *</label>
+                        <textarea id="description" rows="6" required placeholder="Describe the experience in detail..."></textarea>
+                    </div>
+
+                    <!-- Booking URL -->
+                    <div class="form-group">
+                        <label for="bookingUrl">Booking URL (Recommended)</label>
+                        <input type="url" id="bookingUrl" placeholder="https://yourwebsite.com/booking-page">
+                        <p style="font-size: 0.875rem; color: var(--text-secondary); margin-top: 0.5rem;">
+                            This is the direct link customers will use to book. If left blank, we will fallback to your Business Website URL.
+                        </p>
+                    </div>
+
+                    <!-- Duration -->
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="durationMinutes">Duration (minutes)</label>
+                            <input type="number" id="durationMinutes" min="1" step="1" placeholder="e.g., 90">
+                        </div>
+                    </div>
+
+                    <!-- What you do -->
+                    <div class="form-group">
+                        <label for="whatYouDo">What you'll do</label>
+                        <textarea id="whatYouDo" rows="4" placeholder="Outline what happens during the experience..."></textarea>
+                    </div>
+
+                    <!-- What's included -->
+                    <div class="form-group">
+                        <label for="whatsIncluded">What's included</label>
+                        <textarea id="whatsIncluded" rows="4" placeholder="List what's included (equipment, refreshments, guide, etc.)..."></textarea>
+                    </div>
+
+                    <!-- Category + County -->
                     <div class="form-row">
                         <div class="form-group">
                             <label for="category">Category *</label>
@@ -111,28 +127,16 @@
                         </div>
                     </div>
 
-                    <!-- Pricing fields and price tier selector -->
+                    <!-- Pricing -->
                     <div class="form-row">
                         <div class="form-group">
                             <label for="minPrice">Minimum Price (€)</label>
-                            <input
-                                type="number"
-                                id="minPrice"
-                                min="0"
-                                step="0.01"
-                                placeholder="0.00"
-                            >
+                            <input type="number" id="minPrice" min="0" step="0.01" placeholder="0.00">
                         </div>
 
                         <div class="form-group">
                             <label for="maxPrice">Maximum Price (€)</label>
-                            <input
-                                type="number"
-                                id="maxPrice"
-                                min="0"
-                                step="0.01"
-                                placeholder="0.00"
-                            >
+                            <input type="number" id="maxPrice" min="0" step="0.01" placeholder="0.00">
                         </div>
 
                         <div class="form-group">
@@ -147,7 +151,7 @@
                         </div>
                     </div>
 
-                    <!-- Image Upload Section -->
+                    <!-- Images -->
                     <div class="form-group">
                         <label>Images (Max 5 images) *</label>
                         <p style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 0.5rem;">
@@ -155,10 +159,12 @@
                             Supported formats: JPG, PNG, WebP (Max 5MB each)
                         </p>
 
-                        <!-- Image Upload Area (click or drag-and-drop) -->
+                        <p style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 0.5rem;">
+                            Tip: Click "Make Primary" on a preview to choose which image is the main one.
+                        </p>
+
                         <div class="image-upload-container">
                             <div class="image-upload-dropzone" id="imageDropzone">
-                                <!-- Hidden file input, triggered via JS when user clicks area -->
                                 <input
                                     type="file"
                                     id="imageFileInput"
@@ -174,44 +180,72 @@
                             </div>
                         </div>
 
-                        <!-- Image Previews (thumbnails + maybe delete/primary toggles via JS) -->
                         <div id="imagePreviews" class="image-previews-grid"></div>
-
-                        <!-- Upload Progress feedback during Supabase storage upload -->
                         <div id="uploadProgress" class="upload-progress hidden"></div>
                     </div>
 
-                    <!-- Form action buttons -->
                     <div class="form-actions">
-                        <!-- Save as Draft uses saveDraft() in business.js -->
                         <button type="button" class="btn btn-secondary" onclick="saveDraft()">Save as Draft</button>
-                        <!-- Submit full experience for admin approval -->
                         <button type="submit" class="btn btn-primary">Submit for Approval</button>
                     </div>
                 </form>
             </div>
 
-            <!-- Profile Section shows business profile details -->
             <div id="profileSection" class="dashboard-section hidden">
                 <h2 style="margin-bottom: 2rem;">Business Profile</h2>
-                <!-- JS fills this with business data from "business" table -->
+
+                <div id="profileAlert"></div>
                 <div id="businessInfo"></div>
+
+                <div class="card" style="margin-top: 1.5rem;">
+                    <h3>Update Business Profile</h3>
+                    <p style="color: var(--text-secondary); margin-top: 0.5rem;">
+                        These details will appear on your experience detail pages so customers trust the vendor.
+                    </p>
+
+                    <form id="businessProfileForm" style="margin-top: 1.5rem;">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="businessWebsiteUrl">Business Website URL</label>
+                                <input type="url" id="businessWebsiteUrl" placeholder="https://yourwebsite.com">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="businessLocationText">Location / Address</label>
+                            <input type="text" id="businessLocationText" placeholder="e.g., Midleton, Co. Cork">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="businessDescription">Business Description</label>
+                            <textarea id="businessDescription" rows="5" placeholder="Tell customers about your business..."></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="businessLogoInput">Business Logo / Profile Image</label>
+                            <input type="file" id="businessLogoInput" accept="image/jpeg,image/png,image/webp">
+                            <p style="font-size: 0.875rem; color: var(--text-secondary); margin-top: 0.5rem;">
+                                JPG, PNG or WebP (Max 5MB). This image shows beside your business name on experience pages.
+                            </p>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary">Save Profile</button>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
     </section>
 
-    <!-- Footer same style as rest of site -->
     <footer>
         <div class="footer-content">
-            <p>&copy; 2025 ExperienceMe. All rights reserved.</p>
+            <p>&copy; 2026 ExperienceMe. All rights reserved.</p>
         </div>
     </footer>
 
-    <!-- Supabase CDN (JS SDK so I can talk to Supabase backend) -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <!-- Supabase Client (contains project URL + anon key + supabaseClient instance) -->
     <script src="../lib/supabaseClient.js"></script>
-    <!-- Business Dashboard Script (handles auth, loading experiences, image upload, etc.) -->
     <script src="business.js"></script>
 </body>
 </html>

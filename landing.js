@@ -2,7 +2,6 @@
 // Handles: Supabase connection test, loading categories + counties from DB,
 // basic search placeholders, simple auth check, and smooth scrolling on the landing page.
 
-// Wait for DOM to be fully loaded before running any JS
 document.addEventListener('DOMContentLoaded', async () => {
     console.log('Landing page loaded');
 
@@ -15,8 +14,10 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // Check if user is already logged in (for future personalised UI)
     await checkAuthStatus();
-});
 
+    // NEW (Iteration 3): Wire up sign out button (only visible when logged in)
+    wireUpSignOut();
+});
 /**
  * Test Supabase connection.
  * This is for debugging reasons: I can open dev tools (F12) and see
@@ -84,7 +85,7 @@ function displayCategories(categories) {
     // Loops through each category and creates HTML for it
     // Inside the map we build each card and then join it into one big string
     grid.innerHTML = categories.map(category => `
-        <div class="image-card" onclick="searchByCategory('${category.category_name}')">
+        <div class="image-card" onclick="searchByCategory('${category.category_id}', '${category.category_name}')">
             <img
                 src="${category.category_image_url}"
                 alt="${category.category_name}"
@@ -156,10 +157,14 @@ function displayCounties(counties) {
  * Search by category.
  * Not set up yet for a real results page, just logs + pop up.
  */
-function searchByCategory(categoryName) {
+function searchByCategory(categoryId, categoryName) {
     console.log('Searching by category:', categoryName);
 
-    alert(`Searching for ${categoryName} experiences. (Experiences page coming soon!)`);
+    // NEW (Iteration 3): Instead of alerts, we send user to real experiences results page with filters applied
+    goToExperiencesPage({
+        category_id: categoryId,
+        category_name: categoryName
+    });
 }
 
 /**
@@ -169,7 +174,10 @@ function searchByCategory(categoryName) {
 function searchByCounty(countyName) {
     console.log('Searching by county:', countyName);
 
-    alert(`Searching for experiences in ${countyName}. (Experiences page coming soon!)`);
+    // NEW (Iteration 3): Send user to real experiences results page filtered by county
+    goToExperiencesPage({
+        county: countyName
+    });
 }
 
 /**
@@ -187,7 +195,10 @@ function handleSearch() {
 
     console.log('Searching for:', query);
 
-    alert(`Searching for "${query}". (Experiences page coming soon!)`);
+    // NEW (Iteration 3): Send user to real experiences results page with search query
+    goToExperiencesPage({
+        q: query
+    });
 }
 
 // Allow search when user presses Enter key inside hero search input
@@ -196,6 +207,28 @@ document.getElementById('heroSearch')?.addEventListener('keypress', function(e) 
         handleSearch();
     }
 });
+
+/**
+ * NEW (Iteration 3): Central helper for navigation to experiences results page.
+ * This keeps category / county / search all consistent, and avoids duplicated URL building logic.
+ */
+function goToExperiencesPage(params = {}) {
+    const url = new URL(window.location.origin + window.location.pathname.replace('landing.html', 'experiences.html'));
+
+    // If user loads landing.html as default without filename (e.g. /index), the above might fail
+    // so we handle that safely here.
+    if (!url.pathname.endsWith('experiences.html')) {
+        url.pathname = url.pathname.replace(/\/[^\/]*$/, '/experiences.html');
+    }
+
+    Object.keys(params).forEach((key) => {
+        if (params[key] !== undefined && params[key] !== null && params[key] !== '') {
+            url.searchParams.set(key, String(params[key]));
+        }
+    });
+
+    window.location.href = url.toString();
+}
 
 /**
  * Check if user is authenticated, logs result in console.
@@ -210,6 +243,7 @@ async function checkAuthStatus() {
             updateUIForLoggedInUser(user);
         } else {
             console.log('No user logged in');
+            updateUIForLoggedOutUser(); // NEW (Iteration 3): explicitly set guest nav
         }
     } catch (error) {
         console.error('Error checking auth status:', error);
@@ -222,7 +256,52 @@ async function checkAuthStatus() {
  */
 function updateUIForLoggedInUser(user) {
     console.log('User authenticated, could show personalized content');
-    // e.g. show “Go to Dashboard” button instead of Login in the future
+
+    // NEW (Iteration 3): Toggle nav so we do NOT need separate landing vs user mirror pages
+    const navGuest = document.getElementById('navGuest');
+    const navUser = document.getElementById('navUser');
+
+    if (navGuest) navGuest.style.display = 'none';
+    if (navUser) navUser.style.display = 'flex';
+}
+
+/**
+ * NEW (Iteration 3): Update UI for logged out users.
+ * This keeps behaviour consistent if session changes or user signs out.
+ */
+function updateUIForLoggedOutUser() {
+    const navGuest = document.getElementById('navGuest');
+    const navUser = document.getElementById('navUser');
+
+    if (navGuest) navGuest.style.display = 'flex';
+    if (navUser) navUser.style.display = 'none';
+}
+
+/**
+ * NEW (Iteration 3): Wire up sign out button so logged-in users can sign out from landing page.
+ */
+function wireUpSignOut() {
+    const btn = document.getElementById('btnSignOut');
+    if (!btn) return;
+
+    btn.addEventListener('click', async () => {
+        try {
+            console.log('Signing out...');
+
+            const { error } = await supabaseClient.auth.signOut();
+            if (error) {
+                console.error('Sign out error:', error);
+                alert('Could not sign out. Please try again.');
+                return;
+            }
+
+            console.log('Signed out successfully');
+            updateUIForLoggedOutUser();
+        } catch (err) {
+            console.error('Error during sign out:', err);
+            alert('Could not sign out. Please try again.');
+        }
+    });
 }
 
 /**

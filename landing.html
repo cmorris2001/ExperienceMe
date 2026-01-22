@@ -12,11 +12,22 @@
         <div class="nav-container">
             <!-- Clicking logo brings user back to landing page -->
             <a href="landing.html" class="logo">ExperienceMe</a>
-            <div class="nav-links">
+
+            <!-- NEW (Iteration 3): Two nav states (guest vs logged-in) so we do NOT duplicate pages -->
+            <div class="nav-links" id="navGuest">
                 <a href="#features">Features</a> <!-- Stays on same page, scrolls to Features section -->
                 <a href="#about">About</a> <!-- Stays on same page, scrolls to About section (when added) -->
+                <a href="experiences.html">Explore</a> <!-- NEW (Iteration 3): Real experiences results page -->
                 <a href="auth/login.html" class="btn btn-secondary">Login</a> <!-- Goes to login.html -->
                 <a href="auth/register.html" class="btn btn-primary">Sign Up</a> <!-- Goes to register.html -->
+            </div>
+
+            <!-- NEW (Iteration 3): Logged-in nav (shown only when user is authenticated) -->
+            <div class="nav-links" id="navUser" style="display:none;">
+                <a href="experiences.html">Explore</a> <!-- NEW (Iteration 3): Real experiences results page -->
+                <a href="dashboards/user.html">Favourites</a> <!-- Can later become proper favourites dashboard -->
+                <a href="giftfinder.html">Gift Finder</a> <!-- NEW (Iteration 3): Rule-based gift finder page -->
+                <button class="btn btn-secondary" id="btnSignOut">Sign Out</button> <!-- NEW (Iteration 3): Sign out -->
             </div>
         </div>
     </nav>
@@ -95,7 +106,7 @@
     <!-- Footer same on all pages, keeps my rights + short tagline -->
     <footer>
         <div class="footer-content">
-            <p>&copy; 2025 ExperienceMe. All rights reserved.</p> <!-- Copyright -->
+            <p>&copy; 2026 ExperienceMe. All rights reserved.</p> <!-- Copyright -->
             <p style="margin-top: 0.5rem;">Connecting people with unforgettable experiences.</p> <!-- Tagline -->
         </div>
     </footer>

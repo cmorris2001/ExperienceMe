@@ -1,81 +1,89 @@
 // Business Dashboard JavaScript
 // Handles business auth, loading their experiences, creating/editing/deleting experiences,
-// image upload to Supabase Storage, filtering by status, and switching dashboard sections.
+// image upload to Supabase Storage, filtering by status, switching sections,
+// and updating business profile (website/location/description/logo).
 
-let currentUser = null;          // Supabase auth user
-let currentBusiness = null;      // Matching record in "business" table
-let experiences = [];            // All experiences owned by this business
-let currentFilter = 'all';       // Which status tab is active (all/pending/etc.)
-let uploadedImages = [];         // Store uploaded image files + preview URLs + upload state
-let isEditMode = false;          // Are we editing an existing experience?
-let editingExperienceId = null;  // If editing, which experience_id
+let currentUser = null;
+let currentUserData = null;      // row from public.users
+let currentBusiness = null;      // row from public.business
+
+let experiences = [];
+let currentFilter = 'all';
+
+let uploadedImages = [];         // { file|null, preview, uploaded, url, imageId?, isPrimary? }
+let isEditMode = false;
+let editingExperienceId = null;
+
+let isSubmitting = false;        // prevents duplicate experience submits
+let isSavingProfile = false;     // prevents duplicate profile saves
 
 // Wait for DOM to be fully loaded
 document.addEventListener('DOMContentLoaded', async () => {
     console.log('Business dashboard loaded');
 
-    // Check authentication + load business record
     await checkAuth();
-
-    // Load categories and counties for the create/edit form
     await loadFormData();
-
-    // Load experiences for this business
     await loadExperiences();
 
-    // Setup logout
     document.getElementById('logoutBtn').addEventListener('click', handleLogout);
 
-    // Setup form submission (submit for approval)
+    // Experience form submit (ONLY ONE handler)
     document.getElementById('createExperienceForm').addEventListener('submit', handleSubmitForApproval);
 
-    // Setup image upload (dropzone + file input)
-    setupImageUpload();
+    // Business profile form submit (NEW)
+    const profileForm = document.getElementById('businessProfileForm');
+    if (profileForm) {
+        profileForm.addEventListener('submit', handleBusinessProfileSave);
+    }
 
-    // Show experiences section by default
+    // Populate profile form inputs from DB (NEW)
+    populateBusinessProfileForm();
+
+    setupImageUpload();
     showSection('experiences');
 });
 
 /**
  * Check authentication
- * Makes sure user is logged in and has role = business.
  */
 async function checkAuth() {
     try {
         const { data: { user } } = await supabaseClient.auth.getUser();
 
         if (!user) {
-            // If not logged in, send to login page
             window.location.href = '../auth/login.html';
             return;
         }
 
         currentUser = user;
 
-        // Get user record from users table
-        const { data: userData } = await supabaseClient
+        const { data: userData, error: userErr } = await supabaseClient
             .from('users')
             .select('*')
             .eq('user_id', user.id)
             .single();
 
-        // If user exists but is not business role, redirect them to their own dashboard
+        if (userErr) throw userErr;
+
+        currentUserData = userData;
+
         if (userData && userData.role !== 'business') {
             alert('Access denied. Business account required.');
             window.location.href = `../dashboards/${userData.role}.html`;
             return;
         }
 
-        // Get matching business record
-        const { data: businessData } = await supabaseClient
+        const { data: businessData, error: bizErr } = await supabaseClient
             .from('business')
             .select('*')
             .eq('user_id', user.id)
             .single();
 
+        if (bizErr) throw bizErr;
+
         if (businessData) {
             currentBusiness = businessData;
-            displayUserInfo(userData, businessData);
+            displayUserInfo(currentUserData, currentBusiness);
         }
 
     } catch (error) {
@@ -85,7 +93,7 @@ async function checkAuth() {
 }
 
 /**
- * Display user + business info in the header and profile section.
+ * Display user + business info
  */
 function displayUserInfo(userData, businessData) {
     document.getElementById('userInfo').innerHTML = `
@@ -94,6 +102,12 @@ function displayUserInfo(userData, businessData) {
         </p>
     `;
 
+    const logoHtml = businessData.business_image_url
+        ? `<div style="margin-top:1rem;">
+                <img src="${businessData.business_image_url}" alt="Business logo" style="max-width:120px;border-radius:12px;border:1px solid var(--border-color);">
+           </div>`
+        : '';
+
     document.getElementById('businessInfo').innerHTML = `
         <div class="card">
             <h3>Business Information</h3>
@@ -101,65 +115,157 @@ function displayUserInfo(userData, businessData) {
                 <strong>Business Name:</strong> ${businessData.business_name}<br>
                 <strong>Email:</strong> ${businessData.business_email || userData.email}<br>
                 <strong>Website:</strong> ${businessData.website_url || 'Not set'}<br>
+                <strong>Location:</strong> ${businessData.location_text || 'Not set'}<br>
+                <strong>Description:</strong> ${businessData.business_description || 'Not set'}<br>
                 <strong>Status:</strong> <span class="status-badge status-${businessData.status}">${businessData.status}</span><br>
-                <strong>Member Since:</strong> ${new Date(businessData.created_at).toLocaleDateString()}
+                <strong>Member Since:</strong> ${businessData.created_at ? new Date(businessData.created_at).toLocaleDateString() : '—'}
             </p>
+            ${logoHtml}
         </div>
     `;
 }
 
 /**
- * Load form data (categories and counties) from Supabase.
+ * Populate business profile form with DB values (NEW)
+ */
+function populateBusinessProfileForm() {
+    if (!currentBusiness) return;
+
+    const website = document.getElementById('businessWebsiteUrl');
+    const loc = document.getElementById('businessLocationText');
+    const desc = document.getElementById('businessDescription');
+
+    if (website) website.value = currentBusiness.website_url || '';
+    if (loc) loc.value = currentBusiness.location_text || '';
+    if (desc) desc.value = currentBusiness.business_description || '';
+}
+
+/**
+ * Save business profile to Supabase (NEW)
+ */
+async function handleBusinessProfileSave(e) {
+    e.preventDefault();
+
+    if (!currentBusiness) {
+        showAlert('profileAlert', 'Business record not found.', 'error');
+        return;
+    }
+
+    if (isSavingProfile) return;
+    isSavingProfile = true;
+
+    try {
+        showAlert('profileAlert', 'Saving profile...', 'info');
+
+        let website_url = document.getElementById('businessWebsiteUrl')?.value.trim() || null;
+        const location_text = document.getElementById('businessLocationText')?.value.trim() || null;
+        const business_description = document.getElementById('businessDescription')?.value.trim() || null;
+
+        // normalize website URL
+        if (website_url && !website_url.startsWith('http://') && !website_url.startsWith('https://')) {
+            website_url = `https://${website_url}`;
+        }
+
+        // optional logo upload
+        const logoFile = document.getElementById('businessLogoInput')?.files?.[0] || null;
+        let business_image_url = currentBusiness.business_image_url || null;
+
+        if (logoFile) {
+            const maxSize = 5 * 1024 * 1024;
+
+            if (!logoFile.type.match('image/(jpeg|png|webp)')) {
+                showAlert('profileAlert', 'Logo must be JPG, PNG, or WebP.', 'error');
+                return;
+            }
+            if (logoFile.size > maxSize) {
+                showAlert('profileAlert', 'Logo too large. Max 5MB.', 'error');
+                return;
+            }
+
+            // Upload logo into existing bucket to avoid extra storage/RLS surprises
+            const ext = logoFile.name.split('.').pop();
+            const path = `business-logos/${currentBusiness.business_id}/logo_${Date.now()}.${ext}`;
+
+            const { error: upErr } = await supabaseClient.storage
+                .from('experience-images')
+                .upload(path, logoFile, {
+                    contentType: logoFile.type,
+                    cacheControl: '3600',
+                    upsert: true
+                });
+
+            if (upErr) throw upErr;
+
+            const { data: urlData } = supabaseClient.storage
+                .from('experience-images')
+                .getPublicUrl(path);
+
+            business_image_url = urlData.publicUrl;
+        }
+
+        const payload = {
+            website_url,
+            location_text,
+            business_description,
+            business_image_url,
+            updated_at: new Date().toISOString()
+        };
+
+        const { data, error } = await supabaseClient
+            .from('business')
+            .update(payload)
+            .eq('business_id', currentBusiness.business_id)
+            .select('*')
+            .single();
+
+        if (error) throw error;
+
+        currentBusiness = data;
+
+        // update UI
+        displayUserInfo(currentUserData, currentBusiness);
+        populateBusinessProfileForm();
+
+        showAlert('profileAlert', '✅ Profile updated!', 'success');
+
+    } catch (err) {
+        console.error('Profile save error:', err);
+        showAlert('profileAlert', `Error saving profile: ${err.message}`, 'error');
+    } finally {
+        isSavingProfile = false;
+    }
+}
+
+/**
+ * Load form data (categories and counties)
  */
 async function loadFormData() {
     try {
-        // Load categories from 'category' table
         const { data: categoriesData, error: catError } = await supabaseClient
             .from('category')
             .select('*')
             .order('category_name');
 
-        if (catError) {
-            console.error('Error loading categories:', catError);
-            throw catError;
-        }
+        if (catError) throw catError;
 
-        const categories = categoriesData || [];
-        console.log('Categories loaded:', categories);
-
-        // Populate category dropdown
         const categorySelect = document.getElementById('category');
         categorySelect.innerHTML = '<option value="">Select a category...</option>';
-        categories.forEach(cat => {
+        (categoriesData || []).forEach(cat => {
             categorySelect.innerHTML += `<option value="${cat.category_id}">${cat.category_name}</option>`;
         });
 
-        // Load counties from 'county' table
         const { data: countiesData, error: countyError } = await supabaseClient
             .from('county')
             .select('*')
             .order('county_id');
 
-        if (countyError) {
-            console.error('Error loading counties:', countyError);
-            throw countyError;
-        }
+        if (countyError) throw countyError;
 
-        const counties = countiesData || [];
-        console.log('Counties loaded:', counties);
-
-        // Populate county dropdown
         const countySelect = document.getElementById('county');
         countySelect.innerHTML = '<option value="">Select a county...</option>';
-        counties.forEach(county => {
+        (countiesData || []).forEach(county => {
             countySelect.innerHTML += `<option value="${county.county_id}">${county.county_id}</option>`;
         });
-
-        // If no counties found, show warning
-        if (counties.length === 0) {
-            console.warn('No counties found in database');
-            showAlert('createAlert', 'Warning: No counties available. Please add counties to your database.', 'info');
-        }
 
     } catch (error) {
         console.error('Error loading form data:', error);
@@ -168,23 +274,19 @@ async function loadFormData() {
 }
 
 /**
- * Setup image upload functionality for dropzone + file input.
+ * Setup image upload
  */
 function setupImageUpload() {
     const dropzone = document.getElementById('imageDropzone');
     const fileInput = document.getElementById('imageFileInput');
 
-    // Click to upload => trigger hidden file input
-    dropzone.addEventListener('click', () => {
-        fileInput.click();
-    });
+    dropzone.addEventListener('click', () => fileInput.click());
 
-    // File input change (when user selects files from dialog)
     fileInput.addEventListener('change', (e) => {
         handleFiles(e.target.files);
+        fileInput.value = ''; // allow re-selecting same file
     });
 
-    // Drag and drop styling + preventing default
     dropzone.addEventListener('dragover', (e) => {
         e.preventDefault();
         dropzone.style.borderColor = 'var(--primary-color)';
@@ -197,7 +299,6 @@ function setupImageUpload() {
         dropzone.style.background = 'transparent';
     });
 
-    // Drop files into dropzone
     dropzone.addEventListener('drop', (e) => {
         e.preventDefault();
         dropzone.style.borderColor = 'var(--border-color)';
@@ -207,50 +308,48 @@ function setupImageUpload() {
 }
 
 /**
- * Handle file selection for image upload (validation + preview).
+ * Handle file selection
  */
 function handleFiles(files) {
     const maxFiles = 5;
-    const maxSize = 5 * 1024 * 1024; // 5MB
+    const maxSize = 5 * 1024 * 1024;
 
-    // Check total count across already uploaded + new files
     if (uploadedImages.length + files.length > maxFiles) {
         showAlert('createAlert', `Maximum ${maxFiles} images allowed`, 'error');
         return;
     }
 
-    // Process each file
     Array.from(files).forEach((file) => {
-        // Validate file type
         if (!file.type.match('image/(jpeg|png|webp)')) {
             showAlert('createAlert', `${file.name} is not a supported format. Use JPG, PNG, or WebP.`, 'error');
             return;
         }
-
-        // Validate file size
         if (file.size > maxSize) {
             showAlert('createAlert', `${file.name} is too large. Maximum size is 5MB.`, 'error');
             return;
         }
 
-        // Add to uploaded images array
-        const imageData = {
-            file: file,
-            preview: URL.createObjectURL(file), // local preview URL
-            uploaded: false,                    // not sent to storage yet
-            url: null                           // will later hold the public URL
-        };
-
-        uploadedImages.push(imageData);
+        uploadedImages.push({
+            file,
+            preview: URL.createObjectURL(file),
+            uploaded: false,
+            url: null,
+            isPrimary: false
+        });
     });
 
-    // Display previews after adding images
+    if (!uploadedImages.some(i => i.isPrimary) && uploadedImages.length) {
+        uploadedImages[0].isPrimary = true;
+    }
+
     displayImagePreviews();
 }
 
-/**
- * Display image previews under the form.
- */
+function setPrimaryImage(index) {
+    uploadedImages.forEach((img, i) => img.isPrimary = (i === index));
+    displayImagePreviews();
+}
+
 function displayImagePreviews() {
     const container = document.getElementById('imagePreviews');
 
@@ -262,66 +361,68 @@ function displayImagePreviews() {
     container.innerHTML = uploadedImages.map((img, index) => `
         <div class="image-preview-item" data-index="${index}">
             <img src="${img.preview}" alt="Preview ${index + 1}">
-            <div class="image-preview-overlay">
-                ${index === 0 ? '<span class="primary-badge">Primary</span>' : ''}
-                <button type="button" class="btn-preview-remove" onclick="removeImage(${index})">✕</button>
+            <div class="image-preview-overlay" style="display:flex;gap:0.5rem;align-items:center;justify-content:space-between;">
+                <div>
+                    ${img.isPrimary ? '<span class="primary-badge">Primary</span>' : ''}
+                </div>
+                <div style="display:flex;gap:0.5rem;">
+                    ${!img.isPrimary ? `<button type="button" class="btn btn-secondary" style="padding:0.25rem 0.5rem;font-size:0.8rem;" onclick="setPrimaryImage(${index})">Make Primary</button>` : ''}
+                    <button type="button" class="btn-preview-remove" onclick="removeImage(${index})">✕</button>
+                </div>
             </div>
             ${img.uploaded ? '<div class="upload-success">✓</div>' : ''}
         </div>
     `).join('');
 }
 
-/**
- * Remove image from preview + memory.
- */
 function removeImage(index) {
-    // Revoke the object URL to free memory
-    if (uploadedImages[index].file) {
+    if (uploadedImages[index]?.file) {
         URL.revokeObjectURL(uploadedImages[index].preview);
     }
-
-    // Remove from array
     uploadedImages.splice(index, 1);
 
-    // Update display
+    if (uploadedImages.length && !uploadedImages.some(i => i.isPrimary)) {
+        uploadedImages[0].isPrimary = true;
+    }
+
     displayImagePreviews();
 }
 
 /**
- * Upload images to Supabase Storage and return array of public URLs.
+ * Upload images to Storage; returns URLs in display order with primary first
  */
 async function uploadImagesToStorage() {
-    if (uploadedImages.length === 0) {
-        throw new Error('No images to upload');
-    }
+    if (uploadedImages.length === 0) throw new Error('No images to upload');
 
     const uploadProgress = document.getElementById('uploadProgress');
     uploadProgress.classList.remove('hidden');
     uploadProgress.innerHTML = '<p>Uploading images...</p>';
 
+    const ordered = [
+        ...uploadedImages.filter(i => i.isPrimary),
+        ...uploadedImages.filter(i => !i.isPrimary)
+    ];
+
     const uploadedUrls = [];
 
     try {
-        for (let i = 0; i < uploadedImages.length; i++) {
-            const imageData = uploadedImages[i];
+        for (let i = 0; i < ordered.length; i++) {
+            const imageData = ordered[i];
 
-            // Skip if already uploaded (existing DB image when editing)
             if (imageData.uploaded && imageData.url) {
                 uploadedUrls.push(imageData.url);
                 continue;
             }
 
-            // Create unique filename: businessId/timestamp_random.extension
             const timestamp = Date.now();
             const randomString = Math.random().toString(36).substring(7);
             const fileExt = imageData.file.name.split('.').pop();
             const fileName = `${currentBusiness.business_id}/${timestamp}_${randomString}.${fileExt}`;
 
-            uploadProgress.innerHTML = `<p>Uploading image ${i + 1} of ${uploadedImages.length}...</p>`;
+            uploadProgress.innerHTML = `<p>Uploading image ${i + 1} of ${ordered.length}...</p>`;
 
-            // Upload to Supabase Storage bucket
-            const { data, error } = await supabaseClient.storage
-                .from('experience-images') // Bucket name in Supabase
+            const { error } = await supabaseClient.storage
+                .from('experience-images')
                 .upload(fileName, imageData.file, {
                     contentType: imageData.file.type,
                     cacheControl: '3600',
@@ -330,23 +431,19 @@ async function uploadImagesToStorage() {
 
             if (error) throw error;
 
-            // Get public URL of uploaded file
             const { data: urlData } = supabaseClient.storage
                 .from('experience-images')
                 .getPublicUrl(fileName);
 
             imageData.uploaded = true;
             imageData.url = urlData.publicUrl;
-            uploadedUrls.push(urlData.publicUrl);
 
-            // Update preview to show "uploaded" check mark
+            uploadedUrls.push(urlData.publicUrl);
             displayImagePreviews();
         }
 
         uploadProgress.innerHTML = '<p style="color: var(--success-color);">✓ All images uploaded successfully!</p>';
-        setTimeout(() => {
-            uploadProgress.classList.add('hidden');
-        }, 2000);
+        setTimeout(() => uploadProgress.classList.add('hidden'), 2000);
 
         return uploadedUrls;
 
@@ -357,13 +454,12 @@ async function uploadImagesToStorage() {
 }
 
 /**
- * Load experiences for current business from Supabase.
+ * Load experiences
  */
 async function loadExperiences() {
     if (!currentBusiness) return;
 
     try {
-        // Load experiences for this business user
         const { data, error } = await supabaseClient
             .from('experiences')
             .select('*')
@@ -374,7 +470,6 @@ async function loadExperiences() {
 
         experiences = data || [];
 
-        // Load images for each experience
         for (let exp of experiences) {
             const { data: images } = await supabaseClient
                 .from('image')
@@ -383,7 +478,6 @@ async function loadExperiences() {
                 .order('display_order');
 
             exp.images = images || [];
-            // Set primary image for easy access
             exp.primaryImage = images?.find(img => img.is_primary)?.image_url ||
                                images?.[0]?.image_url || null;
         }
@@ -399,18 +493,16 @@ async function loadExperiences() {
 }
 
 /**
- * Display experiences based on current filter (all/pending/etc.).
+ * Display experiences
  */
 function displayExperiences() {
     const container = document.getElementById('experiencesList');
 
-    // Filter experiences by status
     let filtered = experiences;
     if (currentFilter !== 'all') {
         filtered = experiences.filter(exp => exp.status === currentFilter);
     }
 
-    // If no experiences match
     if (filtered.length === 0) {
         const message = currentFilter === 'all'
             ? "You haven't created any experiences yet. Click 'Create New Experience' to get started!"
@@ -424,7 +516,6 @@ function displayExperiences() {
         return;
     }
 
-    // Render experiences in grid layout
     container.innerHTML = `
         <div class="experiences-grid">
             ${filtered.map(exp => createExperienceCard(exp)).join('')}
@@ -433,10 +524,9 @@ function displayExperiences() {
 }
 
 /**
- * Create experience card HTML (for the grid).
+ * Card HTML
  */
 function createExperienceCard(experience) {
-    // Use primaryImage loaded earlier, fallback to placeholder
     const primaryImage = experience.primaryImage || 'https://via.placeholder.com/400x250?text=No+Image';
 
     const statusClass = `status-${experience.status}`;
@@ -448,7 +538,6 @@ function createExperienceCard(experience) {
         ? `From €${experience.min_price}`
         : 'Price TBD';
 
-    // County is stored as TEXT in the experiences table
     const countyDisplay = experience.county || 'Location TBD';
 
     return `
@@ -458,19 +547,13 @@ function createExperienceCard(experience) {
             </div>
             <div class="experience-content">
                 <h3>${experience.title}</h3>
-                <p class="experience-meta">
-                    ${countyDisplay}
-                </p>
-                <p class="experience-description">${truncateText(experience.event_description, 120)}</p>
+                <p class="experience-meta">${countyDisplay}</p>
+                <p class="experience-description">${truncateText(experience.short_description || experience.event_description, 120)}</p>
                 <div class="experience-footer">
                     <span class="experience-price">${priceDisplay}</span>
                     <div class="experience-actions">
-                        <button class="btn-icon" onclick="editExperience('${experience.experience_id}')" title="Edit">
-                            ✏️
-                        </button>
-                        <button class="btn-icon" onclick="deleteExperience('${experience.experience_id}')" title="Delete">
-                            🗑️
-                        </button>
+                        <button class="btn-icon" onclick="editExperience('${experience.experience_id}')" title="Edit">✏️</button>
+                        <button class="btn-icon" onclick="deleteExperience('${experience.experience_id}')" title="Delete">🗑️</button>
                     </div>
                 </div>
             </div>
@@ -478,9 +561,6 @@ function createExperienceCard(experience) {
     `;
 }
 
-/**
- * Truncate text helper (for descriptions).
- */
 function truncateText(text, maxLength) {
     if (!text) return '';
     if (text.length <= maxLength) return text;
@@ -488,59 +568,41 @@ function truncateText(text, maxLength) {
 }
 
 /**
- * Filter experiences by status and update active tab.
+ * Filter experiences
  */
-function filterExperiences(status) {
+function filterExperiences(status, e) {
     currentFilter = status;
 
-    // Update active tab based on the clicked button
-    document.querySelectorAll('.status-tab').forEach(tab => {
-        tab.classList.remove('active');
-    });
-    // event.target is the clicked button here
-    event.target.classList.add('active');
+    document.querySelectorAll('.status-tab').forEach(tab => tab.classList.remove('active'));
+    if (e?.target) e.target.classList.add('active');
 
     displayExperiences();
 }
 
 /**
- * Show different dashboard sections (experiences / create / profile).
+ * Show section
  */
 function showSection(section) {
-    // Hide all sections
-    document.querySelectorAll('.dashboard-section').forEach(sec => {
-        sec.classList.add('hidden');
-    });
+    document.querySelectorAll('.dashboard-section').forEach(sec => sec.classList.add('hidden'));
+    document.querySelectorAll('.nav-links a').forEach(link => link.style.color = '');
 
-    // Remove highlight from nav links
-    document.querySelectorAll('.nav-links a').forEach(link => {
-        link.style.color = '';
-    });
-
-    // Show selected section
     document.getElementById(`${section}Section`).classList.remove('hidden');
 
-    // Highlight active nav link
     const navLink = document.getElementById(`nav${section.charAt(0).toUpperCase() + section.slice(1)}`);
-    if (navLink) {
-        navLink.style.color = 'var(--primary-color)';
-    }
+    if (navLink) navLink.style.color = 'var(--primary-color)';
 
-    // Reset form when going to create section (only if not editing)
-    if (section === 'create' && !isEditMode) {
-        resetForm();
-    }
+    if (section === 'create' && !isEditMode) resetForm();
 }
 
 /**
- * Save as draft (wrapper around submitExperience with draft status).
+ * Save draft
  */
 async function saveDraft() {
     await submitExperience('draft');
 }
 
 /**
- * Handle submit for approval (form submit).
+ * Submit pending approval
  */
 async function handleSubmitForApproval(e) {
     e.preventDefault();
@@ -548,98 +610,78 @@ async function handleSubmitForApproval(e) {
 }
 
 /**
- * Submit experience (either insert new or update existing).
- * status = 'draft' or 'pending'.
+ * Submit experience (insert or update)
  */
 async function submitExperience(status) {
     if (!currentBusiness) {
-        console.error('ERROR: currentBusiness is null or undefined');
         showAlert('createAlert', 'Business information not found', 'error');
         return;
     }
 
-    console.log('Starting experience submission...');
-    console.log('Current business:', currentBusiness);
-    console.log('Status:', status);
+    if (isSubmitting) return; // ✅ prevents duplicate inserts
+    isSubmitting = true;
 
     try {
-        // Get form values
         const title = document.getElementById('title').value.trim();
+        const shortDescription = document.getElementById('shortDescription').value.trim();
         const description = document.getElementById('description').value.trim();
+
+        const bookingUrlRaw = document.getElementById('bookingUrl').value.trim();
+        const booking_url = bookingUrlRaw || null;
+
+        const durationRaw = document.getElementById('durationMinutes').value;
+        const duration_minutes = durationRaw ? parseInt(durationRaw, 10) : null;
+
+        const what_you_do = document.getElementById('whatYouDo').value.trim() || null;
+        const whats_included = document.getElementById('whatsIncluded').value.trim() || null;
+
         const categoryId = document.getElementById('category').value;
         const countyId = document.getElementById('county').value;
+
         const minPrice = document.getElementById('minPrice').value || null;
         const maxPrice = document.getElementById('maxPrice').value || null;
-        const priceTier = document.getElementById('priceTier').value || null;
+        const price_tier = document.getElementById('priceTier').value || null;
 
-        console.log('Form values:', {
-            title,
-            description: description.substring(0, 50) + '...',
-            categoryId,
-            countyId,
-            minPrice,
-            maxPrice,
-            priceTier
-        });
-
-        // Validation for required fields
-        if (!title || !description) {
-            console.error('Validation failed: title or description missing');
+        if (!title || !shortDescription || !description) {
             showAlert('createAlert', 'Please fill in all required fields', 'error');
             return;
         }
-
         if (!categoryId || !countyId) {
-            console.error('Validation failed: category or county not selected');
             showAlert('createAlert', 'Please select a category and county', 'error');
             return;
         }
-
         if (uploadedImages.length === 0) {
-            console.error('Validation failed: no images');
             showAlert('createAlert', 'Please upload at least one image', 'error');
             return;
         }
 
-        // Show loading info
         showAlert('createAlert', 'Processing...', 'info');
 
-        // Upload images to storage (if not already)
-        console.log('Uploading images to storage...');
-        let imageUrls;
-        try {
-            imageUrls = await uploadImagesToStorage();
-            console.log('Images uploaded successfully:', imageUrls);
-        } catch (uploadError) {
-            console.error('Image upload error:', uploadError);
-            showAlert('createAlert', `Image upload failed: ${uploadError.message}`, 'error');
-            return;
-        }
+        const imageUrls = await uploadImagesToStorage();
 
-        // Get the county NAME from dropdown (stored as TEXT in experiences table)
         const countySelect = document.getElementById('county');
         const countyName = countySelect.options[countySelect.selectedIndex].text;
 
-        // Prepare row for experiences table (images stored separately)
         const experienceData = {
             business_id: currentBusiness.business_id,
-            title: title,
+            title,
+            short_description: shortDescription,
             event_description: description,
-            county: countyName,  // store county name, not id
+            county: countyName,
+            price_tier,
             min_price: minPrice ? parseFloat(minPrice) : null,
             max_price: maxPrice ? parseFloat(maxPrice) : null,
-            price_tier: priceTier,  // maps to price_code/price_tier depending on schema
-            status: status
+            booking_url,
+            duration_minutes,
+            whats_included,
+            what_you_do,
+            status,
+            updated_at: new Date().toISOString()
         };
 
-        console.log('Experience data to insert:', experienceData);
+        let saved;
 
-        let result;
         if (isEditMode && editingExperienceId) {
-            // Update existing experience
-            console.log('Updating existing experience:', editingExperienceId);
-            experienceData.updated_at = new Date().toISOString();
-
             const { data, error } = await supabaseClient
                 .from('experiences')
                 .update(experienceData)
@@ -647,82 +689,54 @@ async function submitExperience(status) {
                 .select()
                 .single();
 
-            if (error) {
-                console.error('Update error details:', {
-                    message: error.message,
-                    details: error.details,
-                    hint: error.hint,
-                    code: error.code
-                });
-                throw error;
-            }
+            if (error) throw error;
+            saved = data;
 
-            result = data;
-            console.log('Update successful:', result);
+            await supabaseClient
+                .from('experience_category')
+                .delete()
+                .eq('experience_id', editingExperienceId);
+
+            await supabaseClient
+                .from('experience_category')
+                .insert([{ experience_id: editingExperienceId, category_id: categoryId }]);
+
+            await supabaseClient
+                .from('image')
+                .delete()
+                .eq('experience_id', editingExperienceId);
+
+            const imageRecords = imageUrls.map((url, index) => ({
+                experience_id: editingExperienceId,
+                image_url: url,
+                is_primary: index === 0,
+                display_order: index
+            }));
+
+            const { error: imageErr } = await supabaseClient
+                .from('image')
+                .insert(imageRecords);
+
+            if (imageErr) console.error('Image re-insert error:', imageErr);
+
         } else {
-            // Insert new experience
-            console.log('Inserting new experience...');
-            experienceData.created_at = new Date().toISOString();
-
             const { data, error } = await supabaseClient
                 .from('experiences')
                 .insert([experienceData])
                 .select()
                 .single();
 
-            if (error) {
-                console.error('Insert error details:', {
-                    message: error.message,
-                    details: error.details,
-                    hint: error.hint,
-                    code: error.code,
-                    fullError: error
-                });
+            if (error) throw error;
+            saved = data;
 
-                // Provide more helpful error messages based on Postgres error codes
-                if (error.code === '23503') {
-                    showAlert('createAlert', 'Database error: Invalid category, county, or business ID. Please refresh and try again.', 'error');
-                    return;
-                }
-
-                if (error.code === '23502') {
-                    showAlert('createAlert', 'Database error: Missing required field. Please fill in all required fields.', 'error');
-                    return;
-                }
-
-                if (error.code === '42501') {
-                    showAlert('createAlert', 'Permission denied. Please contact support if this persists.', 'error');
-                    return;
-                }
-
-                throw error;
-            }
-
-            result = data;
-            console.log('Insert successful:', result);
-
-            // Insert relationship into experience_category junction table
-            console.log('Inserting category relationship...');
-            const { error: categoryError } = await supabaseClient
+            await supabaseClient
                 .from('experience_category')
-                .insert([{
-                    experience_id: result.experience_id,
-                    category_id: categoryId
-                }]);
+                .insert([{ experience_id: saved.experience_id, category_id: categoryId }]);
 
-            if (categoryError) {
-                console.error('Category insert error:', categoryError);
-                // Do not throw here - experience itself was created
-            } else {
-                console.log('Category relationship created');
-            }
-
-            // Insert images into image table
-            console.log('Inserting images into image table...');
             const imageRecords = imageUrls.map((url, index) => ({
-                experience_id: result.experience_id,
+                experience_id: saved.experience_id,
                 image_url: url,
-                is_primary: index === 0,  // first image is primary
+                is_primary: index === 0,
                 display_order: index
             }));
 
@@ -730,110 +744,82 @@ async function submitExperience(status) {
                 .from('image')
                 .insert(imageRecords);
 
-            if (imageError) {
-                console.error('Image insert error:', imageError);
-                // Again, don't throw since experience exists
-            } else {
-                console.log('Images inserted successfully');
-            }
+            if (imageError) console.error('Image insert error:', imageError);
         }
 
-        // Build success message based on mode + status
         const successMessage = isEditMode
             ? 'Experience updated successfully!'
-            : status === 'draft'
-            ? 'Experience saved as draft!'
-            : 'Experience submitted for approval!';
+            : (status === 'draft' ? 'Experience saved as draft!' : 'Experience submitted for approval!');
 
         showAlert('createAlert', successMessage, 'success');
 
-        // Reset form and reload experiences
-        setTimeout(() => {
+        setTimeout(async () => {
             resetForm();
-            loadExperiences();
+            await loadExperiences();
             showSection('experiences');
-        }, 1500);
+        }, 1200);
 
     } catch (error) {
         console.error('Error saving experience:', error);
-        console.error('Error type:', error.constructor.name);
-        console.error('Error stack:', error.stack);
-
-        // Build user-friendly message
-        let errorMessage = error.message || 'Unknown error occurred';
-
-        if (errorMessage.includes('Storage')) {
-            errorMessage = 'Image upload failed. Please check your images and try again.';
-        } else if (errorMessage.includes('foreign key')) {
-            errorMessage = 'Invalid data relationship. Please refresh the page and try again.';
-        } else if (errorMessage.includes('violates')) {
-            errorMessage = 'Database validation error: ' + errorMessage;
-        }
-
-        showAlert('createAlert', `Error: ${errorMessage}`, 'error');
+        showAlert('createAlert', `Error: ${error.message || 'Unknown error'}`, 'error');
+    } finally {
+        isSubmitting = false;
     }
 }
 
 /**
- * Reset form back to clean state (for new experience).
+ * Reset form
  */
 function resetForm() {
     document.getElementById('createExperienceForm').reset();
 
-    // Clear uploaded images and revoke previews
     uploadedImages.forEach(img => {
-        if (img.file) {
-            URL.revokeObjectURL(img.preview);
-        }
+        if (img.file) URL.revokeObjectURL(img.preview);
     });
     uploadedImages = [];
 
-    // Clear previews UI
-    displayImagePreviews();
-
-    // Clear alerts
     document.getElementById('createAlert').innerHTML = '';
     document.getElementById('uploadProgress').classList.add('hidden');
+    document.getElementById('imagePreviews').innerHTML = '';
 
-    // Reset edit mode flags
     isEditMode = false;
     editingExperienceId = null;
 
-    // Reset form submit handler (still using handleSubmitForApproval)
+    // ✅ IMPORTANT: do NOT set form.onsubmit (it double-fires with addEventListener)
     const form = document.getElementById('createExperienceForm');
-    form.onsubmit = handleSubmitForApproval;
     form.querySelector('.btn-primary').textContent = 'Submit for Approval';
+    document.getElementById('createSectionHeading').textContent = 'Create New Experience';
 }
 
 /**
- * Edit experience: load its data into the form and switch to edit mode.
+ * Edit experience: load into form
  */
 async function editExperience(experienceId) {
     try {
-        // Find experience in local array
         const experience = experiences.find(exp => exp.experience_id === experienceId);
         if (!experience) return;
 
-        // Enable edit mode
         isEditMode = true;
         editingExperienceId = experienceId;
 
-        // Fill form fields with existing data
-        document.getElementById('title').value = experience.title;
-        document.getElementById('description').value = experience.event_description;
+        document.getElementById('title').value = experience.title || '';
+        document.getElementById('shortDescription').value = experience.short_description || '';
+        document.getElementById('description').value = experience.event_description || '';
 
-        // Load category from junction table
+        document.getElementById('bookingUrl').value = experience.booking_url || '';
+        document.getElementById('durationMinutes').value = experience.duration_minutes || '';
+
+        document.getElementById('whatYouDo').value = experience.what_you_do || '';
+        document.getElementById('whatsIncluded').value = experience.whats_included || '';
+
         const { data: expCategory } = await supabaseClient
             .from('experience_category')
             .select('category_id')
             .eq('experience_id', experienceId)
             .single();
 
-        if (expCategory) {
-            document.getElementById('category').value = expCategory.category_id;
-        }
+        if (expCategory) document.getElementById('category').value = expCategory.category_id;
 
-        // County is stored as text; find matching option in dropdown
         const countySelect = document.getElementById('county');
         for (let i = 0; i < countySelect.options.length; i++) {
             if (countySelect.options[i].text === experience.county) {
@@ -842,30 +828,35 @@ async function editExperience(experienceId) {
             }
         }
 
-        document.getElementById('minPrice').value = experience.min_price || '';
-        document.getElementById('maxPrice').value = experience.max_price || '';
-        document.getElementById('priceTier').value = experience.price_tier || '';
+        document.getElementById('minPrice').value = experience.min_price ?? '';
+        document.getElementById('maxPrice').value = experience.max_price ?? '';
+        document.getElementById('priceTier').value = experience.price_tier ?? '';
 
-        // Load existing images into uploadedImages array
         uploadedImages = [];
-        if (experience.images && experience.images.length > 0) {
-            experience.images.forEach(img => {
+        if (experience.images?.length) {
+            const sorted = [...experience.images].sort((a, b) => (a.display_order ?? 0) - (b.display_order ?? 0));
+            sorted.forEach(img => {
                 uploadedImages.push({
-                    file: null,             // existing image, no local file
-                    preview: img.image_url, // use URL directly
-                    uploaded: true,         // already uploaded
+                    file: null,
+                    preview: img.image_url,
+                    uploaded: true,
                     url: img.image_url,
-                    imageId: img.image_id   // keep track of DB id if needed
+                    imageId: img.image_id,
+                    isPrimary: !!img.is_primary
                 });
             });
+
+            if (!uploadedImages.some(i => i.isPrimary) && uploadedImages.length) {
+                uploadedImages[0].isPrimary = true;
+            }
+
             displayImagePreviews();
         }
 
-        // Change button text to indicate update, not create
         const form = document.getElementById('createExperienceForm');
         form.querySelector('.btn-primary').textContent = 'Update Experience';
+        document.getElementById('createSectionHeading').textContent = 'Edit Experience';
 
-        // Show create section in "edit" mode
         showSection('create');
         showAlert('createAlert', 'Editing experience - make your changes and click Update', 'info');
 
@@ -876,36 +867,12 @@ async function editExperience(experienceId) {
 }
 
 /**
- * Delete experience (and try to remove its images from storage).
+ * Delete experience
  */
 async function deleteExperience(experienceId) {
-    if (!confirm('Are you sure you want to delete this experience? This action cannot be undone.')) {
-        return;
-    }
+    if (!confirm('Are you sure you want to delete this experience? This action cannot be undone.')) return;
 
     try {
-        // Get experience from local array, mainly to find image URLs
-        const experience = experiences.find(exp => exp.experience_id === experienceId);
-
-        // Delete images from storage (legacy logic using image_urls if present)
-        if (experience && experience.image_urls && experience.image_urls.length > 0) {
-            for (const url of experience.image_urls) {
-                try {
-                    // Extract file path from full public URL
-                    const urlParts = url.split('/experience-images/');
-                    if (urlParts.length > 1) {
-                        const filePath = urlParts[1].split('?')[0]; // Remove query params
-                        await supabaseClient.storage
-                            .from('experience-images')
-                            .remove([filePath]);
-                    }
-                } catch (imgError) {
-                    console.error('Error deleting image:', imgError);
-                }
-            }
-        }
-
-        // Delete experience row from experiences table
         const { error } = await supabaseClient
             .from('experiences')
             .delete()
@@ -913,9 +880,7 @@ async function deleteExperience(experienceId) {
 
         if (error) throw error;
 
-        // Reload refreshed list
         await loadExperiences();
-
         alert('Experience deleted successfully');
 
     } catch (error) {
@@ -925,27 +890,25 @@ async function deleteExperience(experienceId) {
 }
 
 /**
- * Show alert message inside a given container.
- * elementId is the container DIV id (e.g. "createAlert").
+ * Alerts
  */
 function showAlert(elementId, message, type) {
     const alertDiv = document.getElementById(elementId);
+    if (!alertDiv) return;
+
     alertDiv.innerHTML = `
         <div class="alert alert-${type}">
             ${message}
         </div>
     `;
 
-    // Auto-hide success messages after a short delay
     if (type === 'success') {
-        setTimeout(() => {
-            alertDiv.innerHTML = '';
-        }, 3000);
+        setTimeout(() => { alertDiv.innerHTML = ''; }, 3000);
     }
 }
 
 /**
- * Handle logout using Supabase auth.
+ * Logout
  */
 async function handleLogout() {
     try {
