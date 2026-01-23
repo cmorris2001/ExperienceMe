@@ -419,10 +419,19 @@ function renderList(ulEl, items) {
     ulEl.innerHTML = '<li>Details coming soon.</li>';
     return;
   }
-
-  ulEl.innerHTML = items.map(i => `<li>${escapeHtml(i)}</li>`).join('');
+ulEl.innerHTML = items.map(i => `<li>${escapeHtml(i)}</li>`).join('');
 }
 // Attribute escape for data-url (prevents quote breaking)
 function escapeAttr(str) {
   return String(str).replaceAll('"', '&quot;').replaceAll("'", '&#039;');
+}
+
+// Escapes text so it’s safe to inject into innerHTML
+function escapeHtml(value = '') {
+  return String(value)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
 }
