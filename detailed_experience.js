@@ -1,20 +1,13 @@
 /**
  * detailed_experience.js
  * What it does:
- *  - Reads ?id= from URL
  *  - Loads 1 experience (approved + published)
  *  - Renders title/meta/description, images, host, pricing, lists
  *  - Handles auth nav state + sign out
  *  - Supports favourites + share
- *
- * Notes:
- *  - No URL "formatting"/normalising helpers
- *  - No inline onclicks / no global functions
- *  - No inner join for categories (and we don't render chips anyway)
  */
-
 // ---------------------------
-// State
+// Page state: stores the logged-in user, the current experience ID from the URL, and whether this experience is saved as a favorite
 // ---------------------------
 let authUser = null;
 let currentExperienceId = null;
@@ -113,7 +106,7 @@ function bindStaticEvents(els) {
     }
   });
 
-  // Share link
+  // Share link and error handling
   els.btnShare?.addEventListener('click', async () => {
     try {
       await navigator.clipboard.writeText(window.location.href);
@@ -136,7 +129,7 @@ function bindStaticEvents(els) {
 }
 
 // ---------------------------
-// Load experience + favourite state, then render
+// Load experience and favourite state, then render
 // ---------------------------
 async function loadAndRenderExperience(els, experienceId) {
   try {
@@ -241,7 +234,7 @@ function renderDetail(els, exp) {
 
   setText(els.badgePill, exp.duration_minutes ? `${exp.duration_minutes} mins` : 'Info');
 
-  // Booking URL (no normalisation/formatting – expects stored URLs are valid)
+  // Booking URL
   const finalUrl = exp.booking_url || biz.website_url || '';
   if (els.btnBusinessSite) {
     if (finalUrl) {
@@ -273,7 +266,7 @@ function renderDetail(els, exp) {
 }
 
 // ---------------------------
-// Thumbnails (no inline onclick)
+// Thumbnails
 // ---------------------------
 function renderThumbnails(els, images) {
   if (!els.thumbsRow) return;
@@ -366,6 +359,7 @@ function updateSaveButtonUI(els) {
 // ---------------------------
 // List + text helpers
 // ---------------------------
+// Bullet points render in where there is a list lik for whats included and what you will do sections
 function renderList(ulEl, items) {
   if (!ulEl) return;
 
@@ -418,16 +412,16 @@ function hideError(els) {
   els.detailError.classList.add('hidden');
 }
 
-// Minimal escaping for safe HTML injection
-function escapeHtml(str) {
-  return String(str)
-    .replaceAll('&', '&amp;')
-    .replaceAll('<', '&lt;')
-    .replaceAll('>', '&gt;')
-    .replaceAll('"', '&quot;')
-    .replaceAll("'", '&#039;');
-}
+function renderList(ulEl, items) {
+  if (!ulEl) return;
 
+  if (!items.length) {
+    ulEl.innerHTML = '<li>Details coming soon.</li>';
+    return;
+  }
+
+  ulEl.innerHTML = items.map(i => `<li>${escapeHtml(i)}</li>`).join('');
+}
 // Attribute escape for data-url (prevents quote breaking)
 function escapeAttr(str) {
   return String(str).replaceAll('"', '&quot;').replaceAll("'", '&#039;');

@@ -31,17 +31,17 @@
   </nav>
 
   <!-- =============================
-       DETAIL PAGE WRAPPER
-       ============================= -->
+     Detailed Experience Page Layout (styled via styles.css helpers)
+     ============================= -->
   <section class="detail-page">
     <div class="container">
 
-      <!-- Breadcrumb -->
+      <!-- Breadcrumb trail: shows where the user is (Explore › Location) and lets them click back to Explore -->
       <div class="breadcrumb">
         <a href="experiences.html">Explore</a> <span>›</span> <span id="crumbLocation">Ireland</span>
       </div>
 
-      <!-- Title + Meta -->
+      <!-- Title + meta: experience heading and key info (location/price/category) populated by JS once data loads -->
       <div class="detail-header">
         <h1 id="expTitle">Loading...</h1>
         <p class="detail-meta" id="expMeta">Loading details...</p>
@@ -137,7 +137,7 @@
             </div>
           </div>
 
-          <!-- What you'll do -->
+          <!-- What you'll do part -->
           <div class="detail-sections">
             <div class="detail-section">
               <h3>What you'll do</h3>
@@ -146,7 +146,7 @@
               </ul>
             </div>
 
-            <!-- What's included -->
+            <!-- What's included part -->
             <div class="detail-section">
               <h3>What's included</h3>
               <ul id="whatsIncludedList">
@@ -159,15 +159,17 @@
       </div>
     </div>
   </section>
-
+<!-- Protecting my rights as always -->
   <footer>
     <div class="footer-content">
       <p>&copy; 2026 ExperienceMe. All rights reserved.</p>
     </div>
   </footer>
-
+<!-- Supabase CDN (Supabase JS SDK = my toolkit for talking to database/auth) -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <!-- Supabase Client (creates supabaseClient with my project URL + API key, used in landing.js) -->
   <script src="lib/supabaseClient.js"></script>
+ <!-- Detailed Experience Page Script  -->
   <script src="detailed_experience.js"></script>
 </body>
 </html>

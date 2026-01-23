@@ -1,16 +1,9 @@
 /**
  * experiences.js
- * Purpose:
  *  - Load filter dropdowns (category + county)
  *  - Load experiences (approved + published)
  *  - Apply filters (search, county, budget, category)
  *  - Keep nav state correct (guest vs user) + sign out
- *
- * Notes:
- *  - This version avoids using PostgREST inner-join syntax in the select string.
- *  - Category filtering is done in two steps:
- *      1) Get matching experience_ids from experience_category
- *      2) Filter experiences using .in('experience_id', [...])
  */
 // Wait for DOM to be fully loaded before running any JS
   document.addEventListener('DOMContentLoaded', async () => {
@@ -60,6 +53,8 @@ function getEls() {
 // =============================
 // Auth + nav state
 // =============================
+// Logged in: show user nav and hide guest nav.
+// Logged out: show guest nav and hide user nav (using display flex/none).
 async function updateNavForAuthState(els) {
   try {
     const { data: { user }, error } = await supabaseClient.auth.getUser();
@@ -108,7 +103,7 @@ function bindEvents(els) {
 }
 
 // =============================
-// Load dropdown options (category + county)
+// Load dropdown options for category + county
 // =============================
 async function loadFilterOptions(els) {
   // Load categories
@@ -163,10 +158,13 @@ function getFilters(els) {
 }
 
 // =============================
-// Category filter helper (no inner join)
+// Category filter helper
 // =============================
+
+//Looks up which experiences belong to a selected category and returns their IDs so you can filter the experiences list properly.
+
 async function getExperienceIdsForCategory(categoryId) {
-  if (!categoryId) return null; // means "no category filtering"
+  if (!categoryId) return null; // means return all experiences when category isn't filtered
 
   const { data, error } = await supabaseClient
     .from('experience_category')
@@ -180,7 +178,7 @@ async function getExperienceIdsForCategory(categoryId) {
 }
 
 // =============================
-// Main loader: build query + render
+// Main loader of experiences
 // =============================
 async function loadExperiences(els) {
   // Show loading state
@@ -188,7 +186,7 @@ async function loadExperiences(els) {
   els.experiencesGrid.innerHTML = '<div class="loading">Loading...</div>';
 
   const { searchText, categoryId, county, budget } = getFilters(els);
-  console.log('Filters:', getFilters(els));
+  console.log('Filters:', getFilters(els)); // Debugger in console, returns filter values
 
   try {
     // 1) If category selected, fetch matching experience IDs first
@@ -218,9 +216,9 @@ async function loadExperiences(els) {
         image(image_url, is_primary)
       `)
       .in('status', ['approved', 'Approved'])
-      .eq('is_published', true);
+      .eq('is_published', true); // problem child during iteration 3 make sure supabase matches
 
-    // 3) Apply filters
+    // 3) Apply filters by querying
     if (searchText) {
       // Search title or description
       query = query.or(`title.ilike.%${searchText}%,event_description.ilike.%${searchText}%`);
@@ -231,7 +229,7 @@ async function loadExperiences(els) {
     }
 
     if (budget) {
-      // Budget filtering based on min_price (simple + consistent)
+      // Budget filtering based on min_price
       if (budget === 'under_50') query = query.lte('min_price', 50);
       if (budget === '50_100') query = query.gte('min_price', 50).lte('min_price', 100);
       if (budget === '100_200') query = query.gte('min_price', 100).lte('min_price', 200);
@@ -262,7 +260,7 @@ async function loadExperiences(els) {
 
 
 // =============================
-// Rendering (cards)
+// Rendering card like format
 // =============================
 function renderExperiences(els, experiences) {
   if (!experiences.length) {
@@ -310,12 +308,13 @@ function renderExperiences(els, experiences) {
 // =============================
 // Helpers
 // =============================
+//
 function getPrimaryImageUrl(exp) {
-  const imgs = exp?.image || [];
-  const primary = imgs.find((i) => i.is_primary) || imgs[0];
-  return primary?.image_url || '';
+  const imgs = exp?.image || []; // get exp.image array, or [] if missing
+  const primary = imgs.find((i) => i.is_primary) || imgs[0]; // try to find the one marked primary
+  return primary?.image_url || ''; // return its URL (or empty string)
 }
-
+//Format euro sign and round
 function formatEuro(value) {
   const n = Number(value);
   if (!Number.isFinite(n)) return '€0';
@@ -332,6 +331,7 @@ function escapeHtml(str) {
     .replaceAll("'", '&#039;');
 }
 
+// Read filters from the URL (e.g. ?county=Cork) and pre-select them in the search + dropdowns on page load.
 function applyFiltersFromUrl(els) {
   const params = new URLSearchParams(window.location.search);
 
@@ -343,12 +343,12 @@ function applyFiltersFromUrl(els) {
   // Set the hero search
   if (q) els.heroSearch.value = q;
 
-  // Set county dropdown (only if option exists)
+  // Set county dropdown
   if (county && [...els.countySelect.options].some(o => o.value === county)) {
     els.countySelect.value = county;
   }
 
-  // Set category dropdown (only if option exists)
+  // Set category dropdown
   if (categoryId && [...els.categorySelect.options].some(o => o.value === categoryId)) {
     els.categorySelect.value = categoryId;
   }

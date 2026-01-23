@@ -33,7 +33,7 @@
   </nav>
 
   <!-- =============================
-       HERO (Search lives here)
+       HERO search bar
        ============================= -->
   <section class="hero hero-small">
     <div class="hero-content">
@@ -56,7 +56,7 @@
   </section>
 
   <!-- =============================
-       EXPLORE LAYOUT (Filters + Results)
+       EXPLORE LAYOUT Filters and Results
        ============================= -->
   <section class="explore-marketplace">
     <div class="container-wide">
@@ -81,7 +81,7 @@
               <option value="">All Counties</option>
             </select>
           </div>
-
+          <!-- Filter options dropdown for budget -->
           <div class="filter-block">
             <label class="filter-label" for="budgetSelect">Budget</label>
             <select id="budgetSelect" class="select-input">
@@ -113,7 +113,7 @@
   </section>
 
   <!-- =============================
-       FOOTER
+       FOOTER with my rights for 2026
        ============================= -->
   <footer>
     <div class="footer-content">
@@ -125,8 +125,12 @@
   <!-- =============================
        SCRIPTS
        ============================= -->
+
+  <!-- Supabase CDN (Supabase JS SDK = my toolkit for talking to database/auth) -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <!-- Supabase Client (creates supabaseClient with my project URL + API key, used in landing.js) -->
   <script src="lib/supabaseClient.js"></script>
+  <!-- Explore Page Script (handles search, loading categories/counties from Supabase, etc.) -->
   <script src="experiences.js"></script>
 </body>
 </html>

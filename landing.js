@@ -160,7 +160,7 @@ function displayCounties(counties) {
 function searchByCategory(categoryId, categoryName) {
     console.log('Searching by category:', categoryName);
 
-    // NEW (Iteration 3): Instead of alerts, we send user to real experiences results page with filters applied
+    // Instead of alerts, we send user to real experiences results page with filters applied
     goToExperiencesPage({
         category_id: categoryId,
         category_name: categoryName
@@ -169,12 +169,12 @@ function searchByCategory(categoryId, categoryName) {
 
 /**
  * Search by county.
- * Same idea as above, placeholder only.
+ * Same idea as above
  */
 function searchByCounty(countyName) {
     console.log('Searching by county:', countyName);
 
-    // NEW (Iteration 3): Send user to real experiences results page filtered by county
+    // Send user to real experiences results page filtered by county
     goToExperiencesPage({
         county: countyName
     });
@@ -182,7 +182,6 @@ function searchByCounty(countyName) {
 
 /**
  * Handle search from hero search bar.
- * Also just a placeholder right now, doesn’t go to a results page yet.
  */
 function handleSearch() {
     const searchInput = document.getElementById('heroSearch');
@@ -195,7 +194,7 @@ function handleSearch() {
 
     console.log('Searching for:', query);
 
-    // NEW (Iteration 3): Send user to real experiences results page with search query
+    // Send user to real experiences results page with search query
     goToExperiencesPage({
         q: query
     });
@@ -209,14 +208,13 @@ document.getElementById('heroSearch')?.addEventListener('keypress', function(e) 
 });
 
 /**
- * NEW (Iteration 3): Central helper for navigation to experiences results page.
- * This keeps category / county / search all consistent, and avoids duplicated URL building logic.
+ * Central helper for navigation to experiences results page.
+ * This keeps category / county / search all consistent
  */
 function goToExperiencesPage(params = {}) {
     const url = new URL(window.location.origin + window.location.pathname.replace('landing.html', 'experiences.html'));
 
-    // If user loads landing.html as default without filename (e.g. /index), the above might fail
-    // so we handle that safely here.
+    // If user loads site without landing.html it will still open experiences.html kind of a safety net
     if (!url.pathname.endsWith('experiences.html')) {
         url.pathname = url.pathname.replace(/\/[^\/]*$/, '/experiences.html');
     }
@@ -232,7 +230,6 @@ function goToExperiencesPage(params = {}) {
 
 /**
  * Check if user is authenticated, logs result in console.
- * Later I could use this to change nav buttons (e.g. show “Dashboard”).
  */
 async function checkAuthStatus() {
     try {
@@ -252,7 +249,6 @@ async function checkAuthStatus() {
 
 /**
  * Update UI for logged in users.
- * Right now just a placeholder, but this is where I could show personalised landing.
  */
 function updateUIForLoggedInUser(user) {
     console.log('User authenticated, could show personalized content');
@@ -266,7 +262,7 @@ function updateUIForLoggedInUser(user) {
 }
 
 /**
- * NEW (Iteration 3): Update UI for logged out users.
+   Update UI for logged out users.
  * This keeps behaviour consistent if session changes or user signs out.
  */
 function updateUIForLoggedOutUser() {
@@ -278,7 +274,7 @@ function updateUIForLoggedOutUser() {
 }
 
 /**
- * NEW (Iteration 3): Wire up sign out button so logged-in users can sign out from landing page.
+ Sign out button so logged-in users can sign out from landing page.
  */
 function wireUpSignOut() {
     const btn = document.getElementById('btnSignOut');
@@ -306,7 +302,7 @@ function wireUpSignOut() {
 
 /**
  * Smooth scroll for anchor links (like #features, #about).
- * Makes navigation feel nicer than instant jumps.
+ * Makes navigation feel smoother and nicer
  */
 document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     anchor.addEventListener('click', function (e) {

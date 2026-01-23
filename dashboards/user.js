@@ -1,51 +1,39 @@
-// User Dashboard
+// User Dashboard (user.js)
 // - Handles auth + profile info
-// - Explore tab: landing-style hero, search, recently added approved experiences
-// - Favorites tab: add/remove favorites using a "favorite" table in Supabase
+// - Favorites tab: loads favorites directly from DB (no Explore section)
+// - Allows user to remove favorites (heart button)
+// - Simple section switching (profile / favorites)
 
-let currentUser = null;          // Supabase auth user
-let currentUserData = null;      // Matching record from "users" table
-
-let allExperiences = [];               // All approved experiences for Explore tab
+let currentUser = null;               // Supabase auth user
+let currentUserData = null;           // Matching row from "users" table
 let favoriteExperienceIds = new Set(); // Set of experience_ids the user has favorited
-let exploreSearchTerm = '';            // Current search term in Explore search bar
 
 document.addEventListener('DOMContentLoaded', async () => {
     console.log("User dashboard loaded");
 
-    // Check if user is logged in via Supabase auth
-    const { data: { user } } = await supabaseClient.auth.getUser();
+    // 1) Check if user is logged in via Supabase auth
+    const { data: { user }, error } = await supabaseClient.auth.getUser();
+    if (error) console.warn('Auth getUser warning:', error.message);
+
     if (!user) {
-        // If no user, send them back to login
+        // If no user, send to login
         window.location.href = '../auth/login.html';
         return;
     }
 
     currentUser = user;
 
-    // Load user profile info (name, email, role)
+    // 2) Load user profile info (name, email, role)
     await loadUserInfo();
 
-    // Load explore experiences + favorites at the same time
-    await Promise.all([
-        loadExploreExperiences(),
-        loadFavorites()
-    ]);
+    // 3) Load favorites list
+    await loadFavorites();
 
-    // Logout button logic
-    document.getElementById('logoutBtn').addEventListener('click', handleLogout);
+    // 4) Logout button
+    document.getElementById('logoutBtn')?.addEventListener('click', handleLogout);
 
-    // Live search on heroSearch input (Explore tab)
-    const searchInput = document.getElementById('heroSearch');
-    if (searchInput) {
-        searchInput.addEventListener('input', () => {
-            exploreSearchTerm = searchInput.value.trim().toLowerCase();
-            renderExploreList(); // Re-filter experiences as user types
-        });
-    }
-
-    // Default tab when user opens dashboard
-    showSection('explore');
+    // Default tab when user opens dashboard (Profile)
+    showSection('profile');
 });
 
 /* ======================
@@ -53,7 +41,7 @@ document.addEventListener('DOMContentLoaded', async () => {
    ====================== */
 
 /**
- * Load user info from "users" table and display on profile tab.
+ * Load user info from "users" table and display on profile section.
  */
 async function loadUserInfo() {
     const { data, error } = await supabaseClient
@@ -70,122 +58,17 @@ async function loadUserInfo() {
     currentUserData = data;
 
     // Insert basic user info into #userInfo div
+    const fullName = data.full_name || '—';
+    const email = data.email || currentUser.email || '—';
+    const role = data.role || 'user';
+
     document.getElementById('userInfo').innerHTML = `
         <p style="color: var(--text-secondary);">
-            <strong>Name:</strong> ${data.full_name}<br>
-            <strong>Email:</strong> ${data.email}<br>
-            <strong>Role:</strong> ${data.role}
+            <strong>Name:</strong> ${fullName}<br>
+            <strong>Email:</strong> ${email}<br>
+            <strong>Role:</strong> ${role}
         </p>
     `;
-}
-
-/* ======================
-   Explore: Approved Experiences
-   ====================== */
-
-/**
- * Load all approved experiences from Supabase for the Explore tab.
- */
-async function loadExploreExperiences() {
-    try {
-        const { data, error } = await supabaseClient
-            .from('experiences')
-            .select('*')
-            .eq('status', 'approved')
-            .order('created_at', { ascending: false });
-
-        if (error) throw error;
-
-        // Could slice here if you only want a subset (top 8 etc.)
-        // allExperiences = (data || []).slice(0, 8);
-        allExperiences = data || [];
-
-        renderExploreList();
-    } catch (err) {
-        console.error('Error loading explore experiences:', err);
-        const container = document.getElementById('exploreResults');
-        if (container) {
-            container.innerHTML = '<p class="alert alert-error">Error loading experiences</p>';
-        }
-    }
-}
-
-/**
- * Apply search filter to experiences based on title or county.
- */
-function getFilteredExploreExperiences() {
-    if (!exploreSearchTerm) return allExperiences;
-
-    return allExperiences.filter(exp => {
-        const title = (exp.title || '').toLowerCase();
-        const county = (exp.county || '').toLowerCase();
-        // Match search term on title or county
-        return title.includes(exploreSearchTerm) || county.includes(exploreSearchTerm);
-    });
-}
-
-/**
- * Render Explore list into #exploreResults using exploreCardTemplate.
- */
-function renderExploreList() {
-    const container = document.getElementById('exploreResults');
-    if (!container) return;
-
-    const list = getFilteredExploreExperiences();
-
-    if (!list.length) {
-        container.innerHTML = `
-            <div style="padding:2rem;text-align:center;color:var(--text-secondary);">
-                No experiences found. Try a different search.
-            </div>
-        `;
-        return;
-    }
-
-    const template = document.getElementById('exploreCardTemplate');
-    const fragment = document.createDocumentFragment();
-
-    list.forEach(exp => {
-        const card = template.content.cloneNode(true);
-
-        // Title
-        card.querySelector('[data-field="title"]').textContent = exp.title || 'Untitled';
-
-        // Meta (for now just county, can be extended later)
-        const meta = `${exp.county || 'Location TBD'}`;
-        card.querySelector('[data-field="meta"]').textContent = meta;
-
-        // Price formatting
-        const price = (exp.min_price && exp.max_price)
-            ? `€${exp.min_price} – €${exp.max_price}`
-            : (exp.min_price ? `From €${exp.min_price}` : 'Price TBD');
-        card.querySelector('[data-field="price"]').textContent = price;
-
-        // Favorite button heart state
-        const favBtn = card.querySelector('.favorite-toggle');
-        const isFav = favoriteExperienceIds.has(exp.experience_id);
-
-        favBtn.textContent = isFav ? '♥' : '♡'; // filled vs hollow heart
-        favBtn.title = isFav ? 'Remove from favorites' : 'Add to favorites';
-
-        // Clicking heart toggles favorite in DB and UI
-        favBtn.addEventListener('click', () => toggleFavorite(exp.experience_id));
-
-        fragment.appendChild(card);
-    });
-
-    container.innerHTML = '';
-    container.appendChild(fragment);
-}
-
-/**
- * Manual search button handler (called from onclick in HTML).
- * Basically same as typing into input but triggered by button.
- */
-function searchExplore() {
-    const input = document.getElementById('heroSearch');
-    exploreSearchTerm = (input?.value || '').trim().toLowerCase();
-    renderExploreList();
 }
 
 /* ======================
@@ -193,23 +76,42 @@ function searchExplore() {
    ====================== */
 
 /**
- * Load favorites for current user from "favorite" table.
+ * Load favorites for current user from "favorite" table,
+ * then fetch the matching experiences from "experiences".
  */
 async function loadFavorites() {
     try {
-        const { data, error } = await supabaseClient
-            .from('favorite') // table name is singular
+        // 1) Get favorite IDs for this user
+        const { data: favRows, error: favErr } = await supabaseClient
+            .from('favorite')               // table name is singular in your project
             .select('experience_id')
             .eq('user_id', currentUser.id);
 
-        if (error) throw error;
+        if (favErr) throw favErr;
 
-        // Store as a Set for quick lookup
-        favoriteExperienceIds = new Set((data || []).map(row => row.experience_id));
+        const ids = (favRows || []).map(r => r.experience_id);
+        favoriteExperienceIds = new Set(ids);
 
-        // Update both Explore hearts + Favorites tab
-        renderExploreList();
-        renderFavoritesList();
+        // If none saved, render empty state
+        if (ids.length === 0) {
+            renderFavoritesList([]);
+            return;
+        }
+
+        // 2) Fetch the experiences for those IDs
+        const { data: exps, error: expErr } = await supabaseClient
+            .from('experiences')
+            .select('experience_id, title, county, min_price, max_price, status, is_published')
+            .in('experience_id', ids)
+            .order('created_at', { ascending: false });
+
+        if (expErr) throw expErr;
+
+        // Optional: only show approved/published experiences
+        const safe = (exps || []).filter(e => e.status === 'approved' && e.is_published === true);
+
+        renderFavoritesList(safe);
+
     } catch (err) {
         console.error('Error loading favorites:', err);
         const container = document.getElementById('favoritesList');
@@ -222,19 +124,14 @@ async function loadFavorites() {
 /**
  * Render "My Favorites" list into #favoritesList using favoriteCardTemplate.
  */
-function renderFavoritesList() {
+function renderFavoritesList(favorites) {
     const container = document.getElementById('favoritesList');
     if (!container) return;
-
-    // Filter allExperiences against favorite ids
-    const favorites = allExperiences.filter(exp =>
-        favoriteExperienceIds.has(exp.experience_id)
-    );
 
     if (!favorites.length) {
         container.innerHTML = `
             <div style="padding:2rem;text-align:center;color:var(--text-secondary);">
-                You have no favorites yet. Go to <strong>Explore</strong> and add some!
+                You have no favorites yet. Go to <a href="../experiences.html"><strong>Explore</strong></a> and add some!
             </div>
         `;
         return;
@@ -249,17 +146,22 @@ function renderFavoritesList() {
         // Title
         card.querySelector('[data-field="title"]').textContent = exp.title || 'Untitled';
 
-        // Meta
-        const meta = `${exp.county || 'Location TBD'}`;
-        card.querySelector('[data-field="meta"]').textContent = meta;
+        // Meta (for now just county)
+        card.querySelector('[data-field="meta"]').textContent = exp.county || 'Location TBD';
 
-        // Price
-        const price = (exp.min_price && exp.max_price)
+        // Price formatting
+        const price = (exp.min_price != null && exp.max_price != null)
             ? `€${exp.min_price} – €${exp.max_price}`
-            : (exp.min_price ? `From €${exp.min_price}` : 'Price TBD');
+            : (exp.min_price != null ? `From €${exp.min_price}` : 'Price TBD');
         card.querySelector('[data-field="price"]').textContent = price;
 
-        // Heart button removes from favorites
+        // View details link
+        const viewLink = card.querySelector('[data-field="viewLink"]');
+        if (viewLink) {
+            viewLink.href = `../detailed_experience.html?id=${encodeURIComponent(exp.experience_id)}`;
+        }
+
+        // Heart button removes favorite
         const favBtn = card.querySelector('.favorite-toggle');
         favBtn.addEventListener('click', () => toggleFavorite(exp.experience_id));
 
@@ -271,14 +173,14 @@ function renderFavoritesList() {
 }
 
 /* ======================
-   Toggle Favorite (Add / Remove)
+   Toggle Favorite (Remove)
    ====================== */
 
 /**
- * Toggle favorite state for a given experience:
+ * Toggle favorite state:
  * - If already favorite, delete from "favorite" table.
  * - If not favorite, insert into "favorite" table.
- * Then update Set + re-render UI.
+ * Then reload favorites so UI stays accurate.
  */
 async function toggleFavorite(experienceId) {
     try {
@@ -293,9 +195,9 @@ async function toggleFavorite(experienceId) {
             if (error) throw error;
 
             favoriteExperienceIds.delete(experienceId);
-            showAlert('Removed from favorites', 'info');
+            showToast('Removed from favorites', 'info');
         } else {
-            // Add to favorites
+            // Add back (in case you reuse this on other pages later)
             const { error } = await supabaseClient
                 .from('favorite')
                 .insert({
@@ -306,15 +208,15 @@ async function toggleFavorite(experienceId) {
             if (error) throw error;
 
             favoriteExperienceIds.add(experienceId);
-            showAlert('Added to favorites', 'success');
+            showToast('Added to favorites', 'success');
         }
 
-        // Refresh lists to reflect updated hearts
-        renderExploreList();
-        renderFavoritesList();
+        // Reload favorites list from DB (single source of truth)
+        await loadFavorites();
+
     } catch (err) {
         console.error('Error toggling favorite:', err);
-        showAlert('Error updating favorites', 'error');
+        showToast('Error updating favorites', 'error');
     }
 }
 
@@ -323,8 +225,8 @@ async function toggleFavorite(experienceId) {
    ====================== */
 
 /**
- * Show one of the three sections: explore, favorites, profile.
- * (Hooked up to inline onclick in userDashboard.html)
+ * Show one of the sections: favorites or profile.
+ * (Hooked up to inline onclick in user.html)
  */
 function showSection(section) {
     // Hide all user sections
@@ -333,24 +235,17 @@ function showSection(section) {
     // Show selected section
     const target = document.getElementById(`${section}Section`);
     if (target) target.classList.remove('hidden');
-
-    // Optional: update some page title element if present
-    const prettyName = section.charAt(0).toUpperCase() + section.slice(1);
-    const titleEl = document.getElementById('pageTitle');
-    if (titleEl) {
-        titleEl.textContent = prettyName;
-    }
 }
 
 /* ======================
-   Alerts
+   Toast Alerts (simple)
    ====================== */
 
 /**
- * Floating alert helper (bottom-right) for quick feedback.
+ * Floating toast helper (bottom-right) for quick feedback.
  * type: 'success' | 'error' | 'info'
  */
-function showAlert(message, type) {
+function showToast(message, type) {
     const el = document.createElement('div');
     const map = {
         success: 'alert-success',
@@ -364,9 +259,10 @@ function showAlert(message, type) {
     el.style.bottom = '20px';
     el.style.right = '20px';
     el.style.zIndex = '9999';
+    el.style.maxWidth = '320px';
 
     document.body.appendChild(el);
-    setTimeout(() => el.remove(), 2500);
+    setTimeout(() => el.remove(), 2200);
 }
 
 /* ======================
@@ -377,11 +273,14 @@ function showAlert(message, type) {
  * Log user out and send back to landing page.
  */
 async function handleLogout() {
-    await supabaseClient.auth.signOut();
-    window.location.href = '../landing.html';
+    try {
+        await supabaseClient.auth.signOut();
+        window.location.href = '../landing.html';
+    } catch (err) {
+        console.error('Logout error:', err);
+        showToast('Error logging out', 'error');
+    }
 }
 
-/* Expose functions for inline onclick attributes in HTML */
+/* Expose function for inline onclick in HTML */
 window.showSection = showSection;
-window.searchExplore = searchExplore;
-
