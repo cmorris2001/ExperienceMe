@@ -9,69 +9,43 @@
 // ---------------------------
 // Page state: stores the logged-in user, the current experience ID from the URL, and whether this experience is saved as a favorite
 // ---------------------------
+// ---------------------------
+// Page state
+// ---------------------------
+// Stores the logged-in user, the current experience ID from the URL,
+// and whether this experience is saved as a favourite.
 let authUser = null;
 let currentExperienceId = null;
 let isFavorited = false;
 
 // ---------------------------
-// DOM Ready (entry point)
+// DOM Ready
 // ---------------------------
 document.addEventListener('DOMContentLoaded', async () => {
-  const els = getEls();
+  console.log('✅ detailed_experience.js loaded');
 
+  // Check login (used for nav + favourites)
   authUser = await getAuthUser();
-  setNavState(els, authUser);
 
-  bindStaticEvents(els);
+  // Update nav based on login state
+  setNavState(authUser);
 
+  // Wire up buttons/links that always exist on this page
+  bindStaticEvents();
+
+  // Read experience id from the URL (e.g. detailed_experience.html?id=123)
   const experienceId = new URLSearchParams(window.location.search).get('id');
+
+  // If no ID, show an error message and stop
   if (!experienceId) {
-    showError(els, 'Missing experience id in URL.');
+    showError('Missing experience id in URL.');
     return;
   }
 
+  //  Load and render the experience data
   currentExperienceId = experienceId;
-  await loadAndRenderExperience(els, experienceId);
+  await loadAndRenderExperience(experienceId);
 });
-
-// ---------------------------
-// Cache DOM elements once
-// ---------------------------
-function getEls() {
-  return {
-    navGuest: document.getElementById('navGuest'),
-    navUser: document.getElementById('navUser'),
-    btnSignOut: document.getElementById('btnSignOut'),
-
-    crumbLocation: document.getElementById('crumbLocation'),
-    expTitle: document.getElementById('expTitle'),
-    expMeta: document.getElementById('expMeta'),
-    expDescription: document.getElementById('expDescription'),
-
-    detailError: document.getElementById('detailError'),
-
-    mainImage: document.getElementById('mainImage'),
-    thumbsRow: document.getElementById('thumbsRow'),
-
-    hostLogoWrap: document.getElementById('hostLogoWrap'),
-    hostLogo: document.getElementById('hostLogo'),
-    hostName: document.getElementById('hostName'),
-    hostLocation: document.getElementById('hostLocation'),
-    hostDescription: document.getElementById('hostDescription'),
-
-    priceFrom: document.getElementById('priceFrom'),
-    priceTier: document.getElementById('priceTier'),
-    priceRange: document.getElementById('priceRange'),
-    badgePill: document.getElementById('badgePill'),
-
-    btnBusinessSite: document.getElementById('btnBusinessSite'),
-    btnSave: document.getElementById('btnSave'),
-    btnShare: document.getElementById('btnShare'),
-
-    whatYouDoList: document.getElementById('whatYouDoList'),
-    whatsIncludedList: document.getElementById('whatsIncludedList'),
-  };
-}
 
 // ---------------------------
 // Auth helpers
@@ -86,18 +60,34 @@ async function getAuthUser() {
   }
 }
 
-function setNavState(els, user) {
+// =============================
+// Nav state (guest vs user)
+// =============================
+// Logged in: show user nav, hide guest nav.
+// Logged out: show guest nav, hide user nav.
+function setNavState(user) {
+  const navGuest = document.getElementById('navGuest');
+  const navUser  = document.getElementById('navUser');
+
   const loggedIn = !!user;
-  if (els.navGuest) els.navGuest.style.display = loggedIn ? 'none' : 'flex';
-  if (els.navUser) els.navUser.style.display = loggedIn ? 'flex' : 'none';
+
+  if (navGuest) navGuest.style.display = loggedIn ? 'none' : 'flex';
+  if (navUser)  navUser.style.display  = loggedIn ? 'flex' : 'none';
 }
 
 // ---------------------------
 // Bind events that do not depend on data
 // ---------------------------
-function bindStaticEvents(els) {
+// "Static" = buttons that exist regardless of which experience is loaded.
+function bindStaticEvents() {
+  const btnSignOut = document.getElementById('btnSignOut');
+  const btnShare   = document.getElementById('btnShare');
+  const btnSave    = document.getElementById('btnSave');
+
+  // ---------------------------
   // Sign out
-  els.btnSignOut?.addEventListener('click', async () => {
+  // ---------------------------
+  btnSignOut?.addEventListener('click', async () => {
     try {
       await supabaseClient.auth.signOut();
       window.location.href = 'landing.html';
@@ -106,8 +96,10 @@ function bindStaticEvents(els) {
     }
   });
 
-  // Share link and error handling
-  els.btnShare?.addEventListener('click', async () => {
+  // ---------------------------
+  // Share link (copy URL to clipboard)
+  // ---------------------------
+  btnShare?.addEventListener('click', async () => {
     try {
       await navigator.clipboard.writeText(window.location.href);
       alert('Link copied!');
@@ -116,26 +108,37 @@ function bindStaticEvents(els) {
     }
   });
 
+  // ---------------------------
   // Save / favourite
-  els.btnSave?.addEventListener('click', async () => {
+  // ---------------------------
+  btnSave?.addEventListener('click', async () => {
+    // If user is not logged in, send them to login page
     if (!authUser) {
       window.location.href = 'auth/login.html';
       return;
     }
+
+    // If we somehow don't have an experience loaded, do nothing
     if (!currentExperienceId) return;
+
+    // Toggle favourite state in the database, then update the button text/icon
     await toggleFavorite(currentExperienceId);
-    updateSaveButtonUI(els);
+    updateSaveButtonUI();
   });
 }
 
 // ---------------------------
 // Load experience and favourite state, then render
 // ---------------------------
-async function loadAndRenderExperience(els, experienceId) {
+// 1) Hide any previous error
+// 2) Load the experience from Supabase
+// 3) If logged in, load favourite status + update save button
+// 4) Render the experience details to the page
+async function loadAndRenderExperience(experienceId) {
   try {
-    hideError(els);
+    hideError();
 
-    // 1) Load the experience
+    // Load the experience
     const { data: exp, error } = await supabaseClient
       .from('experiences')
       .select(`
@@ -167,62 +170,104 @@ async function loadAndRenderExperience(els, experienceId) {
       .eq('is_published', true)
       .single();
 
+    // If Supabase returns an error or no record, show a friendly message
     if (error || !exp) {
       console.error('Error loading experience:', error);
-      showError(els, 'Could not load this experience.');
+      showError('Could not load this experience.');
       return;
     }
 
-    // 2) If logged in, load favourite state
+    // If logged in, load favourite state for this experience
     if (authUser) {
       await loadFavoriteState(experienceId);
     }
-    updateSaveButtonUI(els);
 
-    // 3) Render
-    renderDetail(els, exp);
+    // Update Save button UI (e.g. "Save" vs "Saved")
+    updateSaveButtonUI();
+
+    // Render all detail sections
+    renderDetail(exp);
+
   } catch (err) {
     console.error('Error in loadAndRenderExperience:', err);
-    showError(els, 'Something went wrong.');
+    showError('Something went wrong.');
   }
 }
+
 
 // ---------------------------
 // Render UI
 // ---------------------------
-function renderDetail(els, exp) {
-  // Title + breadcrumb
-  setText(els.expTitle, exp.title || 'Experience');
-  setText(els.crumbLocation, exp.county || 'Ireland');
+// Takes the experience record from Supabase and fills the HTML elements on the page.
+function renderDetail(exp) {
+  // Grab elements directly from the DOM (Option B style)
+  const crumbLocation   = document.getElementById('crumbLocation');
+  const expTitle        = document.getElementById('expTitle');
+  const expMeta         = document.getElementById('expMeta');
+  const expDescription  = document.getElementById('expDescription');
 
+  const mainImage       = document.getElementById('mainImage');
+  const thumbsRow       = document.getElementById('thumbsRow');
+
+  const hostLogoWrap    = document.getElementById('hostLogoWrap');
+  const hostLogo        = document.getElementById('hostLogo');
+  const hostName        = document.getElementById('hostName');
+  const hostLocation    = document.getElementById('hostLocation');
+  const hostDescription = document.getElementById('hostDescription');
+
+  const priceFrom       = document.getElementById('priceFrom');
+  const priceTier       = document.getElementById('priceTier');
+  const priceRange      = document.getElementById('priceRange');
+  const badgePill       = document.getElementById('badgePill');
+
+  const btnBusinessSite = document.getElementById('btnBusinessSite');
+
+  const whatYouDoList      = document.getElementById('whatYouDoList');
+  const whatsIncludedList  = document.getElementById('whatsIncludedList');
+
+  // ---------------------------
+  // Title + breadcrumb
+  // ---------------------------
+  setText(expTitle, exp.title || 'Experience');
+  setText(crumbLocation, exp.county || 'Ireland');
+
+  // ---------------------------
   // Description (prefer full event_description)
+  // ---------------------------
   const description =
     (exp.event_description && exp.event_description.trim()) ||
     (exp.short_description && exp.short_description.trim()) ||
     'No description provided yet.';
-  setText(els.expDescription, description);
+  setText(expDescription, description);
 
-  // Meta line
+  // ---------------------------
+  // Meta line (county + duration)
+  // ---------------------------
   const durationText = exp.duration_minutes ? `${exp.duration_minutes} mins` : 'Duration TBD';
   const metaParts = [exp.county || 'Ireland', durationText].filter(Boolean);
-  setText(els.expMeta, metaParts.join(' • '));
+  setText(expMeta, metaParts.join(' • '));
 
-  // Host block
+  // ---------------------------
+  // Host (business) block
+  // ---------------------------
   const biz = exp.business || {};
-  setText(els.hostName, biz.business_name || 'Business');
-  setText(els.hostLocation, biz.location_text || (exp.county ? `${exp.county}, Ireland` : 'Ireland'));
-  setText(els.hostDescription, (biz.business_description || '').trim() || 'Business description coming soon.');
+  setText(hostName, biz.business_name || 'Business');
+  setText(hostLocation, biz.location_text || (exp.county ? `${exp.county}, Ireland` : 'Ireland'));
+  setText(hostDescription, (biz.business_description || '').trim() || 'Business description coming soon.');
 
-  if (biz.business_image_url && els.hostLogoWrap && els.hostLogo) {
-    els.hostLogo.src = biz.business_image_url;
-    els.hostLogoWrap.style.display = 'block';
-  } else if (els.hostLogoWrap) {
-    els.hostLogoWrap.style.display = 'none';
+  // Show/hide host logo
+  if (biz.business_image_url && hostLogoWrap && hostLogo) {
+    hostLogo.src = biz.business_image_url;
+    hostLogoWrap.style.display = 'block';
+  } else if (hostLogoWrap) {
+    hostLogoWrap.style.display = 'none';
   }
 
+  // ---------------------------
   // Pricing
-  setText(els.priceFrom, exp.min_price != null ? `€${toMoney(exp.min_price)}` : '€—');
-  setText(els.priceTier, exp.price_tier || '—');
+  // ---------------------------
+  setText(priceFrom, exp.min_price != null ? `€${toMoney(exp.min_price)}` : '€—');
+  setText(priceTier, exp.price_tier || '—');
 
   const range =
     (exp.min_price != null && exp.max_price != null)
@@ -230,66 +275,95 @@ function renderDetail(els, exp) {
       : (exp.min_price != null)
         ? `From €${toMoney(exp.min_price)}`
         : '—';
-  setText(els.priceRange, range);
+  setText(priceRange, range);
 
-  setText(els.badgePill, exp.duration_minutes ? `${exp.duration_minutes} mins` : 'Info');
+  // Small badge pill (duration or generic info)
+  setText(badgePill, exp.duration_minutes ? `${exp.duration_minutes} mins` : 'Info');
 
-  // Booking URL
+  // ---------------------------
+  // Booking URL (prefer booking_url, fall back to business website_url)
+  // ---------------------------
   const finalUrl = exp.booking_url || biz.website_url || '';
-  if (els.btnBusinessSite) {
+
+  if (btnBusinessSite) {
     if (finalUrl) {
-      els.btnBusinessSite.href = finalUrl;
-      els.btnBusinessSite.style.pointerEvents = 'auto';
-      els.btnBusinessSite.style.opacity = '1';
+      btnBusinessSite.href = finalUrl;
+      btnBusinessSite.style.pointerEvents = 'auto';
+      btnBusinessSite.style.opacity = '1';
     } else {
-      els.btnBusinessSite.href = '#';
-      els.btnBusinessSite.style.pointerEvents = 'none';
-      els.btnBusinessSite.style.opacity = '0.6';
+      btnBusinessSite.href = '#';
+      btnBusinessSite.style.pointerEvents = 'none';
+      btnBusinessSite.style.opacity = '0.6';
     }
   }
 
+  // ---------------------------
   // Images + thumbnails
+  // ---------------------------
   const images = Array.isArray(exp.image) ? exp.image : [];
+
+  // Sort by display_order (lowest first); items with no display_order go last
   const sorted = images
     .slice()
     .sort((a, b) => (a.display_order ?? 999) - (b.display_order ?? 999));
 
+  // Choose primary image, else first image, else placeholder
   const primary = sorted.find(i => i.is_primary) || sorted[0];
-  const mainUrl = primary?.image_url || `https://via.placeholder.com/1200x800?text=${encodeURIComponent(exp.title || 'Experience')}`;
-  if (els.mainImage) els.mainImage.src = mainUrl;
+  const mainUrl =
+    primary?.image_url ||
+    `https://via.placeholder.com/1200x800?text=${encodeURIComponent(exp.title || 'Experience')}`;
 
-  renderThumbnails(els, sorted);
+  if (mainImage) mainImage.src = mainUrl;
 
+  // Render thumbnail row
+  renderThumbnails(thumbsRow, sorted);
+
+  // ---------------------------
   // Lists (what you'll do / what's included)
-  renderList(els.whatYouDoList, splitToItems(exp.what_you_do));
-  renderList(els.whatsIncludedList, splitToItems(exp.whats_included));
+  // ---------------------------
+  renderList(whatYouDoList, splitToItems(exp.what_you_do));
+  renderList(whatsIncludedList, splitToItems(exp.whats_included));
 }
 
 // ---------------------------
 // Thumbnails
 // ---------------------------
-function renderThumbnails(els, images) {
-  if (!els.thumbsRow) return;
+// Renders up to 4 thumbnails into the thumbs row.
+// Clicking a thumbnail swaps the main image.
+function renderThumbnails(thumbsRow, images) {
+  if (!thumbsRow) return;
 
-  if (!images.length) {
-    els.thumbsRow.innerHTML = '';
+  const mainImage = document.getElementById('mainImage');
+
+  if (!images || !images.length) {
+    thumbsRow.innerHTML = '';
     return;
   }
 
   const thumbs = images.slice(0, 4);
-  els.thumbsRow.innerHTML = thumbs.map((img) => {
-    const url = img.image_url || '';
-    return `
-      <div class="detail-thumb" data-url="${escapeAttr(url)}">
-        <img src="${url}" alt="Thumbnail">
-      </div>
-    `;
-  }).join('');
 
-  els.thumbsRow.querySelectorAll('.detail-thumb').forEach((thumb) => {
+  // Clear then build thumbnails using DOM methods
+  thumbsRow.innerHTML = '';
+
+  thumbs.forEach((img) => {
+    const url = img.image_url || '';
+    const thumb = document.createElement('div');
+    thumb.className = 'detail-thumb';
+    thumb.dataset.url = url; // stored safely (no HTML string escaping needed)
+
+    const imageEl = document.createElement('img');
+    imageEl.src = url;
+    imageEl.alt = 'Thumbnail';
+
+    thumb.appendChild(imageEl);
+    thumbsRow.appendChild(thumb);
+  });
+
+  // Click handler (swap main image)
+  thumbsRow.querySelectorAll('.detail-thumb').forEach((thumb) => {
     thumb.addEventListener('click', () => {
-      const url = thumb.getAttribute('data-url') || '';
-      if (els.mainImage && url) els.mainImage.src = url;
+      const url = thumb.dataset.url || '';
+      if (mainImage && url) mainImage.src = url;
     });
   });
 }
@@ -341,29 +415,55 @@ async function toggleFavorite(experienceId) {
   }
 }
 
-function updateSaveButtonUI(els) {
-  if (!els.btnSave) return;
+// ---------------------------
+// Update the Save / Favourite button based on login + favourite state
+// ---------------------------
+function updateSaveButtonUI() {
+  const btnSave = document.getElementById('btnSave');
+  if (!btnSave) return;
 
+  // If user is not logged in, show disabled-style save button
   if (!authUser) {
-    els.btnSave.textContent = '♡ Save';
-    els.btnSave.title = 'Log in to save favourites';
-    els.btnSave.style.opacity = '0.7';
+    btnSave.textContent = '♡ Save';
+    btnSave.title = 'Log in to save favourites';
+    btnSave.style.opacity = '0.7';
     return;
   }
 
-  els.btnSave.style.opacity = '1';
-  els.btnSave.textContent = isFavorited ? '♥ Saved' : '♡ Save';
-  els.btnSave.title = isFavorited ? 'Remove from favourites' : 'Add to favourites';
+  // Logged in: show saved state based on isFavorited
+  btnSave.style.opacity = '1';
+  btnSave.textContent = isFavorited ? '♥ Saved' : '♡ Save';
+  btnSave.title = isFavorited ? 'Remove from favourites' : 'Add to favourites';
 }
 
 // ---------------------------
 // List + text helpers
 // ---------------------------
-// Bullet points render in where there is a list lik for whats included and what you will do sections
+
+// Convert a text block into bullet list items.
+// Supports newline OR comma separated input.
+// Also strips leading bullets/dashes like "- item" or "• item".
+function splitToItems(text) {
+  const raw = String(text || '').trim();
+  if (!raw) return [];
+
+  let parts = raw.split('\n').map(s => s.trim()).filter(Boolean);
+
+  // If it's a single line but contains commas, treat as comma-separated
+  if (parts.length <= 1 && raw.includes(',')) {
+    parts = raw.split(',').map(s => s.trim()).filter(Boolean);
+  }
+
+  return parts
+    .map(p => p.replace(/^[-•\u2022]\s*/, '').trim())
+    .filter(Boolean);
+}
+
+// Render bullet list into a UL element
 function renderList(ulEl, items) {
   if (!ulEl) return;
 
-  if (!items.length) {
+  if (!items || !items.length) {
     ulEl.innerHTML = '<li>Details coming soon.</li>';
     return;
   }
@@ -371,67 +471,45 @@ function renderList(ulEl, items) {
   ulEl.innerHTML = items.map(i => `<li>${escapeHtml(i)}</li>`).join('');
 }
 
-function splitToItems(text) {
-  if (!text || !String(text).trim()) return [];
-  const raw = String(text).trim();
-
-  // Split by newline; if no newline, allow comma-separated
-  let parts = raw.split('\n').map(s => s.trim()).filter(Boolean);
-  if (parts.length <= 1 && raw.includes(',')) {
-    parts = raw.split(',').map(s => s.trim()).filter(Boolean);
-  }
-
-  // Strip leading bullets/dashes
-  return parts
-    .map(p => p.replace(/^[-•\u2022]\s*/, '').trim())
-    .filter(Boolean);
-}
-
-function toMoney(n) {
-  const num = Number(n);
-  if (!Number.isFinite(num)) return String(n);
-  return num.toFixed(0);
+// Format price numbers as whole euros (no decimals)
+function toMoney(value) {
+  const n = Number(value);
+  return Number.isFinite(n) ? n.toFixed(0) : '—';
 }
 
 // ---------------------------
 // UI helpers
 // ---------------------------
+
 function setText(el, text) {
-  if (!el) return;
-  el.textContent = text ?? '';
+  if (el) el.textContent = text ?? '';
 }
 
-function showError(els, message) {
-  if (!els.detailError) return;
-  els.detailError.classList.remove('hidden');
-  els.detailError.textContent = message || 'Something went wrong loading this experience.';
+function showError(message) {
+  const detailError = document.getElementById('detailError');
+  if (!detailError) return;
+
+  detailError.classList.remove('hidden');
+  detailError.textContent = message || 'Something went wrong loading this experience.';
 }
 
-function hideError(els) {
-  if (!els.detailError) return;
-  els.detailError.classList.add('hidden');
+function hideError() {
+  const detailError = document.getElementById('detailError');
+  if (!detailError) return;
+
+  detailError.classList.add('hidden');
 }
 
-function renderList(ulEl, items) {
-  if (!ulEl) return;
+// ---------------------------
+// Escaping helpers
+// ---------------------------
 
-  if (!items.length) {
-    ulEl.innerHTML = '<li>Details coming soon.</li>';
-    return;
-  }
-ulEl.innerHTML = items.map(i => `<li>${escapeHtml(i)}</li>`).join('');
-}
-// Attribute escape for data-url (prevents quote breaking)
-function escapeAttr(str) {
-  return String(str).replaceAll('"', '&quot;').replaceAll("'", '&#039;');
-}
-
-// Escapes text so it’s safe to inject into innerHTML
+// Escape text so it's safe to inject into innerHTML
 function escapeHtml(value = '') {
   return String(value)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#039;');
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#039;');
 }

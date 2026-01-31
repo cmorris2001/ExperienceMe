@@ -15,7 +15,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Check if user is already logged in (for future personalised UI)
     await checkAuthStatus();
 
-    // NEW (Iteration 3): Wire up sign out button (only visible when logged in)
+    // Wire up sign out button (only visible when logged in)
     wireUpSignOut();
 });
 /**
@@ -155,7 +155,6 @@ function displayCounties(counties) {
 
 /**
  * Search by category.
- * Not set up yet for a real results page, just logs + pop up.
  */
 function searchByCategory(categoryId, categoryName) {
     console.log('Searching by category:', categoryName);
@@ -211,6 +210,10 @@ document.getElementById('heroSearch')?.addEventListener('keypress', function(e) 
  * Central helper for navigation to experiences results page.
  * This keeps category / county / search all consistent
  */
+// Mozilla Developer Network (MDN) (2025) ‘URL: URL() constructor’. Available at: https://developer.mozilla.org/en-US/docs/Web/API/URL/URL (Accessed: 31 January 2026).
+// Mozilla Developer Network (MDN) (2025) ‘URL: searchParams property’. Available at: https://developer.mozilla.org/en-US/docs/Web/API/URL/searchParams (Accessed: 31 January 2026).
+// Mozilla Developer Network (MDN) (2024) ‘URLSearchParams: set() method’. Available at: https://developer.mozilla.org/en-US/docs/Web/API/URLSearchParams/set (Accessed: 31 January 2026).
+// Mozilla Developer Network (MDN) (2025) ‘Window: location property’. Available at: https://developer.mozilla.org/en-US/docs/Web/API/Window/location (Accessed: 31 January 2026).
 function goToExperiencesPage(params = {}) {
     const url = new URL(window.location.origin + window.location.pathname.replace('landing.html', 'experiences.html'));
 
@@ -304,6 +307,8 @@ function wireUpSignOut() {
  * Smooth scroll for anchor links (like #features, #about).
  * Makes navigation feel smoother and nicer
  */
+// https://developer.mozilla.org/en-US/docs/Web/API/Element/scrollIntoView
+// Implementation helped by Claude AI
 document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     anchor.addEventListener('click', function (e) {
         e.preventDefault();

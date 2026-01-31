@@ -6,97 +6,99 @@
  *  - Keep nav state correct (guest vs user) + sign out
  */
 // Wait for DOM to be fully loaded before running any JS
-  document.addEventListener('DOMContentLoaded', async () => {
+// experiences.js
+// Entry point: run only when the HTML has loaded
+document.addEventListener('DOMContentLoaded', async () => {
   console.log('✅ experiences.js loaded', { supabaseClient: typeof supabaseClient });
 
-  const els = getEls();
+  // 1) Update nav based on whether user is logged in or not
+  await updateNavForAuthState();
 
-  // 1) Nav
-  await updateNavForAuthState(els);
+  // Wire up all page event buttons (search, filters, reset, etc.)
+  bindEvents();
 
-  // 2) Events
-  bindEvents(els);
+  // Load filter dropdown options FIRST (category/county/budget)
+  await loadFilterOptions();
 
-  // 3) Load dropdowns first (important)
-  await loadFilterOptions(els);
-
-  // 4) Apply URL params into the UI, then load experiences
-  applyFiltersFromUrl(els);
-  await loadExperiences(els);
+  // Fetch + render experiences using whatever the UI filters currently are
+  await loadExperiences();
 });
-
-
-// =============================
-// Element cache helper
-// =============================
-function getEls() {
-  return {
-    navGuest: document.getElementById('navGuest'),
-    navUser: document.getElementById('navUser'),
-    btnSignOut: document.getElementById('btnSignOut'),
-
-    heroSearch: document.getElementById('heroSearch'),
-    btnHeroSearch: document.getElementById('btnHeroSearch'),
-
-    categorySelect: document.getElementById('categorySelect'),
-    countySelect: document.getElementById('countySelect'),
-    budgetSelect: document.getElementById('budgetSelect'),
-
-    btnApplyFilters: document.getElementById('btnApplyFilters'),
-    btnClearFilters: document.getElementById('btnClearFilters'),
-
-    resultsMeta: document.getElementById('resultsMeta'),
-    experiencesGrid: document.getElementById('experiencesGrid'),
-  };
-}
 
 // =============================
 // Auth + nav state
 // =============================
 // Logged in: show user nav and hide guest nav.
 // Logged out: show guest nav and hide user nav (using display flex/none).
-async function updateNavForAuthState(els) {
+async function updateNavForAuthState() {
+  // Grab nav elements directly from the DOM (Option B style)
+  const navGuest = document.getElementById('navGuest');
+  const navUser  = document.getElementById('navUser');
+
   try {
+    // Ask Supabase who the current user is (returns null if logged out)
     const { data: { user }, error } = await supabaseClient.auth.getUser();
     if (error) console.warn('Auth getUser warning:', error.message);
 
     const isLoggedIn = !!user;
-    if (els.navGuest) els.navGuest.style.display = isLoggedIn ? 'none' : 'flex';
-    if (els.navUser) els.navUser.style.display = isLoggedIn ? 'flex' : 'none';
+
+    // Toggle which nav is visible based on login state
+    if (navGuest) navGuest.style.display = isLoggedIn ? 'none' : 'flex';
+    if (navUser)  navUser.style.display  = isLoggedIn ? 'flex' : 'none';
+
   } catch (err) {
     console.warn('Auth check failed:', err);
-    // If auth fails, default to guest
-    if (els.navGuest) els.navGuest.style.display = 'flex';
-    if (els.navUser) els.navUser.style.display = 'none';
+
+    // If auth fails for any reason, default to guest view
+    if (navGuest) navGuest.style.display = 'flex';
+    if (navUser)  navUser.style.display  = 'none';
   }
 }
 
 // =============================
 // UI event bindings
 // =============================
-function bindEvents(els) {
-  // Apply filters button
-  els.btnApplyFilters?.addEventListener('click', () => loadExperiences(els));
+// "Bind events" = connect buttons/inputs to the functions they should run.
+function bindEvents() {
+  // Grab elements directly from the DOM (Option B style)
+  const btnApplyFilters = document.getElementById('btnApplyFilters');
+  const btnClearFilters = document.getElementById('btnClearFilters');
 
-  // Clear filters button
-  els.btnClearFilters?.addEventListener('click', () => {
-    els.categorySelect.value = '';
-    els.countySelect.value = '';
-    els.budgetSelect.value = '';
-    els.heroSearch.value = '';
-    loadExperiences(els);
+  const categorySelect = document.getElementById('categorySelect');
+  const countySelect   = document.getElementById('countySelect');
+  const budgetSelect   = document.getElementById('budgetSelect');
+
+  const heroSearch     = document.getElementById('heroSearch');
+  const btnHeroSearch  = document.getElementById('btnHeroSearch');
+
+  const btnSignOut     = document.getElementById('btnSignOut');
+
+  // Apply filters button: reload experiences using current filter values
+  btnApplyFilters?.addEventListener('click', async () => {
+    await loadExperiences();
   });
 
-  // Search button in hero
-  els.btnHeroSearch?.addEventListener('click', () => loadExperiences(els));
+  // Clear filters button: reset all inputs, then reload experiences
+  btnClearFilters?.addEventListener('click', async () => {
+    if (categorySelect) categorySelect.value = '';
+    if (countySelect)   countySelect.value = '';
+    if (budgetSelect)   budgetSelect.value = '';
+    if (heroSearch)     heroSearch.value = '';
 
-  // Enter key in hero search input
-  els.heroSearch?.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') loadExperiences(els);
+    await loadExperiences();
   });
 
-  // Sign out (only exists in logged-in nav)
-  els.btnSignOut?.addEventListener('click', async () => {
+  // Search button in hero: reload experiences
+  btnHeroSearch?.addEventListener('click', async () => {
+    await loadExperiences();
+  });
+
+  // Enter key in hero search input: reload experiences
+  heroSearch?.addEventListener('keydown', async (e) => {
+    if (e.key === 'Enter') await loadExperiences();
+  });
+
+  // Sign out (only exists when logged in): sign out then refresh page
+  btnSignOut?.addEventListener('click', async () => {
     await supabaseClient.auth.signOut();
     window.location.reload();
   });
@@ -105,8 +107,23 @@ function bindEvents(els) {
 // =============================
 // Load dropdown options for category + county
 // =============================
-async function loadFilterOptions(els) {
+// Fetches categories + counties from Supabase and fills the <select> dropdowns.
+async function loadFilterOptions() {
+  // Grab dropdowns directly from the DOM (Option B style)
+  const categorySelect = document.getElementById('categorySelect');
+  const countySelect   = document.getElementById('countySelect');
+
+  // If the dropdowns don't exist on this page, stop safely
+  if (!categorySelect || !countySelect) return;
+
+  // prevents duplicate options if function is called more than once
+  // Keeps the first option and clears the rest for category and county
+  categorySelect.querySelectorAll('option:not(:first-child)').forEach(o => o.remove());
+  countySelect.querySelectorAll('option:not(:first-child)').forEach(o => o.remove());
+
+  // -----------------------------
   // Load categories
+  // -----------------------------
   try {
     const { data: categories, error } = await supabaseClient
       .from('category')
@@ -119,13 +136,15 @@ async function loadFilterOptions(els) {
       const opt = document.createElement('option');
       opt.value = cat.category_id;
       opt.textContent = cat.category_name;
-      els.categorySelect.appendChild(opt);
+      categorySelect.appendChild(opt);
     });
   } catch (err) {
     console.error('Failed to load categories:', err);
   }
 
+  // -----------------------------
   // Load counties
+  // -----------------------------
   try {
     const { data: counties, error } = await supabaseClient
       .from('county')
@@ -138,7 +157,7 @@ async function loadFilterOptions(els) {
       const opt = document.createElement('option');
       opt.value = c.county_id;
       opt.textContent = c.county_id;
-      els.countySelect.appendChild(opt);
+      countySelect.appendChild(opt);
     });
   } catch (err) {
     console.error('Failed to load counties:', err);
@@ -148,12 +167,21 @@ async function loadFilterOptions(els) {
 // =============================
 // Read filters from UI
 // =============================
-function getFilters(els) {
+function getFilters() {
+  // Grab filter inputs directly from the DOM
+  const heroSearch     = document.getElementById('heroSearch');
+  const categorySelect = document.getElementById('categorySelect');
+  const countySelect   = document.getElementById('countySelect');
+  const budgetSelect   = document.getElementById('budgetSelect');
+
   return {
-    searchText: (els.heroSearch.value || '').trim(),
-    categoryId: els.categorySelect.value || '',
-    county: els.countySelect.value || '',
-    budget: els.budgetSelect.value || '',
+    // Text search (trim removes extra spaces at the start/end)
+    searchText: (heroSearch?.value || '').trim(),
+
+    // Dropdown values (empty string means "no filter")
+    categoryId: categorySelect?.value || '',
+    county: countySelect?.value || '',
+    budget: budgetSelect?.value || '',
   };
 }
 
@@ -180,29 +208,46 @@ async function getExperienceIdsForCategory(categoryId) {
 // =============================
 // Main loader of experiences
 // =============================
-async function loadExperiences(els) {
-  // Show loading state
-  els.resultsMeta.textContent = 'Loading experiences...';
-  els.experiencesGrid.innerHTML = '<div class="loading">Loading...</div>';
+// =============================
+// Load + render experiences
+// =============================
+async function loadExperiences() {
+  // Grab UI elements directly from the DOM
+  const resultsMeta = document.getElementById('resultsMeta');
+  const experiencesGrid = document.getElementById('experiencesGrid');
 
-  const { searchText, categoryId, county, budget } = getFilters(els);
-  console.log('Filters:', getFilters(els)); // Debugger in console, returns filter values
+  // If the grid/meta doesn't exist, stop safely (prevents console errors)
+  if (!resultsMeta || !experiencesGrid) return;
+
+  // Show loading state while we fetch data
+  resultsMeta.textContent = 'Loading experiences...';
+  experiencesGrid.innerHTML = '<div class="loading">Loading...</div>';
+
+  // Read current filters from the UI
+  const { searchText, categoryId, county, budget } = getFilters();
+  console.log('Filters:', { searchText, categoryId, county, budget }); // Debug in console
 
   try {
-    // 1) If category selected, fetch matching experience IDs first
+    // ------------------------------------------------------------
+    // If a category is selected, fetch matching experience IDs first
+    //    (This avoids needing an inner join on the category linking table.)
+    // ------------------------------------------------------------
     let categoryExperienceIds = null;
+
     if (categoryId) {
       categoryExperienceIds = await getExperienceIdsForCategory(categoryId);
 
-      // No matches => quick exit
+      // If nothing matches this category, we can exit early
       if (!categoryExperienceIds.length) {
-        els.resultsMeta.textContent = '0 experiences found';
-        els.experiencesGrid.innerHTML = '<div class="no-results">No experiences found</div>';
+        resultsMeta.textContent = '0 experiences found';
+        experiencesGrid.innerHTML = '<div class="no-results">No experiences found</div>';
         return;
       }
     }
 
-    // 2) Build base experiences query
+    // ------------------------------------------------------------
+    // Build base experiences query
+    // ------------------------------------------------------------
     let query = supabaseClient
       .from('experiences')
       .select(`
@@ -216,61 +261,81 @@ async function loadExperiences(els) {
         image(image_url, is_primary)
       `)
       .in('status', ['approved', 'Approved'])
-      .eq('is_published', true); // problem child during iteration 3 make sure supabase matches
+      .eq('is_published', true); // Problem child during iteration 3
 
-    // 3) Apply filters by querying
+    // ------------------------------------------------------------
+    // Apply filters to the query
+    // ------------------------------------------------------------
+
+    // Text search across title or description of experience, implementing type of key word search
     if (searchText) {
-      // Search title or description
       query = query.or(`title.ilike.%${searchText}%,event_description.ilike.%${searchText}%`);
     }
 
+    // County filter
     if (county) {
       query = query.eq('county', county);
     }
 
+    // Budget filter (based on min_price)
     if (budget) {
-      // Budget filtering based on min_price
       if (budget === 'under_50') query = query.lte('min_price', 50);
       if (budget === '50_100') query = query.gte('min_price', 50).lte('min_price', 100);
       if (budget === '100_200') query = query.gte('min_price', 100).lte('min_price', 200);
       if (budget === '200_plus') query = query.gte('min_price', 200);
     }
 
+    // Category filter: only include experiences whose IDs are in our category list
     if (Array.isArray(categoryExperienceIds)) {
       query = query.in('experience_id', categoryExperienceIds);
     }
 
-    // 4) Run query
+    // ------------------------------------------------------------
+    // Run query
+    // ------------------------------------------------------------
     const { data: experiences, error } = await query;
     if (error) throw error;
 
     const list = experiences || [];
-    els.resultsMeta.textContent = `${list.length} experiences found`;
+    resultsMeta.textContent = `${list.length} experiences found`;
     console.log('Experiences returned:', list.length, list);
 
-    // 5) Render to grid
-    renderExperiences(els, list);
+    // ------------------------------------------------------------
+    // Render results into the grid
+    // ------------------------------------------------------------
+    renderExperiences(list);
+
   } catch (err) {
     console.error('Error loading experiences:', err);
-    els.resultsMeta.textContent = 'Error loading experiences';
-    els.experiencesGrid.innerHTML =
+
+    // Show user-friendly error message
+    resultsMeta.textContent = 'Error loading experiences';
+    experiencesGrid.innerHTML =
       '<div class="no-results">Something went wrong loading experiences.</div>';
   }
 }
 
+// =============================
+// Render experiences into the results grid
+// =============================
+// Converts the experiences array into HTML cards and injects into #experiencesGrid.
+function renderExperiences(experiences) {
+  const experiencesGrid = document.getElementById('experiencesGrid');
+  if (!experiencesGrid) return;
 
-// =============================
-// Rendering card like format
-// =============================
-function renderExperiences(els, experiences) {
-  if (!experiences.length) {
-    els.experiencesGrid.innerHTML = '<div class="no-results">No experiences found</div>';
+  // If there are no results, show a friendly message
+  if (!experiences || !experiences.length) {
+    experiencesGrid.innerHTML = '<div class="no-results">No experiences found</div>';
     return;
   }
 
-  els.experiencesGrid.innerHTML = experiences
+  // Build all cards as one HTML string (map + join avoids commas)
+  experiencesGrid.innerHTML = experiences
     .map((exp) => {
+      // Pick primary image if available, else use a placeholder
       const imgUrl = getPrimaryImageUrl(exp) || 'https://via.placeholder.com/300x200';
+
+      // Escape text to prevent broken HTML / XSS issues
       const title = escapeHtml(exp.title || 'Experience');
       const county = escapeHtml(exp.county || 'Ireland');
       const desc = escapeHtml((exp.event_description || '').slice(0, 110));
@@ -296,11 +361,13 @@ function renderExperiences(els, experiences) {
     })
     .join('');
 
-  // Click handling (no inline onclick attributes)
-  els.experiencesGrid.querySelectorAll('.experience-card').forEach((card) => {
+  // Add click listeners to each card (keeps HTML clean: no inline onclick)
+  experiencesGrid.querySelectorAll('.experience-card').forEach((card) => {
     card.addEventListener('click', () => {
       const id = card.getAttribute('data-id');
-      if (id) window.location.href = `detailed_experience.html?id=${encodeURIComponent(id)}`;
+      if (id) {
+        window.location.href = `detailed_experience.html?id=${encodeURIComponent(id)}`;
+      }
     });
   });
 }
@@ -312,7 +379,7 @@ function renderExperiences(els, experiences) {
 function getPrimaryImageUrl(exp) {
   const imgs = exp?.image || []; // get exp.image array, or [] if missing
   const primary = imgs.find((i) => i.is_primary) || imgs[0]; // try to find the one marked primary
-  return primary?.image_url || ''; // return its URL (or empty string)
+  return primary?.image_url || ''; // return its URL or empty string
 }
 //Format euro sign and round
 function formatEuro(value) {
@@ -329,27 +396,4 @@ function escapeHtml(str) {
     .replaceAll('>', '&gt;')
     .replaceAll('"', '&quot;')
     .replaceAll("'", '&#039;');
-}
-
-// Read filters from the URL (e.g. ?county=Cork) and pre-select them in the search + dropdowns on page load.
-function applyFiltersFromUrl(els) {
-  const params = new URLSearchParams(window.location.search);
-
-  const q = (params.get('q') || '').trim();
-  const county = (params.get('county') || '').trim();
-  const categoryId = (params.get('category_id') || '').trim();
-  const budget = (params.get('budget') || '').trim();
-
-  // Set the hero search
-  if (q) els.heroSearch.value = q;
-
-  // Set county dropdown
-  if (county && [...els.countySelect.options].some(o => o.value === county)) {
-    els.countySelect.value = county;
-  }
-
-  // Set category dropdown
-  if (categoryId && [...els.categorySelect.options].some(o => o.value === categoryId)) {
-    els.categorySelect.value = categoryId;
-  }
 }
