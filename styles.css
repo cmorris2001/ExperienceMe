@@ -44,7 +44,7 @@ body {
         sans-serif;                    /* System-style font stack */
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    background-color: var(--background);
+    background-color: #f6f7f8;        /* Light grey background used across Finder/Metrics wireframes */
     color: var(--text-primary);
     line-height: 1.6;                  /* Better readability */
 }
@@ -110,13 +110,17 @@ nav {
 .btn {
     padding: 0.625rem 1.25rem;
     border-radius: var(--radius-md);
-    font-weight: 500;
+    font-weight: 700;
     font-size: 0.875rem;
     cursor: pointer;
     transition: all 0.2s;
-    border: none;
+    border: 1px solid transparent;
     text-decoration: none;
-    display: inline-block;           /* So anchors behave like buttons */
+    display: inline-flex;           /* So anchors behave like buttons */
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    gap: 0.5rem;
 }
 
 /* Main green button */
@@ -134,15 +138,15 @@ nav {
 
 /* Outline style button using primary colour */
 .btn-secondary {
-    background-color: transparent;
-    color: var(--primary-color);
-    border: 1px solid var(--primary-color);
+    background-color: #ffffff;
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
 }
 
-/* Secondary hover fills in with green */
+/* Secondary hover */
 .btn-secondary:hover {
-    background-color: var(--primary-color);
-    color: white;
+    border-color: rgba(0, 191, 99, 0.45);
+    box-shadow: var(--shadow-sm);
 }
 
 /* Yellow accent button – used for special CTAs */
@@ -644,8 +648,9 @@ footer {
 
 /* Short description text inside card */
 .experience-description {
-    color: var(--text-section)
+    color: var(--text-secondary);
 }
+
 /*Part below provided solely by Chat GPT but commenting creating by me for understanding purposes*/
 /* ==========================================
    EXPLORE PAGE (experiences.html) LAYOUT FIX
@@ -1114,5 +1119,534 @@ footer {
   }
   .detail-page .detail-thumb img {
     height: 96px;
+  }
+}
+
+/* ==========================================
+   FINDER PAGE (finder.html)
+   - Cleaned + deduped version of what we built together
+   ========================================== */
+
+/* Layout */
+.finder-layout {
+  display: grid;
+  grid-template-columns: 1.05fr 0.95fr;
+  gap: 22px;
+  align-items: start;
+  margin-top: 18px;
+}
+
+/* Green hero banner */
+.finder-hero {
+  background: var(--primary-color);
+  border-radius: 18px;
+  padding: 22px;
+  color: white;
+  margin-top: 18px;
+}
+
+.finder-hero-title {
+  margin: 0 0 6px 0;
+  font-size: 28px;
+  font-weight: 800;
+}
+
+.finder-hero-sub {
+  margin: 0;
+  opacity: 0.9;
+  max-width: 700px;
+}
+
+/* Panels (left + right) */
+.finder-panel {
+  background: #fff;
+  border: 1px solid #e9ecef;
+  border-radius: 18px;
+  padding: 18px;
+}
+
+.panel-title {
+  margin: 0 0 6px 0;
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.panel-sub {
+  margin: 0 0 14px 0;
+  color: #667085;
+  font-size: 14px;
+}
+
+/* Question cards */
+.question-card {
+  background: #f4fbf7;          /* subtle green tint like wireframe */
+  border: 1px solid #e3f3ea;
+  border-radius: 16px;
+  padding: 14px;
+  margin-bottom: 12px;          /* space between questions */
+}
+
+.question-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.question-kicker {
+  font-size: 12px;
+  font-weight: 700;
+  color: #2e7d58;
+  opacity: 0.95;
+}
+
+.finder-label {
+  margin: 0 0 10px 0;
+  font-weight: 700;
+}
+
+/* Chips (Finder + Metrics uses .chip with either .active or .is-active) */
+.chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.chip {
+  padding: 8px 12px;
+  border-radius: 999px;
+  border: 1px solid #e2e6ea;
+  background: #fff;
+  cursor: pointer;
+  font-weight: 800;
+  font-size: 13px;
+  line-height: 1;
+  transition: transform 0.05s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+}
+
+.chip:active {
+  transform: translateY(1px);
+}
+
+.chip.active,
+.chip.is-active {
+  background: var(--primary-color);
+  color: #fff;
+  border-color: var(--primary-color);
+}
+
+/* Selects */
+.select {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid #e2e6ea;
+  background: #fff;
+}
+
+/* Action buttons (match wireframe: reset small, primary large) */
+.finder-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  align-items: center;
+  margin-top: 10px;
+}
+
+/* Right-side matches cards */
+.match-card {
+  display: grid;
+  grid-template-columns: 80px 1fr auto;
+  gap: 12px;
+  align-items: center;
+  padding: 12px;
+  border: 1px solid #eef1f4;
+  border-radius: 16px;
+  margin-bottom: 10px;
+  background: #fff;
+}
+
+.match-img {
+  width: 80px;
+  height: 60px;
+  object-fit: cover;
+  border-radius: 10px;
+}
+
+.btn-small {
+  padding: 8px 10px;
+  border-radius: 10px;
+  border: 1px solid #ddd;
+  background: #fff;
+  cursor: pointer;
+}
+
+.muted {
+  opacity: 0.7;
+  font-size: 0.9em;
+}
+
+.no-results {
+  padding: 12px;
+  opacity: 0.8;
+}
+
+/* Finder responsive */
+@media (max-width: 900px) {
+  .finder-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ==========================================
+   BUSINESS METRICS PAGE (businessmetrics.html)
+   - Cleaned + deduped version of what we built together
+   ========================================== */
+
+.metrics-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+}
+
+.metrics-layout {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 18px;
+  margin-top: 18px;
+}
+
+.panel {
+  background: #fff;
+  border: 1px solid #e9ecef;
+  border-radius: 18px;
+  padding: 18px;
+}
+
+.panel-head-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+/* KPI cards */
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-top: 12px;
+  margin-bottom: 14px; /* space between KPI cards and chart panel */
+}
+
+.kpi-card {
+  background: #f4fbf7;
+  border: 1px solid #e3f3ea;
+  border-radius: 16px;
+  padding: 14px;
+}
+
+.kpi-label {
+  margin: 0;
+  color: #667085;
+  font-size: 13px;
+}
+
+.kpi-value {
+  margin: 6px 0 0 0;
+  font-size: 28px;
+  font-weight: 800;
+}
+
+/* Range tabs (30 days / 7 days / 90 days) */
+.range-tabs {
+  display: flex;
+  gap: 8px;
+}
+
+.tab {
+  border: 1px solid #e2e6ea;
+  background: #fff;
+  border-radius: 999px;
+  padding: 8px 10px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.tab.active {
+  background: var(--primary-color);
+  border-color: var(--primary-color);
+  color: #fff;
+}
+
+.panel-section {
+  margin-top: 16px;
+}
+
+.chart-placeholder {
+  height: 160px;
+  border: 1px dashed #d8dde3;
+  border-radius: 14px;
+  background: #fafafa;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #8a94a3;
+}
+
+/* Chart panel (toolbar + canvas inside the same white container) */
+.activity-chart-wrap {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+  padding: 16px;
+}
+
+.activity-toolbar {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+
+.activity-canvas-wrap {
+  height: 220px; /* controls chart height */
+  margin-top: 6px;
+}
+
+#activityChart {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* Funnel breakdown */
+.funnel-wrap {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+  padding: 14px;
+}
+
+.funnel {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.funnel-row {
+  display: grid;
+  grid-template-columns: 180px 1fr 70px;
+  gap: 12px;
+  align-items: center;
+}
+
+.funnel-label {
+  font-weight: 800;
+  color: #111827;
+  font-size: 10px;
+}
+
+.funnel-bar {
+  height: 10px;
+  border-radius: 999px;
+  background: #eef2f7;
+  overflow: hidden;
+  border: 1px solid #e5e7eb;
+}
+
+.funnel-fill {
+  height: 100%;
+  width: 0%;
+  border-radius: 999px;
+  background: var(--primary-color);
+}
+
+.funnel-value {
+  text-align: right;
+  font-weight: 800;
+  color: #111827;
+  font-size: 13px;
+}
+
+/* Referrer chart */
+.referrer-wrap {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+  padding: 14px;
+  height: 260px;
+}
+
+#referrerChart {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* Funnel + referrers in a clean two-column row */
+.bottom-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+  align-items: stretch;
+}
+
+/* Stack nicely on small screens */
+@media (max-width: 900px) {
+  .metrics-layout {
+    grid-template-columns: 1fr;
+  }
+  .bottom-grid {
+    grid-template-columns: 1fr;
+  }
+  .kpi-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ==========================================
+   OPTIONAL: QUICK PICKS POLISH (if you use these classes)
+   - Keeps left quick picks looking like nice selectable cards
+   ========================================== */
+
+.quick-pick-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.quick-pick {
+  width: 100%;
+  text-align: left;
+  border: 1px solid #e5e7eb;
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 10px 12px;
+  cursor: pointer;
+  transition: transform 0.05s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.quick-pick:hover {
+  border-color: #cbd5e1;
+  box-shadow: 0 1px 8px rgba(0, 0, 0, 0.06);
+}
+
+.quick-pick:active {
+  transform: translateY(1px);
+}
+
+.quick-pick-title {
+  display: block;
+  font-weight: 800;
+  color: #111827;
+  font-size: 13px;
+}
+
+.quick-pick-sub {
+  display: block;
+  font-size: 12px;
+  color: #6b7280;
+  margin-top: 2px;
+}
+
+.quick-pick.is-active {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(0, 191, 99, 0.15);
+}
+
+/* =============================
+   Business metrics: heading sizes (targeted)
+   Only affects the metrics page sections
+   ============================= */
+
+/* Quick picks title */
+.quick-picks-title {
+  font-size: 22px;
+  font-weight: 800;
+  line-height: 1.2;
+  margin: 18px 0 12px;
+}
+
+/* Funnel + referrers titles */
+.funnel-title,
+.referrers-title {
+  font-size: 22px;
+  font-weight: 800;
+  line-height: 1.2;
+  margin: 0 0 14px;
+  text-align: center; /* remove if you want left aligned */
+}
+
+/* Metrics page: shrink the two bottom section headings only */
+.bottom-grid .section-title {
+  font-size: 22px;
+  font-weight: 800;
+  line-height: 1.2;
+  margin: 0 0 14px;
+  text-align: center;
+}
+
+/* Metrics page: Quick picks heading (only) */
+.quick-picks-title {
+  font-size: 22px;
+  font-weight: 800;
+  line-height: 1.2;
+  margin: 0 0 12px;
+  text-align: center; /* optional */
+}
+
+/* Add breathing room before the bottom two cards */
+.bottom-grid {
+  margin-top: 18px;
+}
+
+.referrer-wrap {
+  padding: 18px;
+  overflow: hidden;
+  height: 300px; /* locks the chart area */
+}
+
+#referrerChart {
+  width: 100% !important;
+  height: 100% !important;
+  display: block;
+}
+
+/* Controls doughnut size */
+.referrer-chart-area {
+  height: 200px; /* try 200–260 */
+  width: 100%;
+  margin-top: 40px;
+}
+
+#funnelBreakdown {
+  margin-top: 40px;
+}
+
+/* =============================
+   Print export (Export report button)
+   ============================= */
+@media print {
+  /* Hide things we don't want in the exported PDF */
+  .no-print,
+  header,
+  nav,
+  footer {
+    display: none !important;
+  }
+
+  /* Make the export clean */
+  body {
+    background: #fff !important;
+  }
+
+  /* Remove big page padding if your layout has it */
+  .container,
+  .metrics-page {
+    max-width: none !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
   }
 }

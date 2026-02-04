@@ -5,10 +5,9 @@
  *  - Renders title/meta/description, images, host, pricing, lists
  *  - Handles auth nav state + sign out
  *  - Supports favourites + share
+ *  - Iteration 4: logs metrics (views + booking clicks) using event_metric + visitor_session
  */
-// ---------------------------
-// Page state: stores the logged-in user, the current experience ID from the URL, and whether this experience is saved as a favorite
-// ---------------------------
+
 // ---------------------------
 // Page state
 // ---------------------------
@@ -42,10 +41,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     return;
   }
 
-  //  Load and render the experience data
+  // Load and render the experience data
   currentExperienceId = experienceId;
   await loadAndRenderExperience(experienceId);
+
+  // Iteration 4: log a "view" once per 30 minutes
+  await logViewOnce(experienceId);
 });
+
 
 // ---------------------------
 // Auth helpers
@@ -60,9 +63,9 @@ async function getAuthUser() {
   }
 }
 
-// =============================
+// ---------------------------
 // Nav state (guest vs user)
-// =============================
+// ---------------------------
 // Logged in: show user nav, hide guest nav.
 // Logged out: show guest nav, hide user nav.
 function setNavState(user) {
@@ -84,9 +87,7 @@ function bindStaticEvents() {
   const btnShare   = document.getElementById('btnShare');
   const btnSave    = document.getElementById('btnSave');
 
-  // ---------------------------
   // Sign out
-  // ---------------------------
   btnSignOut?.addEventListener('click', async () => {
     try {
       await supabaseClient.auth.signOut();
@@ -96,9 +97,7 @@ function bindStaticEvents() {
     }
   });
 
-  // ---------------------------
   // Share link (copy URL to clipboard)
-  // ---------------------------
   btnShare?.addEventListener('click', async () => {
     try {
       await navigator.clipboard.writeText(window.location.href);
@@ -108,9 +107,7 @@ function bindStaticEvents() {
     }
   });
 
-  // ---------------------------
   // Save / favourite
-  // ---------------------------
   btnSave?.addEventListener('click', async () => {
     // If user is not logged in, send them to login page
     if (!authUser) {
@@ -138,7 +135,6 @@ async function loadAndRenderExperience(experienceId) {
   try {
     hideError();
 
-    // Load the experience
     const { data: exp, error } = await supabaseClient
       .from('experiences')
       .select(`
@@ -287,6 +283,7 @@ function renderDetail(exp) {
 
   if (btnBusinessSite) {
     if (finalUrl) {
+      // If this is an <a>, this sets where it goes. We'll still preventDefault and log first.
       btnBusinessSite.href = finalUrl;
       btnBusinessSite.style.pointerEvents = 'auto';
       btnBusinessSite.style.opacity = '1';
@@ -295,6 +292,9 @@ function renderDetail(exp) {
       btnBusinessSite.style.pointerEvents = 'none';
       btnBusinessSite.style.opacity = '0.6';
     }
+
+    // Iteration 4: Track booking clicks
+    wireBookingClickTracking(exp.experience_id, finalUrl);
   }
 
   // ---------------------------
@@ -316,7 +316,7 @@ function renderDetail(exp) {
   if (mainImage) mainImage.src = mainUrl;
 
   // Render thumbnail row
-  renderThumbnails(thumbsRow, sorted);
+  renderThumbnails(sorted);
 
   // ---------------------------
   // Lists (what you'll do / what's included)
@@ -330,10 +330,10 @@ function renderDetail(exp) {
 // ---------------------------
 // Renders up to 4 thumbnails into the thumbs row.
 // Clicking a thumbnail swaps the main image.
-function renderThumbnails(thumbsRow, images) {
-  if (!thumbsRow) return;
-
+function renderThumbnails(images) {
+  const thumbsRow = document.getElementById('thumbsRow');
   const mainImage = document.getElementById('mainImage');
+  if (!thumbsRow) return;
 
   if (!images || !images.length) {
     thumbsRow.innerHTML = '';
@@ -349,7 +349,7 @@ function renderThumbnails(thumbsRow, images) {
     const url = img.image_url || '';
     const thumb = document.createElement('div');
     thumb.className = 'detail-thumb';
-    thumb.dataset.url = url; // stored safely (no HTML string escaping needed)
+    thumb.dataset.url = url;
 
     const imageEl = document.createElement('img');
     imageEl.src = url;
@@ -367,6 +367,7 @@ function renderThumbnails(thumbsRow, images) {
     });
   });
 }
+
 
 // ---------------------------
 // Favourites
@@ -436,6 +437,7 @@ function updateSaveButtonUI() {
   btnSave.title = isFavorited ? 'Remove from favourites' : 'Add to favourites';
 }
 
+
 // ---------------------------
 // List + text helpers
 // ---------------------------
@@ -477,10 +479,10 @@ function toMoney(value) {
   return Number.isFinite(n) ? n.toFixed(0) : '—';
 }
 
+
 // ---------------------------
 // UI helpers
 // ---------------------------
-
 function setText(el, text) {
   if (el) el.textContent = text ?? '';
 }
@@ -500,10 +502,6 @@ function hideError() {
   detailError.classList.add('hidden');
 }
 
-// ---------------------------
-// Escaping helpers
-// ---------------------------
-
 // Escape text so it's safe to inject into innerHTML
 function escapeHtml(value = '') {
   return String(value)
@@ -512,4 +510,104 @@ function escapeHtml(value = '') {
     .replaceAll('>', '&gt;')
     .replaceAll('"', '&quot;')
     .replaceAll("'", '&#039;');
+}
+
+
+// =====================================================
+// Iteration 4: Metrics tracking (visitor_session + event_metric)
+// =====================================================
+
+// Visitor session ID for guests (stored in localStorage so we can count unique visits)
+async function getOrCreateVisitorSessionId() {
+  const key = 'visitor_session_id';
+  let sessionId = localStorage.getItem(key);
+
+  // If none, create one and store it
+  if (!sessionId) {
+    sessionId = crypto.randomUUID();
+    localStorage.setItem(key, sessionId);
+
+    // Create a visitor_session row (optional but useful for analytics)
+    try {
+      await supabaseClient.from('visitor_session').insert({ session_id: sessionId });
+    } catch (e) {
+      // If RLS/constraints block it, we still keep sessionId locally.
+      console.warn('visitor_session insert warning:', e?.message || e);
+    }
+  }
+
+  return sessionId;
+}
+
+// Source = where they came from (finder/search/shared/direct)
+function getSourceFromUrl() {
+  const src = new URLSearchParams(window.location.search).get('src');
+  return (src || 'direct').toLowerCase();
+}
+
+// Insert a row into event_metric
+async function logEvent({ experienceId, eventType, source }) {
+  const sessionId = await getOrCreateVisitorSessionId();
+  const { data: { user } } = await supabaseClient.auth.getUser();
+
+  const payload = {
+    experience_id: experienceId,
+    event_type: eventType,               // 'view' | 'booking_click' | 'share'
+    source: source || getSourceFromUrl(),
+    session_id: sessionId,
+    user_id: user?.id ?? null            // optional (guest = null)
+  };
+
+  const { error } = await supabaseClient.from('event_metric').insert(payload);
+  if (error) console.warn('logEvent insert warning:', error.message);
+}
+
+// Log a "view" once per 30 minutes per experience (prevents refresh spamming stats)
+async function logViewOnce(experienceId) {
+  const dedupeKey = `viewed_${experienceId}`;
+  const last = Number(localStorage.getItem(dedupeKey) || 0);
+  const now = Date.now();
+
+  // 30 minute window
+  if (now - last < 30 * 60 * 1000) return;
+  localStorage.setItem(dedupeKey, String(now));
+
+  await logEvent({ experienceId, eventType: 'view' });
+}
+
+// Log a booking click once per X minutes per experience (prevents spam clicking)
+async function logBookingClickOnce(experienceId, minutes = 30) {
+  const dedupeKey = `booking_${experienceId}`;
+  const last = Number(localStorage.getItem(dedupeKey) || 0);
+  const now = Date.now();
+
+  if (now - last < minutes * 60 * 1000) return;
+  localStorage.setItem(dedupeKey, String(now));
+
+  await logEvent({ experienceId, eventType: 'booking_click' });
+}
+
+// Track booking button clicks before navigating away
+function wireBookingClickTracking(experienceId, finalUrl) {
+  const btn = document.getElementById('btnBusinessSite');
+  if (!btn) return;
+
+  // Prevent double-binding if render runs more than once
+  if (btn.dataset.trackingBound === 'true') return;
+  btn.dataset.trackingBound = 'true';
+
+  btn.addEventListener('click', async (e) => {
+    if (!finalUrl) {
+      e.preventDefault();
+      return;
+    }
+
+    // Stop default navigation so Supabase insert completes
+    e.preventDefault();
+
+    await logBookingClickOnce(experienceId, 30);
+
+    // Navigate AFTER logging
+    window.open(finalUrl, '_blank', 'noopener');
+  });
 }
