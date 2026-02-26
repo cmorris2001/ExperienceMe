@@ -1,0 +1,107 @@
+<!-- ========================================
+         Chat GPT provided base.html
+         ======================================== -->
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ExperienceMe - Base Template</title>
+    <!-- Main stylesheet for consistent styling across all pages -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<!-- ========================================
+         NAVIGATION BAR
+         Standard header navigation component used across all pages
+         Provides consistent branding and navigation
+         ======================================== -->
+    <nav>
+        <div class="nav-container">
+            <!-- Logo/Brand - Always links back to home/landing page -->
+            <a href="landing.html" class="logo">ExperienceMe</a>
+
+            <!-- Main Navigation Links - Customize per page as needed -->
+            <div class="nav-links">
+                <a href="#features">Features</a>
+                <a href="#about">About</a>
+                <!-- Authentication buttons - Can be replaced with user menu when logged in -->
+                <a href="auth/login.html" class="btn btn-secondary">Login</a>
+                <a href="auth/register.html" class="btn btn-primary">Sign Up</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- ========================================
+         MAIN CONTENT AREA
+         This is where page-specific content goes
+         Each page will have different sections here
+         ======================================== -->
+
+    <!-- Hero Section (Optional - mainly for landing page) -->
+    <section class="hero">
+        <div class="hero-content">
+            <h1>Admin Dashboard</h1>
+            <p>Admin Dashboard to manage experinces, users and businesses</p>
+            <!-- Call-to-action buttons or search functionality -->
+            <div class="hero-buttons">
+                <button class="btn btn-primary btn-large">Primary Action</button>
+                <button class="btn btn-secondary btn-large">Secondary Action</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Content Section(s)
+         Multiple sections can be added as needed
+         Use consistent section structure for maintainability -->
+    <section class="section">
+        <div class="container">
+            <h2 class="section-title">Section Title</h2>
+
+            <!-- Content Grid (for cards, images, features, etc.) -->
+            <div class="card-grid">
+                <!-- Dynamic content loaded here -->
+                <div class="loading">Loading content...</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Additional Content Sections
+         Add as many sections as needed for your page
+         Keep consistent spacing and container usage -->
+    <section class="section" style="background-color: var(--surface);">
+        <div class="container">
+            <h2 class="section-title">Another Section</h2>
+            <!-- Page-specific content goes here -->
+        </div>
+    </section>
+
+    <!-- ========================================
+         FOOTER
+         Standard footer component used across all pages
+         Maintains consistent branding and legal info
+         ======================================== -->
+    <footer>
+        <div class="footer-content">
+            <p>&copy; 2025 ExperienceMe. All rights reserved.</p>
+            <p style="margin-top: 0.5rem;">Connecting people with unforgettable experiences.</p>
+        </div>
+    </footer>
+
+    <!-- ========================================
+         SCRIPTS
+         Load in order: Supabase CDN → Client Config → Page Logic
+         ======================================== -->
+
+    <!-- Supabase JavaScript Library (CDN) -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <!-- Supabase Client Configuration (API keys and connection) -->
+    <script src="lib/supabaseClient.js"></script>
+
+    <!-- Page-specific JavaScript logic -->
+    <script src="page-script.js"></script>
+</body>
+</html>

@@ -1,0 +1,252 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Business Dashboard - ExperienceMe</title>
+    <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+    <nav>
+        <div class="nav-container">
+            <a href="../landing.html" class="logo">ExperienceMe</a>
+
+            <div class="nav-links">
+                <a href="#" onclick="showSection('experiences')" id="navExperiences">My Experiences</a>
+                <a href="#" onclick="showSection('create')" id="navCreate">Create New</a>
+                <a href="#" onclick="showSection('profile')" id="navProfile">Business Profile</a>
+                <a href="businessmetrics.html">Experience Metrics</a> <!-- Iteration 4: New option for businesses -->
+                <button id="logoutBtn" class="btn btn-secondary">Logout</button>
+            </div>
+        </div>
+    </nav>
+
+    <section class="section">
+        <div class="container">
+            <div id="welcomeHeader" style="margin-bottom: 2rem;">
+                <h1>Business Dashboard</h1>
+                <div id="userInfo"></div>
+            </div>
+
+            <div id="experiencesSection" class="dashboard-section">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                    <h2>My Experiences</h2>
+                    <button class="btn btn-primary" onclick="showSection('create')">
+                        + Create New Experience
+                    </button>
+                </div>
+
+                <div class="status-tabs" style="margin-bottom: 2rem;">
+                    <button class="status-tab active" onclick="filterExperiences('all', event)">All</button>
+                    <button class="status-tab" onclick="filterExperiences('draft', event)">Drafts</button>
+                    <button class="status-tab" onclick="filterExperiences('pending', event)">Pending Approval</button>
+                    <button class="status-tab" onclick="filterExperiences('approved', event)">Approved</button>
+                    <button class="status-tab" onclick="filterExperiences('rejected', event)">Rejected</button>
+                </div>
+
+                <div id="experiencesList">
+                    <div class="loading">Loading your experiences...</div>
+                </div>
+            </div>
+
+            <div id="createSection" class="dashboard-section hidden">
+                <h2 id="createSectionHeading" style="margin-bottom: 2rem;">Create New Experience</h2>
+
+                <div id="createAlert"></div>
+
+                <form id="createExperienceForm" class="experience-form">
+                    <!-- Title -->
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="title">Experience Title *</label>
+                            <input type="text" id="title" required placeholder="e.g., Hot Air Balloon Ride over Cork">
+                        </div>
+                    </div>
+
+                    <!-- Short description (for cards / preview) -->
+                    <div class="form-group">
+                        <label for="shortDescription">Short Description *</label>
+                        <textarea
+                            id="shortDescription"
+                            rows="3"
+                            required
+                            placeholder="A short summary shown on the experience card (1–2 lines ideally)..."
+                        ></textarea>
+                        <p style="font-size: 0.875rem; color: var(--text-secondary); margin-top: 0.5rem;">
+                            Tip: Keep this concise. The longer description goes below.
+                        </p>
+                    </div>
+
+                    <!-- Long description -->
+                    <div class="form-group">
+                        <label for="description">Detailed Description *</label>
+                        <textarea id="description" rows="6" required placeholder="Describe the experience in detail..."></textarea>
+                    </div>
+
+                    <!-- Booking URL -->
+                    <div class="form-group">
+                        <label for="bookingUrl">Booking URL (Recommended)</label>
+                        <input type="url" id="bookingUrl" placeholder="https://yourwebsite.com/booking-page">
+                        <p style="font-size: 0.875rem; color: var(--text-secondary); margin-top: 0.5rem;">
+                            This is the direct link customers will use to book. If left blank, we will fallback to your Business Website URL.
+                        </p>
+                    </div>
+
+                    <!-- Duration -->
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="durationMinutes">Duration (minutes)</label>
+                            <input type="number" id="durationMinutes" min="1" step="1" placeholder="e.g., 90">
+                        </div>
+                    </div>
+
+                    <!-- What you do -->
+                    <div class="form-group">
+                        <label for="whatYouDo">What you'll do</label>
+                        <textarea id="whatYouDo" rows="4" placeholder="Outline what happens during the experience..."></textarea>
+                    </div>
+
+                    <!-- What's included -->
+                    <div class="form-group">
+                        <label for="whatsIncluded">What's included</label>
+                        <textarea id="whatsIncluded" rows="4" placeholder="List what's included (equipment, refreshments, guide, etc.)..."></textarea>
+                    </div>
+
+                    <!-- Category + County -->
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="category">Category *</label>
+                            <select id="category" required>
+                                <option value="">Select a category...</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="county">County *</label>
+                            <select id="county" required>
+                                <option value="">Select a county...</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Pricing -->
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="minPrice">Minimum Price (€)</label>
+                            <input type="number" id="minPrice" min="0" step="0.01" placeholder="0.00">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="maxPrice">Maximum Price (€)</label>
+                            <input type="number" id="maxPrice" min="0" step="0.01" placeholder="0.00">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="priceTier">Price Tier</label>
+                            <select id="priceTier">
+                                <option value="">Select tier...</option>
+                                <option value="budget">Budget (€)</option>
+                                <option value="moderate">Moderate (€€)</option>
+                                <option value="premium">Premium (€€€)</option>
+                                <option value="luxury">Luxury (€€€€)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Images -->
+                    <div class="form-group">
+                        <label>Images (Max 5 images) *</label>
+                        <p style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 0.5rem;">
+                            Upload images from your device. The first image will be your primary/bookmark image.
+                            Supported formats: JPG, PNG, WebP (Max 5MB each)
+                        </p>
+
+                        <p style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 0.5rem;">
+                            Tip: Click "Make Primary" on a preview to choose which image is the main one.
+                        </p>
+
+                        <div class="image-upload-container">
+                            <div class="image-upload-dropzone" id="imageDropzone">
+                                <input
+                                    type="file"
+                                    id="imageFileInput"
+                                    accept="image/jpeg,image/png,image/webp"
+                                    multiple
+                                    style="display: none;"
+                                >
+                                <div class="upload-icon">📷</div>
+                                <p><strong>Click to upload</strong> or drag and drop</p>
+                                <p style="font-size: 0.875rem; color: var(--text-secondary);">
+                                    JPG, PNG or WebP (Max 5MB each)
+                                </p>
+                            </div>
+                        </div>
+
+                        <div id="imagePreviews" class="image-previews-grid"></div>
+                        <div id="uploadProgress" class="upload-progress hidden"></div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" onclick="saveDraft()">Save as Draft</button>
+                        <button type="submit" class="btn btn-primary">Submit for Approval</button>
+                    </div>
+                </form>
+            </div>
+
+            <div id="profileSection" class="dashboard-section hidden">
+                <h2 style="margin-bottom: 2rem;">Business Profile</h2>
+
+                <div id="profileAlert"></div>
+                <div id="businessInfo"></div>
+
+                <div class="card" style="margin-top: 1.5rem;">
+                    <h3>Update Business Profile</h3>
+                    <p style="color: var(--text-secondary); margin-top: 0.5rem;">
+                        These details will appear on your experience detail pages so customers trust the vendor.
+                    </p>
+
+                    <form id="businessProfileForm" style="margin-top: 1.5rem;">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="businessWebsiteUrl">Business Website URL</label>
+                                <input type="url" id="businessWebsiteUrl" placeholder="https://yourwebsite.com">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="businessLocationText">Location / Address</label>
+                            <input type="text" id="businessLocationText" placeholder="e.g., Midleton, Co. Cork">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="businessDescription">Business Description</label>
+                            <textarea id="businessDescription" rows="5" placeholder="Tell customers about your business..."></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="businessLogoInput">Business Logo / Profile Image</label>
+                            <input type="file" id="businessLogoInput" accept="image/jpeg,image/png,image/webp">
+                            <p style="font-size: 0.875rem; color: var(--text-secondary); margin-top: 0.5rem;">
+                                JPG, PNG or WebP (Max 5MB). This image shows beside your business name on experience pages.
+                            </p>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary">Save Profile</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="footer-content">
+            <p>&copy; 2026 ExperienceMe. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../lib/supabaseClient.js"></script>
+    <script src="business.js"></script>
+</body>
+</html>

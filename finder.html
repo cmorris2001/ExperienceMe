@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Experience Finder</title>
+
+  <!-- Your main stylesheet -->
+  <link rel="stylesheet" href="styles.css" />
+
+  <!-- Supabase -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="lib/supabaseClient.js"></script>
+</head>
+
+<body>
+  <!-- Nav (reuse your existing nav HTML IDs so your nav JS works) -->
+  <header class="site-header">
+  <nav>
+        <div class="nav-container">
+            <!-- Clicking logo brings user back to landing page -->
+            <a href="landing.html" class="logo">ExperienceMe</a>
+
+            <!-- Two nav states (guest vs logged-in) so we do NOT duplicate pages -->
+            <div class="nav-links" id="navGuest">
+                <a href="#features">Features</a> <!-- Stays on same page, scrolls to Features section -->
+                <a href="#about">About</a> <!-- Stays on same page, scrolls to About section -->
+                <a href="experiences.html">Explore</a> <!-- Real experiences results page -->
+                <a href="auth/login.html" class="btn btn-secondary">Login</a> <!-- Goes to login.html -->
+                <a href="auth/register.html" class="btn btn-primary">Sign Up</a> <!-- Goes to register.html -->
+            </div>
+
+            <!-- Logged-in nav (shown only when user is authenticated) -->
+            <div class="nav-links" id="navUser" style="display:none;">
+                <a href="experiences.html">Explore</a> <!-- Real experiences results page -->
+                <a href="dashboards/user.html">Favourites</a> <!-- Can later become proper favourites dashboard -->
+                <a href="dashboards/user.html">Profile</a> <!-- Profile Page -->
+                <button class="btn btn-secondary" id="btnSignOut">Sign Out</button> <!-- Sign out -->
+            </div>
+
+            <!-- Business nav Iteration 5 defect solution -->
+            <div class="nav-links" id="navBusiness" style="display:none;">
+                <a href="experiences.html">Explore</a>
+                <a href="finder.html">Experience Finder Tool</a> <!-- Experience Finder tool page -->
+                <a href="dashboards/business.html" class="btn btn-secondary">Dashboard</a>
+                <button class="btn btn-secondary" id="btnSignOutBusiness" type="button">Sign Out</button>
+            </div>
+        </div>
+    </nav>
+</header>
+
+
+  <main class="container">
+    <section class="finder-hero">
+      <div class="finder-hero-inner">
+        <h1 class="finder-hero-title">Experience Finder</h1>
+          <p class="finder-hero-sub">
+            Answer a few quick questions and we’ll match you with experiences they’ll love.
+          </p>
+      </div>
+    </section>
+
+    <div class="finder-layout">
+      <!-- LEFT: questions -->
+      <section class="finder-panel">
+        <h2 class="panel-title">Tell us about the gift</h2>
+        <p class="panel-sub">Select the options that best describe them. Your answers will be highlighted.</p>
+
+        <!-- Step 1 -->
+        <div class="question-card">
+          <div class="question-top">
+           <span class="question-kicker">Question 1</span>
+          </div>
+          <p class="finder-label">Who is this gift for?</p>
+          <div class="chip-row" id="recipientChips"></div>
+        </div>
+
+
+        <!-- Step 2 -->
+        <div class="question-card">
+          <div class="question-top">
+           <span class="question-kicker">Question 2</span>
+          </div>
+          <p class="finder-label">What is the occasion?</p>
+          <div class="chip-row" id="occasionChips"></div>
+        </div>
+
+        <!-- Step 3 -->
+        <div class="question-card">
+          <div class="question-top">
+           <span class="question-kicker">Question 3</span>
+          </div>
+          <p class="finder-label">What type of experience?</p>
+          <div class="chip-row" id="typeChips"></div>
+        </div>
+
+        <!-- Step 4 -->
+        <div class="question-card">
+          <div class="question-top">
+           <span class="question-kicker">Question 4 (county)</span>
+          </div>
+          <select id="countySelect" class="select">
+            <option value="">Any county</option>
+          </select>
+        </div>
+
+        <!-- Step 5 -->
+        <div class="question-card">
+          <div class="question-top">
+           <span class="question-kicker">Question 5 Budget</span>
+          </div>
+          <select id="budgetSelect" class="select">
+            <option value="">Any budget</option>
+            <option value="under_50">Under €50</option>
+            <option value="50_100">€50 – €100</option>
+            <option value="100_200">€100 – €200</option>
+            <option value="200_plus">€200+</option>
+          </select>
+        </div>
+
+        <div class="finder-actions">
+          <button id="btnReset" class="btn btn-secondary" type="button">Reset</button>
+          <button id="btnSeeMatches" class="btn btn-primary" type="button">
+            See experience matches →
+          </button>
+        </div>
+      </section>
+
+      <!-- RIGHT: live matches -->
+      <aside class="finder-panel">
+        <div class="panel-head-row">
+          <div>
+           <h2 class="panel-title">Live experience matches</h2>
+           <p class="panel-sub">Updates as you select answers.</p>
+          </div>
+        </div>
+
+        <div id="matchesList">
+         <div class="loading">Pick options to see matches…</div>
+        </div>
+      </aside>
+    </div>
+  </main>
+
+  <script src="finder.js"></script>
+</body>
+</html>

@@ -1,0 +1,128 @@
+
+<!DOCTYPE html> <!-- Standard HTML5 document structure -->
+<html lang="en"> <!-- Page language set to English -->
+<head>
+    <meta charset="UTF-8"> <!-- Tells browser how to read all characters (UTF-8) -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- Makes layout responsive on phones -->
+    <title>Login - ExperienceMe</title> <!-- Title of this page -->
+    <link rel="stylesheet" href="../styles.css"> <!-- Linking my main global stylesheet -->
+</head>
+
+<body>
+
+    <!-- Navigation (same style as landing page but simpler for auth pages) -->
+    <nav>
+        <div class="nav-container">
+            <a href="../landing.html" class="logo">ExperienceMe</a> <!-- Clicking logo brings user back to landing page -->
+
+            <div class="nav-links">
+                <a href="../landing.html#features">Features</a> <!-- Scrolls user to features on landing page -->
+                <a href="../landing.html#about">About</a> <!-- Scrolls user to about section -->
+                <a href="register.html">Don't have an account?</a> <!-- Link to registration page -->
+            </div>
+        </div>
+    </nav>
+
+    <!-- Login Form Section (main area of this page) -->
+    <section class="section">
+        <div class="form-container">
+            <div class="form-card">
+
+                <!-- Page heading + welcome text -->
+                <h1 style="text-align: center; margin-bottom: 0.5rem; color: var(--primary-color);">
+                    Welcome Back
+                </h1>
+                <p style="text-align: center; color: var(--text-secondary); margin-bottom: 2rem;">
+                    Sign in to continue your adventure
+                </p>
+
+                <!-- Alerts (success, errors, etc.) dynamically shown through JS -->
+                <div id="alertContainer"></div>
+                <!-- Originally planned only for errors but then became useful for success messages too -->
+
+                <!-- Actual Login Form -->
+                <form id="loginForm">
+
+                    <!-- Email Input -->
+                    <div class="form-group">
+                        <label for="email">Email Address</label>
+                        <input
+                            type="email"
+                            id="email"
+                            name="email"
+                            placeholder="you@example.com"
+                            required
+                        > <!-- Required so user must fill it -->
+                    </div>
+
+                    <!-- Password Input -->
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <input
+                            type="password"
+                            id="password"
+                            name="password"
+                            placeholder="Enter your password"
+                            required
+                        >
+                    </div>
+
+                    <!-- Remember Me + Forgot Password Row -->
+                    <!-- Inspired by Gera Dovana, Tinggly, etc. Basic login UX -->
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+
+                        <!-- Remember Me checkbox (no typing password every time) -->
+                        <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                            <input type="checkbox" id="rememberMe">
+                            <span style="color: var(--text-secondary); font-size: 0.875rem;">
+                                Remember me
+                            </span>
+                        </label>
+
+                        <!-- Forgot Password link (placeholder for now, not functional) -->
+                        <a href="#" style="color: var(--primary-color); text-decoration: none; font-size: 0.875rem;">
+                            Forgot password?
+                        </a>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <button
+                        type="submit"
+                        class="btn btn-primary"
+                        style="width: 100%;"
+                        id="submitBtn"
+                    >
+                        Sign In
+                    </button>
+                </form>
+
+                <!-- Link to register page if user doesn’t have an account -->
+                <p style="text-align: center; margin-top: 1.5rem; color: var(--text-secondary);">
+                    Don't have an account?
+                    <a href="register.html" style="color: var(--primary-color); text-decoration: none; font-weight: 500;">
+                        Sign up
+                    </a>
+                </p>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer (same on all site pages) -->
+    <footer>
+        <div class="footer-content">
+            <p>&copy; 2025 ExperienceMe. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- Supabase CDN (main JS library for database/auth operations) -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <!-- My Supabase Client (contains API keys and project URL) -->
+    <script src="../lib/supabaseClient.js"></script>
+
+    <!-- Page-specific login logic (validates form + calls Supabase auth) -->
+    <script src="login.js"></script>
+
+</body>
+</html>

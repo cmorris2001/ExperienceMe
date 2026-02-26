@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ExperienceMe - Explore Experiences</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <!-- =============================
+       TOP NAV (Guest vs Logged-in)
+       ============================= -->
+  <nav>
+    <div class="nav-container">
+      <a href="landing.html" class="logo">ExperienceMe</a>
+
+      <!-- Guest nav -->
+      <div class="nav-links" id="navGuest">
+        <a href="experiences.html">Explore</a>
+        <a href="landing.html#features">Features</a>
+        <a href="finder.html">Experience Finder Tool</a> <!-- Experience Finder tool page -->
+        <a href="auth/login.html" class="btn btn-secondary">Login</a>
+        <a href="auth/register.html" class="btn btn-primary">Sign Up</a>
+      </div>
+
+      <!-- Logged-in nav -->
+      <div class="nav-links" id="navUser" style="display:none;">
+        <a href="experiences.html">Explore</a>
+        <a href="dashboards/user.html">Favourites</a>
+        <a href="finder.html">Experience Finder Tool</a> <!-- Experience Finder tool page -->
+        <button class="btn btn-secondary" id="btnSignOut" type="button">Sign Out</button>
+      </div>
+
+      <!-- Business nav Iteration 5 defect solution -->
+      <div class="nav-links" id="navBusiness" style="display:none;">
+        <a href="experiences.html">Explore</a>
+        <a href="finder.html">Experience Finder Tool</a> <!-- Experience Finder tool page -->
+        <a href="dashboards/business.html" class="btn btn-secondary">Dashboard</a>
+        <button class="btn btn-secondary" id="btnSignOutBusiness" type="button">Sign Out</button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- =============================
+       HERO search bar
+       ============================= -->
+  <section class="hero hero-small">
+    <div class="hero-content">
+      <h1>Explore Irish Experiences</h1>
+      <p>Search and filter experiences across Ireland</p>
+
+      <div class="hero-search">
+        <input
+          type="text"
+          id="heroSearch"
+          placeholder="Find an experience..."
+          class="search-input"
+          autocomplete="off"
+        />
+        <button class="btn btn-primary btn-large" id="btnHeroSearch" type="button">
+          Search
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- =============================
+       EXPLORE LAYOUT Filters and Results
+       ============================= -->
+  <section class="explore-marketplace">
+    <div class="container-wide">
+      <div class="explore-layout">
+
+        <!-- Filters sidebar -->
+        <aside class="filters-sidebar">
+          <div class="filters-header">
+            <h3 class="filters-title">Filters</h3>
+          </div>
+
+          <div class="filter-block">
+            <label class="filter-label" for="categorySelect">Category</label>
+            <select id="categorySelect" class="select-input">
+              <option value="">All Categories</option>
+            </select>
+          </div>
+
+          <div class="filter-block">
+            <label class="filter-label" for="countySelect">County</label>
+            <select id="countySelect" class="select-input">
+              <option value="">All Counties</option>
+            </select>
+          </div>
+          <!-- Filter options dropdown for budget -->
+          <div class="filter-block">
+            <label class="filter-label" for="budgetSelect">Budget</label>
+            <select id="budgetSelect" class="select-input">
+              <option value="">Any Budget</option>
+              <option value="under_50">Under €50</option>
+              <option value="50_100">€50 - €100</option>
+              <option value="100_200">€100 - €200</option>
+              <option value="200_plus">€200+</option>
+            </select>
+          </div>
+
+          <div class="filters-actions">
+            <button class="btn btn-secondary" id="btnClearFilters" type="button">Clear</button>
+            <button class="btn btn-primary" id="btnApplyFilters" type="button">Apply</button>
+          </div>
+        </aside>
+
+        <!-- Results -->
+        <main class="results-panel">
+          <div class="results-topbar">
+            <div id="resultsMeta" class="loading">Loading experiences...</div>
+          </div>
+
+          <div id="experiencesGrid" class="cards-grid"></div>
+        </main>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- =============================
+       FOOTER with my rights for 2026
+       ============================= -->
+  <footer>
+    <div class="footer-content">
+      <p>&copy; 2026 ExperienceMe. All rights reserved.</p>
+      <p style="margin-top: 0.5rem;">Connecting people with unforgettable experiences.</p>
+    </div>
+  </footer>
+
+  <!-- =============================
+       SCRIPTS
+       ============================= -->
+
+  <!-- Supabase CDN (Supabase JS SDK = my toolkit for talking to database/auth) -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <!-- Supabase Client (creates supabaseClient with my project URL + API key, used in landing.js) -->
+  <script src="lib/supabaseClient.js"></script>
+  <!-- Explore Page Script (handles search, loading categories/counties from Supabase, etc.) -->
+  <script src="experiences.js"></script>
+</body>
+</html>

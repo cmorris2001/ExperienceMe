@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ExperienceMe | Early Business Access</title>
+
+  <!-- Main stylesheet (shared across site) -->
+  <link rel="stylesheet" href="styles.css" />
+</head>
+
+<body>
+  <!-- ========================================
+       NAVIGATION
+       Keep consistent across pages
+       ======================================== -->
+  <nav>
+    <div class="nav-container">
+      <a href="landing.html" class="logo">ExperienceMe</a>
+
+      <div class="nav-links" id="navGuest">
+        <a href="experiences.html">Explore</a>
+        <a href="waitlist_info.html">How it works</a>
+        <a href="auth/login.html" class="btn btn-secondary">Login</a>
+        <a href="auth/register.html" class="btn btn-primary">Sign Up</a>
+      </div>
+
+      <div class="nav-links" id="navUser">
+        <a href="experiences.html">Explore</a>
+        <a href="finder.html">Finder</a>
+        <a href="favorites.html">Saved</a>
+        <button class="btn btn-secondary" id="btnSignOut">Sign Out</button>
+      </div>
+
+      <div class="nav-links" id="navBusiness">
+        <a href="businessdashboard.html">Dashboard</a>
+        <a href="businessmetrics.html">Metrics</a>
+        <button class="btn btn-secondary" id="btnSignOutBusiness">Sign Out</button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ========================================
+       HERO CTA
+       Uses existing hero style
+       ======================================== -->
+  <header class="hero">
+    <div class="hero-content">
+      <h1>Early Business Access</h1>
+      <p>
+        We are inviting a small number of experience businesses to join ExperienceMe ahead of launch.
+        Join the waitlist to be part of the early community and help shape the platform.
+      </p>
+
+      <!-- Simple CTA: scrolls the user straight to the form -->
+      <div class="hero-buttons">
+        <a href="#waitlistFormSection" class="btn btn-primary btn-large">Join the waitlist</a>
+        <a href="waitlist_info.html" class="btn btn-secondary btn-large">How it works</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- ========================================
+       MAIN CONTENT
+       Two-column layout (reuse finder layout feel)
+       Left = form, Right = info cards
+       ======================================== -->
+  <section class="section" id="waitlistFormSection">
+    <div class="container">
+
+      <!--
+           Reusing the finder layout grid to avoid adding lots of new CSS.
+           This keeps page consistent with the Finder / Metrics design. -->
+
+      <div class="finder-layout">
+
+        <!-- ==============================
+             LEFT PANEL: WAITLIST FORM
+             ============================== -->
+        <div class="finder-panel">
+
+          <h2>Join the Business Waitlist</h2>
+
+          <p class="panel-sub">
+            This is not a full sign-up yet. It just helps us organise onboarding waves and keep in touch.
+          </p>
+
+          <!-- Alert area shows if succesful or if something went wrong -->
+          <div id="waitlistAlert" class="alert alert-info hidden">
+            Loading...
+          </div>
+
+          <!-- FORM -->
+          <form id="waitlistForm">
+
+            <!-- Contact -->
+            <div class="form-group">
+              <label for="contactName">Your name</label>
+              <input type="text" id="contactName" placeholder="Full name" required />
+            </div>
+
+            <div class="form-group">
+              <label for="contactEmail">Work email</label>
+              <input type="email" id="contactEmail" placeholder="name@business.com" required />
+            </div>
+
+            <!-- Business details -->
+            <div class="form-group">
+              <label for="businessName">Business name</label>
+              <input type="text" id="businessName" placeholder="Business name" required />
+            </div>
+
+            <div class="form-group">
+              <label for="website">Website or booking link (required)</label>
+              <input type="text" id="website" placeholder="https://..." required />
+              <!-- Website is needed to validate businesses + makes onboarding easier later -->
+            </div>
+
+            <!-- Normalised location -->
+            <div class="form-group">
+              <label for="countySelect">County</label>
+              <select id="countySelect" required>
+                <option value="">Select a county</option>
+                <!-- Loaded dynamically from Supabase county table -->
+              </select>
+            </div>
+
+            <!-- Normalised category (single selection only) -->
+            <div class="form-group">
+              <label for="categorySelect">Primary category</label>
+              <select id="categorySelect" required>
+                <option value="">Select a category</option>
+                <!-- Loaded dynamically from Supabase category table -->
+              </select>
+
+            </div>
+
+            <!-- Research question -->
+            <div class="form-group">
+              <label for="challenges">What challenges do you face getting bookings?</label>
+              <textarea id="challenges" placeholder="Example: big commission fees, seasonality, social reach, last-minute cancellations..." required></textarea>
+              <!-- S
+                   This field is great as because it supports market validation and Iteration 6 write-up -->
+            </div>
+
+            <!-- Submit -->
+            <button type="submit" class="btn btn-primary btn-large" style="width: 100%;">
+              Join Waitlist
+            </button>
+
+            <p class="muted mt-2">
+              By joining, you agree that ExperienceMe can contact you about early access and onboarding.
+            </p>
+          </form>
+        </div>
+
+        <!-- ==============================
+             RIGHT PANEL: INFO / EXPECTATIONS
+             ============================== -->
+        <div>
+
+          <div class="card mb-3">
+            <h3>What happens after you join?</h3>
+            <p class="mt-1">
+              After joining the waitlist, businesses are onboarded in stages when the site is going live.
+              An email is sent with instructions to create a business profile and publish initial experiences.
+            </p>
+          </div>
+
+          <div class="card mb-3">
+            <h3>Why Early Business Access?</h3>
+            <p class="mt-1">
+              ExperienceMe is built to support local experience businesses without forcing bookings through a new platform.
+              You keep customers on your own channels and we help discovery.
+            </p>
+          </div>
+
+          <div class="card">
+            <h3>Early partner benefits</h3>
+            <p class="mt-1">
+              Early partners will be featured in demo launch content. Your feedback will also influence
+              what tools we build next!
+            </p>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================
+       FOOTER
+       ======================================== -->
+  <footer>
+    <div class="footer-content">
+      <p>&copy; 2026 ExperienceMe. All rights reserved.</p>
+      <p style="margin-top: 0.5rem;">Connecting people with unforgettable experiences.</p>
+    </div>
+  </footer>
+
+  <!-- ========================================
+       SCRIPTS
+       ======================================== -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="lib/supabaseClient.js"></script>
+
+  <!-- This is waitlist Javascript file to talk to Supabase -->
+  <script src="waitlist.js"></script>
+</body>
+</html>

@@ -1,0 +1,123 @@
+<!DOCTYPE html> <!-- Standard HTML5 document declaration -->
+<html lang="en"> <!-- Page language set to English -->
+<head>
+    <meta charset="UTF-8" /> <!-- Use UTF-8 so all characters display correctly -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /> <!-- Makes layout mobile responsive -->
+    <title>User Dashboard - ExperienceMe</title> <!-- Browser tab title -->
+    <link rel="stylesheet" href="../styles.css" /> <!-- Shared main stylesheet -->
+</head>
+<body>
+    <!-- Navigation (top bar for logged-in users) -->
+    <nav>
+        <div class="nav-container">
+            <!-- Logo brings user back to landing -->
+            <a href="../landing.html" class="logo">ExperienceMe</a>
+
+            <div class="nav-links">
+                <!-- Explore is now the public explore page (no dashboard explore section) -->
+                <a href="../experiences.html">Explore</a>
+
+                <!-- Dashboard sections controlled by showSection() in user.js -->
+                <a href="#" onclick="showSection('favorites')">My Favorites</a>
+                <a href="#" onclick="showSection('profile')">Profile</a>
+
+                <!-- Logout button handled by user.js -->
+                <button id="logoutBtn" class="btn btn-secondary">Logout</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- =======================
+         PROFILE SECTION
+         ======================= -->
+    <div id="profileSection" class="user-section">
+        <section class="section">
+            <div class="container">
+                <h1 style="margin-bottom: 1rem;">Your Profile</h1>
+
+                <!-- User info injected here by user.js -->
+                <div id="userInfo" style="margin-bottom: 2rem;"></div>
+
+                <!-- Simple success alert telling user they are logged in as "User" role -->
+                <div class="alert alert-success">
+                    ✅ You are successfully logged in as a User!
+                </div>
+
+                <!-- Getting started card -->
+                <div class="card" style="margin-top: 2rem;">
+                    <h2>Getting Started</h2>
+                    <p>Welcome to ExperienceMe! Here are some things you can do:</p>
+                    <ul style="margin-left: 1.5rem; margin-top: 1rem; color: var(--text-secondary);">
+                        <li>Explore amazing local experiences</li>
+                        <li>Save your favorite activities</li>
+                        <li>Book experiences directly</li>
+                        <li>Leave reviews and ratings</li>
+                    </ul>
+
+                    <div style="margin-top: 1.25rem;">
+                        <a class="btn btn-primary" href="../experiences.html">Explore Experiences</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- =======================
+         FAVORITES SECTION
+         ======================= -->
+    <div id="favoritesSection" class="user-section hidden">
+        <section class="section">
+            <div class="container">
+                <h1 style="margin-bottom: 1rem;">My Favorites</h1>
+                <p style="color: var(--text-secondary); margin-bottom: 1rem;">
+                    These are the experiences you’ve saved.
+                </p>
+
+                <!-- Favorites list filled by user.js -->
+                <div id="favoritesList"></div>
+
+                <!-- Template for favorite cards -->
+                <template id="favoriteCardTemplate">
+                    <div class="experience-card">
+                        <div class="experience-content">
+                            <div class="experience-header" style="display:flex;justify-content:space-between;align-items:center;gap:0.5rem;">
+                                <h4 data-field="title"></h4> <!-- Experience title -->
+                                <!-- Favorite toggle button (♥ to remove) -->
+                                <button class="btn-icon favorite-toggle" title="Remove from favorites">♥</button>
+                            </div>
+
+                            <p class="experience-meta" data-field="meta"></p> <!-- Meta info like county -->
+                            <p class="experience-price" data-field="price"></p> <!-- Price display -->
+
+                            <!-- Optional: quick view link -->
+                            <div style="margin-top: 0.75rem;">
+                                <a class="btn btn-secondary" data-field="viewLink" href="#">
+                                    View Details
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </template>
+
+            </div>
+        </section>
+    </div>
+
+    <!-- Footer same as rest of site -->
+    <footer>
+        <div class="footer-content">
+            <p>&copy; 2026 ExperienceMe. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- Supabase JS SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- Supabase client config -->
+    <script src="../lib/supabaseClient.js"></script>
+    <!-- User dashboard logic -->
+    <script src="user.js"></script>
+</body>
+</html>
+
+
+

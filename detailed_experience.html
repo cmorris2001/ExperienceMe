@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Experience Detail - ExperienceMe</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <!-- =============================
+       TOP NAV (Guest vs Logged-in)
+       ============================= -->
+  <nav>
+    <div class="nav-container">
+      <a href="landing.html" class="logo">ExperienceMe</a>
+
+      <!-- Guest nav -->
+      <div class="nav-links" id="navGuest">
+        <a href="experiences.html">Explore</a>
+        <a href="auth/login.html" class="btn btn-secondary">Login</a>
+        <a href="auth/register.html" class="btn btn-primary">Sign Up</a>
+      </div>
+
+      <!-- Logged-in nav -->
+      <div class="nav-links" id="navUser" style="display:none;">
+        <a href="experiences.html">Explore</a>
+        <a href="dashboards/user.html">Favourites</a>
+        <button id="btnSignOut" class="btn btn-secondary" type="button">Sign Out</button>
+      </div>
+
+      <!-- Business nav Iteration 5 defect solution -->
+      <div class="nav-links" id="navBusiness" style="display:none;">
+        <a href="experiences.html">Explore</a>
+        <a href="dashboards/business.html" class="btn btn-secondary">Dashboard</a>
+        <button class="btn btn-secondary" id="btnSignOutBusiness" type="button">Sign Out</button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- =============================
+     Detailed Experience Page Layout (styled via styles.css helpers)
+     ============================= -->
+  <section class="detail-page">
+    <div class="container">
+
+      <!-- Breadcrumb trail: shows where the user is (Explore › Location) and lets them click back to Explore -->
+      <div class="breadcrumb">
+        <a href="experiences.html">Explore</a> <span>›</span> <span id="crumbLocation">Ireland</span>
+      </div>
+
+      <!-- Title + meta: experience heading and key info (location/price/category) populated by JS once data loads -->
+      <div class="detail-header">
+        <h1 id="expTitle">Loading...</h1>
+        <p class="detail-meta" id="expMeta">Loading details...</p>
+      </div>
+
+      <!-- Error box (hidden by default) -->
+      <div id="detailError" class="alert alert-error hidden">
+        Something went wrong loading this experience.
+      </div>
+
+      <!-- Two-column layout -->
+      <div class="detail-layout">
+
+        <!-- LEFT: Gallery + Overview -->
+        <div class="detail-gallery">
+
+          <!-- Main image -->
+          <div class="detail-main-image">
+            <img
+              id="mainImage"
+              src="https://via.placeholder.com/1200x800?text=Loading..."
+              alt="Experience image"
+            />
+          </div>
+
+          <!-- Thumbnails -->
+          <div class="detail-thumbnails" id="thumbsRow"></div>
+
+          <!-- Description -->
+          <p class="detail-description" id="expDescription">Loading description...</p>
+
+          <!-- Host -->
+          <div class="detail-section" style="margin-top: 1rem;">
+            <h3>Host</h3>
+
+            <div style="display:flex; gap:1rem; align-items:flex-start; margin-top:0.75rem;">
+              <div
+                id="hostLogoWrap"
+                style="width:64px; height:64px; border-radius:14px; overflow:hidden; border:1px solid var(--border-color); background:#fff; flex:0 0 auto; display:none;"
+              >
+                <img id="hostLogo" src="" alt="Business logo" style="width:100%; height:100%; object-fit:cover;" />
+              </div>
+
+              <div style="flex:1;">
+                <p id="hostName" style="margin:0; font-weight:700;">Loading host...</p>
+                <p id="hostLocation" style="color: var(--text-secondary); margin-top: 0.25rem;">Loading location...</p>
+                <p id="hostDescription" style="color: var(--text-secondary); margin-top: 0.5rem; line-height:1.5;"></p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- RIGHT: Booking + Sections -->
+        <div class="detail-side">
+
+          <!-- Booking card -->
+          <div class="booking-card">
+
+            <div class="booking-top">
+              <div>
+                <div style="color: var(--text-secondary); font-size: 0.9rem;">From</div>
+                <div class="booking-price" id="priceFrom">€—</div>
+              </div>
+
+              <span class="badge-pill" id="badgePill">Info</span>
+            </div>
+
+            <!-- Price range summary -->
+            <div class="price-box">
+              <div class="price-box-row">
+                <span>Price Tier</span>
+                <strong id="priceTier">—</strong>
+              </div>
+              <div class="price-box-row" style="margin-top: 0.4rem;">
+                <span>Range</span>
+                <strong id="priceRange">—</strong>
+              </div>
+            </div>
+
+            <div class="booking-note">
+              Bookings are handled on the business website. You will be redirected to complete payment securely.
+            </div>
+
+            <!-- Go to business site -->
+            <a href="#" target="_blank" rel="noopener" class="btn-booking" id="btnBusinessSite">
+              Go to Business Site
+            </a>
+
+            <!-- Save / Share -->
+            <div class="booking-actions">
+              <button class="btn-light" id="btnSave" type="button">♡ Save</button>
+              <button class="btn-light" id="btnShare" type="button">↗ Share</button>
+            </div>
+          </div>
+
+          <!-- What you'll do part -->
+          <div class="detail-sections">
+            <div class="detail-section">
+              <h3>What you'll do</h3>
+              <ul id="whatYouDoList">
+                <li>Details coming soon.</li>
+              </ul>
+            </div>
+
+            <!-- What's included part -->
+            <div class="detail-section">
+              <h3>What's included</h3>
+              <ul id="whatsIncludedList">
+                <li>Details coming soon.</li>
+              </ul>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </section>
+<!-- Protecting my rights as always -->
+  <footer>
+    <div class="footer-content">
+      <p>&copy; 2026 ExperienceMe. All rights reserved.</p>
+    </div>
+  </footer>
+<!-- Supabase CDN (Supabase JS SDK = my toolkit for talking to database/auth) -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <!-- Supabase Client (creates supabaseClient with my project URL + API key, used in landing.js) -->
+  <script src="lib/supabaseClient.js"></script>
+ <!-- Detailed Experience Page Script  -->
+  <script src="detailed_experience.js"></script>
+</body>
+</html>

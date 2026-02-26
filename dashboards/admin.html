@@ -1,0 +1,188 @@
+<!DOCTYPE html> <!-- Standard HTML5 document declaration -->
+<html lang="en"> <!-- Page language set to English -->
+<head>
+  <meta charset="UTF-8" /> <!-- UTF-8 so text + symbols display correctly -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/> <!-- Makes layout responsive on mobile -->
+  <title>Admin Dashboard - ExperienceMe</title> <!-- Page title in browser tab -->
+  <link rel="stylesheet" href="../styles.css" /> <!-- Shared styles for whole site -->
+</head>
+<body>
+  <!-- =========================
+       NAVIGATION
+       ========================= -->
+  <nav>
+    <div class="nav-container">
+      <!-- Logo brings admin back to landing page -->
+      <a href="../landing.html" class="logo">ExperienceMe</a>
+
+      <!-- Main admin navigation links + logout -->
+      <div class="nav-links">
+        <!-- Each link has data-section so JS can switch the visible section -->
+        <a href="#" id="navDashboard"  data-section="dashboard">Dashboard</a>
+        <a href="#" id="navExperiences" data-section="experiences">Experiences</a>
+        <a href="#" id="navBusinesses"  data-section="businesses">Businesses</a>
+        <a href="#" id="navUsers"       data-section="users">Users</a>
+        <!-- Logout button (JS in admin.js will handle the actual logout) -->
+        <button id="logoutBtn" class="btn btn-secondary">Logout</button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- =========================
+       MAIN CONTENT
+       ========================= -->
+  <section class="section">
+    <div class="container">
+      <h1>Admin Dashboard</h1>
+
+      <!-- Placeholder for showing admin info (like name, role, etc. filled by JS) -->
+      <div id="adminInfo"></div>
+
+      <!-- ===== Dashboard (default view when admin opens page) ===== -->
+      <!-- This section is visible by default, others are hidden with CSS class -->
+      <div id="dashboardSection" class="dashboard-section">
+        <h2>Overview</h2>
+        <p>Welcome to the admin dashboard. Select a section from the navigation to get started.</p>
+
+        <!-- Simple stats grid showing high level numbers -->
+        <div class="stats-grid" style="display:grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 1.5rem; margin-top: 2rem;">
+          <div class="stat-card card">
+            <h3>Pending Approvals</h3>
+            <!-- Number of experiences waiting for approval, updated via JS -->
+            <p class="stat-number" id="pendingCount">0</p>
+          </div>
+          <div class="stat-card card">
+            <h3>Total Experiences</h3>
+            <!-- Total count of experiences in system -->
+            <p class="stat-number" id="totalExperiences">0</p>
+          </div>
+          <div class="stat-card card">
+            <h3>Total Businesses</h3>
+            <!-- Count of registered businesses -->
+            <p class="stat-number" id="totalBusinesses">0</p>
+          </div>
+          <div class="stat-card card">
+            <h3>Total Active Users</h3>
+            <!-- Count of all users on platform -->
+            <p class="stat-number" id="totalUsers">0</p>
+          </div>
+          <div class="stat-card card">
+            <h3>Waitlist Businesses</h3>
+            <!-- Count of all businesses on waitlist -->
+            <p class="stat-number" id="waitlistCount">0</p>
+          </div>
+        </div>
+        <!-- =========================
+     WAITLIST (Admin View)
+     Shows total + latest signups: Iteration 6
+     ========================= -->
+        <div class="card" style="margin-top: 2rem;">
+          <h3 style="margin-bottom: 0.5rem;">Latest waitlist sign-ups</h3>
+          <p style="color: var(--text-secondary); margin-bottom: 1rem;">
+            This list pulls directly from <strong>business_waitlist</strong> in Supabase.
+          </p>
+
+          <!-- Loading / empty states -->
+          <div id="waitlistLoading" class="loading">Loading waitlist…</div>
+          <div id="waitlistEmpty" class="no-results hidden">No waitlist sign-ups yet.</div>
+
+          <!-- Table container -->
+          <div id="waitlistTableWrap" class="hidden" style="overflow-x:auto;">
+            <table class="table" style="width: 100%; border-collapse: collapse;">
+              <thead>
+                <tr style="text-align:left;">
+                  <th style="padding: 0.75rem; border-bottom: 1px solid var(--border);">Business</th>
+                  <th style="padding: 0.75rem; border-bottom: 1px solid var(--border);">Contact</th>
+                  <th style="padding: 0.75rem; border-bottom: 1px solid var(--border);">County</th>
+                  <th style="padding: 0.75rem; border-bottom: 1px solid var(--border);">Category</th>
+                  <th style="padding: 0.75rem; border-bottom: 1px solid var(--border);">Website</th>
+                  <th style="padding: 0.75rem; border-bottom: 1px solid var(--border);">Challenge</th>
+                </tr>
+              </thead>
+              <tbody id="waitlistTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== Experiences ===== -->
+      <!-- Section for managing experiences (approve / reject, filter by status) -->
+      <div id="experiencesSection" class="dashboard-section hidden">
+        <h2>Experiences</h2>
+
+        <!-- Filter tabs (no inline JS; admin.js adds click handlers once DOM is ready) -->
+        <div class="status-tabs">
+          <button class="status-tab" data-filter="all">All</button>
+          <button class="status-tab active" data-filter="pending">Pending</button>
+          <button class="status-tab" data-filter="approved">Approved</button>
+          <button class="status-tab" data-filter="rejected">Rejected</button>
+        </div>
+
+        <!-- Container where experiences will be rendered by admin.js -->
+        <div id="experiencesList"></div>
+
+        <!-- Template for experience cards (cloned by JS for each experience from Supabase) -->
+        <template id="experienceCardTemplate">
+          <div class="experience-card">
+            <!-- Image area + status badge -->
+            <div class="experience-image" data-field="image">
+              <span class="status-badge" data-field="statusBadge"></span>
+            </div>
+
+            <!-- Main content of the experience card -->
+            <div class="experience-content">
+              <h3 data-field="title"></h3> <!-- Experience title -->
+              <p class="experience-meta" data-field="meta"></p> <!-- Meta info like location / category -->
+              <p class="experience-description" data-field="description"></p> <!-- Short description -->
+
+              <div class="experience-footer">
+                <span class="experience-price" data-field="price"></span> <!-- Price label -->
+
+                <!-- Approve / Reject actions (buttons wired up in admin.js) -->
+                <div class="experience-actions">
+                  <button class="btn-icon btn-approve" title="Approve">Approve</button>
+                  <button class="btn-icon btn-reject" title="Reject">Reject</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </template>
+      </div>
+
+      <!-- ===== Businesses ===== -->
+      <!-- Placeholder section for future business management tools -->
+      <div id="businessesSection" class="dashboard-section hidden">
+        <h2>Manage Businesses</h2>
+        <p>Business management will go here…</p>
+      </div>
+
+      <!-- ===== Users ===== -->
+      <!-- Placeholder section for future user management tools -->
+      <div id="usersSection" class="dashboard-section hidden">
+        <h2>Manage Users</h2>
+        <p>User management will go here…</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- =========================
+       FOOTER
+       ========================= -->
+  <footer>
+    <div class="footer-content">
+      <p>&copy; 2025 ExperienceMe. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <!-- =========================
+       SCRIPTS
+       ========================= -->
+  <!-- Supabase CDN (JS SDK so I can talk to my Supabase backend) -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <!-- Supabase Client init file (holds Supabase URL + anon key + created client) -->
+  <script src="../lib/supabaseClient.js"></script>
+  <!-- Admin logic: cloning templates, binding buttons, section switching, routing, etc. -->
+  <script src="admin.js"></script>
+</body>
+</html>
+

@@ -1,0 +1,1773 @@
+/* This document was created using claude AI. For one main reason is to save time, this is a big project and don't have much time for errors
+Create a complete CSS stylesheet for a modern web application with the following specifications
+Use CSS custom ExperienceMe color scheme with primary green (#00bf63), secondary lime (#7ed957), accent yellow (#f1d676) Also refer the wireframes attached. */
+
+
+/* ==========================================
+   GLOBAL STYLES
+   ========================================== */
+
+/* Reset default browser spacing and make box-model easier to work with */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* CSS variables – central place for ExperienceMe colours, spacing, shadows etc. */
+:root {
+    --primary-color: #00bf63;         /* ExperienceMe main green */
+    --primary-hover: #00a656;         /* Slightly darker green for hover states */
+    --secondary-color: #7ed957;       /* Lime secondary colour */
+    --success-color: #00bf63;         /* Success uses same green */
+    --danger-color: #ef4444;          /* Red for errors / danger */
+    --warning-color: #f1d676;         /* Yellow for warnings */
+    --accent-yellow: #f1d676;         /* Accent yellow (highlight) */
+    --background: #ffffff;            /* Main page background */
+    --surface: #f8fafc;               /* Light grey for cards / sections */
+    --text-primary: #000000;          /* Main text colour */
+    --text-secondary: #4a5568;        /* Muted text colour */
+    --border-color: #e2e8f0;          /* Soft border colour */
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);   /* Small shadow for subtle depth */
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1); /* Medium shadow for hover */
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);/* Larger shadow for bigger cards */
+    --radius-sm: 0.375rem;            /* Small border radius */
+    --radius-md: 0.5rem;              /* Medium border radius */
+    --radius-lg: 0.75rem;             /* Large border radius */
+    --radius-xl: 1rem;                /* Extra large radius for forms/cards */
+}
+
+/* Base body styling for whole site */
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+        'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+        sans-serif;                    /* System-style font stack */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    background-color: #f6f7f8;        /* Light grey background used across Finder/Metrics wireframes */
+    color: var(--text-primary);
+    line-height: 1.6;                  /* Better readability */
+}
+
+/* ==========================================
+   NAVIGATION
+   ========================================== */
+
+/* Main nav bar pinned to top */
+nav {
+    background-color: var(--background);      /* Same as page background */
+    border-bottom: 1px solid var(--border-color);
+    padding: 1rem 2rem;
+    position: sticky;                         /* Sticks to top on scroll */
+    top: 0;
+    z-index: 100;                             /* Keeps nav above page content */
+    box-shadow: var(--shadow-sm);             /* Slight drop shadow */
+}
+
+/* Inner nav container – centres nav and sets max width */
+.nav-container {
+    max-width: 1280px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;  /* Logo on left, links on right */
+    align-items: center;
+}
+
+/* ExperienceMe logo link */
+.logo {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--primary-color);     /* Green brand colour */
+    text-decoration: none;
+}
+
+/* Wrapper for nav links */
+.nav-links {
+    display: flex;
+    gap: 2rem;                       /* Space between links */
+    align-items: center;
+}
+
+/* Individual nav links */
+.nav-links a {
+    text-decoration: none;
+    color: var(--text-secondary);
+    font-weight: 500;
+    transition: color 0.2s;
+    cursor: pointer;
+}
+
+/* Hover state for nav links */
+.nav-links a:hover {
+    color: var(--primary-color);
+}
+
+/* ==========================================
+   BUTTONS
+   ========================================== */
+
+/* Base button style – reused for links that look like buttons as well */
+.btn {
+    padding: 0.625rem 1.25rem;
+    border-radius: var(--radius-md);
+    font-weight: 700;
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: 1px solid transparent;
+    text-decoration: none;
+    display: inline-flex;           /* So anchors behave like buttons */
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    gap: 0.5rem;
+}
+
+/* Main green button */
+.btn-primary {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+/* Primary hover – lift + darker colour */
+.btn-primary:hover {
+    background-color: var(--primary-hover);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
+}
+
+/* Outline style button using primary colour */
+.btn-secondary {
+    background-color: #ffffff;
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+}
+
+/* Secondary hover */
+.btn-secondary:hover {
+    border-color: rgba(0, 191, 99, 0.45);
+    box-shadow: var(--shadow-sm);
+}
+
+/* Yellow accent button – used for special CTAs */
+.btn-accent {
+    background-color: var(--accent-yellow);
+    color: var(--text-primary);
+    border: none;
+}
+
+/* Accent hover – slightly darker yellow + lift */
+.btn-accent:hover {
+    background-color: #e8c960;
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
+}
+
+/* Larger button version for hero area */
+.btn-large {
+    padding: 0.875rem 2rem;
+    font-size: 1rem;
+}
+
+/* ==========================================
+   HERO SECTION
+   ========================================== */
+
+/* Big coloured top banner on landing + user explore page */
+.hero {
+    background: linear-gradient(135deg, #00bf63 0%, #7ed957 100%); /* Green → Lime gradient */
+    color: white;
+    padding: 6rem 2rem;
+    text-align: center;
+}
+
+/* Centers hero content and limits width */
+.hero-content {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+/* Main headline text */
+.hero h1 {
+    font-size: 3.5rem;
+    margin-bottom: 1.5rem;
+    font-weight: 800;
+    line-height: 1.1;
+}
+
+/* Subheading text */
+.hero p {
+    font-size: 1.25rem;
+    margin-bottom: 2rem;
+    opacity: 0.95;
+}
+
+/* Layout for hero buttons (if used) */
+.hero-buttons {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;          /* Wrap on mobile */
+}
+
+/* Search bar container in hero */
+.hero-search {
+    display: flex;
+    gap: 1rem;
+    max-width: 600px;
+    margin: 0 auto;
+    align-items: stretch;
+}
+
+/* Text input for search bar */
+.search-input {
+    flex: 1;
+    padding: 1rem 1.5rem;
+    border: none;
+    border-radius: var(--radius-md);
+    font-size: 1rem;
+    box-shadow: var(--shadow-md);
+}
+
+/* Focus state for search input – white outline inside gradient */
+.search-input:focus {
+    outline: 3px solid rgba(255, 255, 255, 0.3);
+}
+
+/* ==========================================
+   IMAGE GRID LAYOUT
+   ========================================== */
+
+/* Generic grid used for categories + counties card layout */
+.image-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); /* Responsive columns */
+    gap: 1.5rem;
+    margin-top: 2rem;
+}
+
+/* Individual clickable image card (category/county) */
+.image-card {
+    position: relative;
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    cursor: pointer;
+    transition: transform 0.3s, box-shadow 0.3s;
+    box-shadow: var(--shadow-md);
+    aspect-ratio: 4/3;  /* Keeps consistent image aspect ratio */
+}
+
+/* Hover lift effect for cards */
+.image-card:hover {
+    transform: translateY(-8px);
+    box-shadow: var(--shadow-lg);
+}
+
+/* Base image inside card */
+.image-card img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;  /* Crop instead of squashing */
+    display: block;
+}
+
+/* Dark gradient overlay at bottom of card for text readability */
+.image-card-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.4) 50%, transparent 100%);
+    padding: 1.5rem;
+    color: white;
+}
+
+/* Category / county title on top of image */
+.image-card-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin: 0;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+}
+
+/* Generic loading text style */
+.loading {
+    text-align: center;
+    color: var(--text-secondary);
+    padding: 2rem;
+    font-size: 1.125rem;
+}
+
+/* ==========================================
+   FEATURES SIMPLE
+   ========================================== */
+
+/* Simple feature grid used on landing page */
+.features-simple {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 2rem;
+    margin-top: 2rem;
+}
+
+/* Individual feature item */
+.feature-item {
+    text-align: center;
+}
+
+/* Feature title */
+.feature-item h3 {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+    color: var(--text-primary);
+}
+
+/* Feature description */
+.feature-item p {
+    color: var(--text-secondary);
+}
+
+/* ==========================================
+   SECTIONS
+   ========================================== */
+
+/* Generic section spacing used across pages */
+.section {
+    padding: 4rem 2rem;
+}
+
+/* Standard section heading style */
+.section-title {
+    font-size: 2.5rem;
+    text-align: center;
+    margin-bottom: 3rem;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+/* Main width container used throughout app */
+.container {
+    max-width: 1280px;
+    margin: 0 auto;
+}
+
+/* ==========================================
+   CARDS / GRID
+   ========================================== */
+
+/* Generic grid layout for cards */
+.card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+    margin-top: 2rem;
+}
+
+/* Generic card style for information blocks */
+.card {
+    background: var(--background);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: 2rem;
+    transition: all 0.3s;
+    box-shadow: var(--shadow-sm);
+}
+
+/* Card hover effect – subtle lift */
+.card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+}
+
+/* Card title */
+.card h3 {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+    color: var(--text-primary);
+}
+
+/* Card body text */
+.card p {
+    color: var(--text-secondary);
+    line-height: 1.6;
+}
+
+/* ==========================================
+   FORMS
+   ========================================== */
+
+/* Wrapper for form pages (login/register) */
+.form-container {
+    max-width: 450px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+/* Form card styling (white card in middle) */
+.form-card {
+    background: var(--background);
+    padding: 2.5rem;
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-lg);
+    border: 1px solid var(--border-color);
+}
+
+/* Group label + input together with spacing */
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+/* Labels above inputs */
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    color: var(--text-primary);
+}
+
+/* Text inputs, selects, textarea basic style */
+.form-group input,
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    font-size: 1rem;
+    transition: border-color 0.2s;
+    font-family: inherit; /* Keep same font as body */
+}
+
+/* Focus states for form elements */
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(0, 191, 99, 0.1);
+}
+
+/* Allow textarea to grow only vertically */
+.form-group textarea {
+    resize: vertical;
+    min-height: 120px;
+}
+
+/* Error text under input */
+.form-error {
+    color: var(--danger-color);
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+}
+
+/* Success text under input */
+.form-success {
+    color: var(--success-color);
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+}
+
+/* ==========================================
+   ALERTS
+   ========================================== */
+
+/* Base alert style (box for messages) */
+.alert {
+    padding: 1rem 1.25rem;
+    border-radius: var(--radius-md);
+    margin-bottom: 1.5rem;
+    border-left: 4px solid;
+    font-size: 0.95rem;
+}
+
+/* Green success alert */
+.alert-success {
+    background-color: #d1fae5;
+    border-color: var(--success-color);
+    color: #065f46;
+}
+
+/* Red error alert */
+.alert-error {
+    background-color: #fee2e2;
+    border-color: var(--danger-color);
+    color: #991b1b;
+}
+
+/* Blue-ish info alert */
+.alert-info {
+    background-color: #dbeafe;
+    border-color: var(--primary-color);
+    color: #1e40af;
+}
+
+/* ==========================================
+   FOOTER
+   ========================================== */
+
+/* Footer shared across all pages */
+footer {
+    background-color: var(--surface);
+    border-top: 1px solid var(--border-color);
+    padding: 3rem 2rem;
+    margin-top: 4rem;
+}
+
+/* Footer inner content – centred text */
+.footer-content {
+    max-width: 1280px;
+    margin: 0 auto;
+    text-align: center;
+    color: var(--text-secondary);
+}
+
+/* ==========================================
+   UTILITIES
+   ========================================== */
+
+/* Helper class to centre text */
+.text-center {
+    text-align: center;
+}
+
+/* Margin top utilities – used inline on elements */
+.mt-1 { margin-top: 0.5rem; }
+.mt-2 { margin-top: 1rem; }
+.mt-3 { margin-top: 1.5rem; }
+.mt-4 { margin-top: 2rem; }
+
+/* Margin bottom utilities */
+.mb-1 { margin-bottom: 0.5rem; }
+.mb-2 { margin-bottom: 1rem; }
+.mb-3 { margin-bottom: 1.5rem; }
+.mb-4 { margin-bottom: 2rem; }
+
+/* Utility to hide elements (used for sections/tabs) */
+.hidden {
+    display: none;
+}
+
+/* ==========================================
+   BUSINESS DASHBOARD
+   ========================================== */
+
+/* Main wrapper class for a section in dashboard (also used in admin) */
+.dashboard-section {
+    animation: fadeIn 0.3s ease-in; /* Simple fade-in animation on change */
+}
+
+/* Reusable fade in animation used above */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Tabs for filtering experiences (draft/pending/etc.) */
+.status-tabs {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    margin-bottom: 1.5rem;
+}
+
+/* Individual filter tab */
+.status-tab {
+    padding: 0.5rem 1rem;
+    border: 1px solid var(--border-color);
+    background: white;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: all 0.2s;
+    font-weight: 500;
+}
+
+/* Hover for filter tabs */
+.status-tab:hover {
+    background: var(--surface);
+    border-color: var(--primary-color);
+}
+
+/* Active tab – filled in with primary colour */
+.status-tab.active {
+    background: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
+}
+
+/* Experiences Grid Layout – used on business + admin dashboards */
+.experiences-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 1.5rem;
+}
+
+/* Experience Card container */
+.experience-card {
+    background: white;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    transition: all 0.3s;
+    box-shadow: var(--shadow-sm);
+}
+
+/* Experience Card hover */
+.experience-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+}
+
+/* Image area at top of experience card */
+.experience-image {
+    position: relative;
+    width: 100%;
+    height: 200px;
+    background-size: cover;
+    background-position: center;
+    background-color: var(--surface); /* Fallback if no image */
+}
+
+/* If image tag used instead of background image */
+.experience-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Text content area of experience card */
+.experience-content {
+    padding: 1.25rem;
+}
+
+/* Experience title */
+.experience-content h3 {
+    margin: 0 0 0.5rem 0;
+    font-size: 1.125rem;
+    color: var(--text-primary);
+}
+
+/* Short description text inside card */
+.experience-description {
+    color: var(--text-secondary);
+}
+
+/*Part below provided solely by Chat GPT but commenting creating by me for understanding purposes*/
+/* ==========================================
+   EXPLORE PAGE (experiences.html) LAYOUT FIX
+   - Sidebar filters on left
+   - 3 cards per row
+   - Scoped so it doesn't affect dashboard cards
+   ========================================== */
+
+.container-wide {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+.explore-layout {
+  display: grid;
+  grid-template-columns: 280px 1fr; /* sidebar + results */
+  gap: 2rem;
+  align-items: start;
+  padding: 2rem 0;
+}
+
+/* Sidebar */
+.filters-sidebar {
+  background: var(--surface);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 1.25rem;
+  box-shadow: var(--shadow-sm);
+  position: sticky;
+  top: 90px; /* sits under your sticky nav */
+}
+
+.filters-title {
+  font-size: 1.1rem;
+  margin-bottom: 1rem;
+}
+
+.filter-block {
+  margin-bottom: 1rem;
+}
+
+.filter-label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 0.35rem;
+  color: var(--text-primary);
+}
+
+.select-input {
+  width: 100%;
+  padding: 0.65rem 0.8rem;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  background: #fff;
+}
+
+.filters-actions {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 0.75rem;
+}
+
+.filters-actions .btn {
+  width: 100%;
+}
+
+/* Results panel */
+.results-panel {
+  min-width: 0; /* prevents grid overflow */
+}
+
+.results-topbar {
+  display: flex;
+  justify-content: center;
+  padding: 0.25rem 0 1rem 0;
+  color: var(--text-secondary);
+}
+
+/* Card grid: 3 per row */
+.explore-marketplace .cards-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1.5rem;
+}
+
+/* Scoped card styles for Explore page ONLY (prevents dashboard CSS conflicts) */
+.explore-marketplace .experience-card {
+  background: #fff;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  transition: transform 0.2s, box-shadow 0.2s;
+  cursor: pointer;
+}
+
+.explore-marketplace .experience-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-lg);
+}
+
+.explore-marketplace .experience-card-img {
+  width: 100%;
+  height: 180px;        /* key: stops massive images */
+  object-fit: cover;
+  display: block;
+}
+
+.explore-marketplace .experience-card-body {
+  padding: 1rem;
+}
+
+.explore-marketplace .experience-card-body h3 {
+  font-size: 1.1rem;
+  margin: 0 0 0.35rem 0;
+  line-height: 1.25;
+}
+
+.explore-marketplace .experience-card-body .location {
+  margin: 0 0 0.5rem 0;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+.explore-marketplace .experience-card-body .description {
+  margin: 0 0 0.75rem 0;
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+}
+
+.explore-marketplace .experience-card-body .business {
+  margin: 0;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+/* Responsive: 2 per row, then 1 per row + sidebar stacks */
+@media (max-width: 1024px) {
+  .explore-layout {
+    grid-template-columns: 260px 1fr;
+  }
+  .explore-marketplace .cards-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 768px) {
+  .explore-layout {
+    grid-template-columns: 1fr;
+  }
+  .filters-sidebar {
+    position: static;
+  }
+  .explore-marketplace .cards-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ==========================================
+   DETAILED EXPERIENCE PAGE (detailed_experience.html)
+   - Green header like mock
+   - Gallery card + thumbs + chips
+   - Sticky booking card on right
+   ========================================== */
+
+.detail-page {
+  background: #ffffff;
+}
+
+/* Breadcrumb */
+.detail-page .breadcrumb {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  padding: 1.25rem 0 0.75rem 0;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+.detail-page .breadcrumb a {
+  color: var(--text-secondary);
+  text-decoration: none;
+}
+.detail-page .breadcrumb a:hover {
+  color: var(--primary-color);
+}
+
+/* Green header block (title + meta) */
+.detail-page .detail-header {
+  background: linear-gradient(135deg, #00bf63 0%, #7ed957 100%);
+  border-radius: var(--radius-lg);
+  padding: 2rem 2rem;
+  color: #fff;
+  box-shadow: var(--shadow-sm);
+  margin-bottom: 1.75rem;
+}
+.detail-page .detail-header h1 {
+  font-size: 2.25rem;
+  font-weight: 800;
+  line-height: 1.1;
+  margin: 0 0 0.5rem 0;
+}
+.detail-page .detail-meta {
+  margin: 0;
+  opacity: 0.95;
+  font-weight: 500;
+}
+
+/* Two-column layout */
+.detail-page .detail-layout {
+  display: grid;
+  grid-template-columns: 1.6fr 1fr;
+  gap: 1.75rem;
+  align-items: start;
+}
+
+/* LEFT: gallery card */
+.detail-page .detail-gallery {
+  background: #fff;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  padding: 1.25rem;
+}
+
+/* Main image */
+.detail-page .detail-main-image {
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  border: 1px solid var(--border-color);
+  background: var(--surface);
+}
+.detail-page .detail-main-image img {
+  width: 100%;
+  height: 360px;           /* keeps it like the mock */
+  object-fit: cover;
+  display: block;
+}
+
+/* Thumbnails row */
+.detail-page .detail-thumbnails {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin-top: 0.9rem;
+}
+.detail-page .detail-thumb {
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  border: 1px solid var(--border-color);
+  background: var(--surface);
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+.detail-page .detail-thumb:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+.detail-page .detail-thumb img {
+  width: 100%;
+  height: 86px;
+  object-fit: cover;
+  display: block;
+}
+
+/* Chips (if you keep chipsRow in HTML) */
+.detail-page .detail-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin-top: 1rem;
+}
+.detail-page .detail-chip {
+  background: var(--surface);
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  padding: 0.35rem 0.7rem;
+  border-radius: 999px;
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+/* Description */
+.detail-page .detail-description {
+  margin-top: 1rem;
+  color: var(--text-secondary);
+  line-height: 1.65;
+  font-size: 1rem;
+}
+
+/* Section blocks on left (Host etc.) */
+.detail-page .detail-section {
+  margin-top: 1.25rem;
+}
+.detail-page .detail-section h3 {
+  font-size: 1.05rem;
+  margin: 0;
+  font-weight: 800;
+}
+
+/* RIGHT: booking + sections */
+.detail-page .detail-side {
+  position: relative;
+}
+
+/* Booking card */
+.detail-page .booking-card {
+  position: sticky;
+  top: 92px; /* sits under sticky nav */
+  background: #fff;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  padding: 1.25rem;
+}
+
+/* Top row (From + badge) */
+.detail-page .booking-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 0.9rem;
+}
+
+.detail-page .booking-price {
+  font-size: 1.75rem;
+  font-weight: 900;
+  line-height: 1;
+  margin-top: 0.25rem;
+}
+
+/* Small pill badge (free cancellation / duration etc.) */
+.detail-page .badge-pill {
+  background: var(--surface);
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  padding: 0.35rem 0.7rem;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+/* Price box */
+.detail-page .price-box {
+  background: var(--surface);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 0.9rem;
+  margin-bottom: 0.9rem;
+}
+.detail-page .price-box-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+}
+.detail-page .price-box-row strong {
+  color: var(--text-primary);
+}
+
+/* Booking note */
+.detail-page .booking-note {
+  background: #f0fdf4; /* subtle green tint */
+  border: 1px solid rgba(0,191,99,0.25);
+  color: #166534;
+  padding: 0.85rem 0.9rem;
+  border-radius: var(--radius-lg);
+  font-size: 0.9rem;
+  line-height: 1.5;
+  margin-bottom: 0.9rem;
+}
+
+/* Primary CTA button */
+.detail-page .btn-booking {
+  width: 100%;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 0.9rem 1rem;
+  border-radius: 999px;
+  background: var(--primary-color);
+  color: #fff;
+  text-decoration: none;
+  font-weight: 800;
+  transition: transform 0.15s, background-color 0.15s, box-shadow 0.15s;
+  box-shadow: var(--shadow-sm);
+}
+.detail-page .btn-booking:hover {
+  background: var(--primary-hover);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
+/* Save + Share buttons */
+.detail-page .booking-actions {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 0.9rem;
+}
+.detail-page .btn-light {
+  flex: 1;
+  background: #fff;
+  border: 1px solid var(--border-color);
+  border-radius: 999px;
+  padding: 0.65rem 0.85rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.15s, border-color 0.15s, color 0.15s;
+}
+.detail-page .btn-light:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+  border-color: rgba(0,191,99,0.45);
+  color: var(--primary-color);
+}
+
+/* Right-side detail sections */
+.detail-page .detail-sections {
+  margin-top: 1rem;
+  display: grid;
+  gap: 1rem;
+}
+.detail-page .detail-sections .detail-section {
+  background: #fff;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  padding: 1.1rem 1.25rem;
+}
+.detail-page .detail-sections ul {
+  margin-top: 0.6rem;
+  padding-left: 1.1rem;
+  color: var(--text-secondary);
+}
+.detail-page .detail-sections li {
+  margin: 0.35rem 0;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .detail-page .detail-layout {
+    grid-template-columns: 1fr;
+  }
+  .detail-page .booking-card {
+    position: static;
+  }
+  .detail-page .detail-main-image img {
+    height: 320px;
+  }
+}
+
+@media (max-width: 640px) {
+  .detail-page .detail-header {
+    padding: 1.5rem 1.25rem;
+  }
+  .detail-page .detail-header h1 {
+    font-size: 1.75rem;
+  }
+  .detail-page .detail-thumbnails {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .detail-page .detail-thumb img {
+    height: 96px;
+  }
+}
+
+/* ==========================================
+   FINDER PAGE (finder.html)
+   - Cleaned + deduped version of what we built together
+   ========================================== */
+
+/* Layout */
+.finder-layout {
+  display: grid;
+  grid-template-columns: 1.05fr 0.95fr;
+  gap: 22px;
+  align-items: start;
+  margin-top: 18px;
+}
+
+/* Green hero banner */
+.finder-hero {
+  background: var(--primary-color);
+  border-radius: 18px;
+  padding: 22px;
+  color: white;
+  margin-top: 18px;
+}
+
+.finder-hero-title {
+  margin: 0 0 6px 0;
+  font-size: 28px;
+  font-weight: 800;
+}
+
+.finder-hero-sub {
+  margin: 0;
+  opacity: 0.9;
+  max-width: 700px;
+}
+
+/* Panels (left + right) */
+.finder-panel {
+  background: #fff;
+  border: 1px solid #e9ecef;
+  border-radius: 18px;
+  padding: 18px;
+}
+
+.panel-title {
+  margin: 0 0 6px 0;
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.panel-sub {
+  margin: 0 0 14px 0;
+  color: #667085;
+  font-size: 14px;
+}
+
+/* Question cards */
+.question-card {
+  background: #f4fbf7;          /* subtle green tint like wireframe */
+  border: 1px solid #e3f3ea;
+  border-radius: 16px;
+  padding: 14px;
+  margin-bottom: 12px;          /* space between questions */
+}
+
+.question-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.question-kicker {
+  font-size: 12px;
+  font-weight: 700;
+  color: #2e7d58;
+  opacity: 0.95;
+}
+
+.finder-label {
+  margin: 0 0 10px 0;
+  font-weight: 700;
+}
+
+/* Chips (Finder + Metrics uses .chip with either .active or .is-active) */
+.chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.chip {
+  padding: 8px 12px;
+  border-radius: 999px;
+  border: 1px solid #e2e6ea;
+  background: #fff;
+  cursor: pointer;
+  font-weight: 800;
+  font-size: 13px;
+  line-height: 1;
+  transition: transform 0.05s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+}
+
+.chip:active {
+  transform: translateY(1px);
+}
+
+.chip.active,
+.chip.is-active {
+  background: var(--primary-color);
+  color: #fff;
+  border-color: var(--primary-color);
+}
+
+/* Selects */
+.select {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid #e2e6ea;
+  background: #fff;
+}
+
+/* Action buttons (match wireframe: reset small, primary large) */
+.finder-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  align-items: center;
+  margin-top: 10px;
+}
+
+/* Right-side matches cards */
+.match-card {
+  display: grid;
+  grid-template-columns: 80px 1fr auto;
+  gap: 12px;
+  align-items: center;
+  padding: 12px;
+  border: 1px solid #eef1f4;
+  border-radius: 16px;
+  margin-bottom: 10px;
+  background: #fff;
+}
+
+.match-img {
+  width: 80px;
+  height: 60px;
+  object-fit: cover;
+  border-radius: 10px;
+}
+
+.btn-small {
+  padding: 8px 10px;
+  border-radius: 10px;
+  border: 1px solid #ddd;
+  background: #fff;
+  cursor: pointer;
+}
+
+.muted {
+  opacity: 0.7;
+  font-size: 0.9em;
+}
+
+.no-results {
+  padding: 12px;
+  opacity: 0.8;
+}
+
+/* Finder responsive */
+@media (max-width: 900px) {
+  .finder-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ==========================================
+   BUSINESS METRICS PAGE (businessmetrics.html)
+   - Cleaned + deduped version of what we built together
+   ========================================== */
+
+.metrics-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+}
+
+.metrics-layout {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 18px;
+  margin-top: 18px;
+}
+
+.panel {
+  background: #fff;
+  border: 1px solid #e9ecef;
+  border-radius: 18px;
+  padding: 18px;
+}
+
+.panel-head-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+/* KPI cards */
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-top: 12px;
+  margin-bottom: 14px; /* space between KPI cards and chart panel */
+}
+
+.kpi-card {
+  background: #f4fbf7;
+  border: 1px solid #e3f3ea;
+  border-radius: 16px;
+  padding: 14px;
+}
+
+.kpi-label {
+  margin: 0;
+  color: #667085;
+  font-size: 13px;
+}
+
+.kpi-value {
+  margin: 6px 0 0 0;
+  font-size: 28px;
+  font-weight: 800;
+}
+
+/* Range tabs (30 days / 7 days / 90 days) */
+.range-tabs {
+  display: flex;
+  gap: 8px;
+}
+
+.tab {
+  border: 1px solid #e2e6ea;
+  background: #fff;
+  border-radius: 999px;
+  padding: 8px 10px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.tab.active {
+  background: var(--primary-color);
+  border-color: var(--primary-color);
+  color: #fff;
+}
+
+.panel-section {
+  margin-top: 16px;
+}
+
+.chart-placeholder {
+  height: 160px;
+  border: 1px dashed #d8dde3;
+  border-radius: 14px;
+  background: #fafafa;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #8a94a3;
+}
+
+/* Chart panel (toolbar + canvas inside the same white container) */
+.activity-chart-wrap {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+  padding: 16px;
+}
+
+.activity-toolbar {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+
+.activity-canvas-wrap {
+  height: 220px; /* controls chart height */
+  margin-top: 6px;
+}
+
+#activityChart {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* Funnel breakdown */
+.funnel-wrap {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+  padding: 14px;
+}
+
+.funnel {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.funnel-row {
+  display: grid;
+  grid-template-columns: 180px 1fr 70px;
+  gap: 12px;
+  align-items: center;
+}
+
+.funnel-label {
+  font-weight: 800;
+  color: #111827;
+  font-size: 10px;
+}
+
+.funnel-bar {
+  height: 10px;
+  border-radius: 999px;
+  background: #eef2f7;
+  overflow: hidden;
+  border: 1px solid #e5e7eb;
+}
+
+.funnel-fill {
+  height: 100%;
+  width: 0%;
+  border-radius: 999px;
+  background: var(--primary-color);
+}
+
+.funnel-value {
+  text-align: right;
+  font-weight: 800;
+  color: #111827;
+  font-size: 13px;
+}
+
+/* Referrer chart */
+.referrer-wrap {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+  padding: 14px;
+  height: 260px;
+}
+
+#referrerChart {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* Funnel + referrers in a clean two-column row */
+.bottom-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+  align-items: stretch;
+}
+
+/* Stack nicely on small screens */
+@media (max-width: 900px) {
+  .metrics-layout {
+    grid-template-columns: 1fr;
+  }
+  .bottom-grid {
+    grid-template-columns: 1fr;
+  }
+  .kpi-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ==========================================
+   OPTIONAL: QUICK PICKS POLISH (if you use these classes)
+   - Keeps left quick picks looking like nice selectable cards
+   ========================================== */
+
+.quick-pick-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.quick-pick {
+  width: 100%;
+  text-align: left;
+  border: 1px solid #e5e7eb;
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 10px 12px;
+  cursor: pointer;
+  transition: transform 0.05s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.quick-pick:hover {
+  border-color: #cbd5e1;
+  box-shadow: 0 1px 8px rgba(0, 0, 0, 0.06);
+}
+
+.quick-pick:active {
+  transform: translateY(1px);
+}
+
+.quick-pick-title {
+  display: block;
+  font-weight: 800;
+  color: #111827;
+  font-size: 13px;
+}
+
+.quick-pick-sub {
+  display: block;
+  font-size: 12px;
+  color: #6b7280;
+  margin-top: 2px;
+}
+
+.quick-pick.is-active {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(0, 191, 99, 0.15);
+}
+
+/* =============================
+   Business metrics: heading sizes (targeted)
+   Only affects the metrics page sections
+   ============================= */
+
+/* Quick picks title */
+.quick-picks-title {
+  font-size: 22px;
+  font-weight: 800;
+  line-height: 1.2;
+  margin: 18px 0 12px;
+}
+
+/* Funnel + referrers titles */
+.funnel-title,
+.referrers-title {
+  font-size: 22px;
+  font-weight: 800;
+  line-height: 1.2;
+  margin: 0 0 14px;
+  text-align: center; /* remove if you want left aligned */
+}
+
+/* Metrics page: shrink the two bottom section headings only */
+.bottom-grid .section-title {
+  font-size: 22px;
+  font-weight: 800;
+  line-height: 1.2;
+  margin: 0 0 14px;
+  text-align: center;
+}
+
+/* Metrics page: Quick picks heading (only) */
+.quick-picks-title {
+  font-size: 22px;
+  font-weight: 800;
+  line-height: 1.2;
+  margin: 0 0 12px;
+  text-align: center; /* optional */
+}
+
+/* Add breathing room before the bottom two cards */
+.bottom-grid {
+  margin-top: 18px;
+}
+
+.referrer-wrap {
+  padding: 18px;
+  overflow: hidden;
+  height: 300px; /* locks the chart area */
+}
+
+#referrerChart {
+  width: 100% !important;
+  height: 100% !important;
+  display: block;
+}
+
+/* Controls doughnut size */
+.referrer-chart-area {
+  height: 200px; /* try 200–260 */
+  width: 100%;
+  margin-top: 40px;
+}
+
+#funnelBreakdown {
+  margin-top: 40px;
+}
+
+/* =============================
+   Print export (Export report button)
+   ============================= */
+@media print {
+  /* Hide things we don't want in the exported PDF */
+  .no-print,
+  header,
+  nav,
+  footer {
+    display: none !important;
+  }
+
+  /* Make the export clean */
+  body {
+    background: #fff !important;
+  }
+
+  /* Remove big page padding if your layout has it */
+  .container,
+  .metrics-page {
+    max-width: none !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+}
+/* Helps not display a nav before user role has been accessed */
+#navGuest, #navUser, #navBusiness { display: none; }
+
+
+/* Mobile UI */
+/* Mobile phones are 490 or below so 480 is perfect */
+/*Claude Code helped with optimized sizing */
+
+@media (max-width: 480px) {
+
+  /* HERO */
+  .hero h1 {
+    font-size: 1.5rem;
+  }
+
+  .hero p {
+    font-size: 0.9375rem;
+  }
+
+  /* NAVIGATION - even more compact */
+  .logo {
+    font-size: 1.125rem;
+  }
+
+  /* SECTION TITLES */
+  .section-title {
+    font-size: 1.5rem;
+  }
+
+  /* DETAILED EXPERIENCE */
+  .detail-header h1 {
+    font-size: 1.5rem;
+  }
+
+  .detail-main-image {
+    height: 200px;
+  }
+
+  .booking-price {
+    font-size: 1.75rem;
+  }
+
+  /* FINDER */
+  .finder-hero-title {
+    font-size: 1.5rem;
+  }
+
+  .finder-panel {
+    padding: 1rem;
+  }
+
+  /* CARDS */
+  .card-image {
+    height: 180px;
+  }
+
+  .card-content {
+    padding: 0.875rem;
+  }
+
+  .card-title {
+    font-size: 1rem;
+  }
+
+  /* FILTER BLOCKS */
+  .filter-block {
+    margin-bottom: 1rem;
+  }
+
+  .select-input {
+    font-size: 1rem;
+  }
+}
+
+/* =========================================================
+   HOW IT WORKS — FINAL STEP STYLES (Iteration 6)
+   Placed at bottom so it overrides earlier duplicates
+   ========================================================= */
+
+/* Step container */
+.step{
+  display:flex;
+  gap:1rem;
+  position:relative;
+  padding-bottom:1.75rem;
+}
+
+/* Green numbered circle */
+.step-number{
+  width:36px;
+  height:36px;
+  border-radius:50%;
+  background: var(--primary-color);
+  color:#fff;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-weight:700;
+  flex-shrink:0;
+}
+
+/* Connector line between steps */
+.step::after{
+  content:"";
+  position:absolute;
+  left:17px;
+  top:42px;
+  width:2px;
+  height:calc(100% - 10px);
+  background: var(--border-color);
+}
+
+/* Remove connector on last step */
+.step:last-child::after{
+  display:none;
+}
+
+/* Spacing between hero and steps card */
+.finder-hero + .card{
+  margin-top:18px;
+}

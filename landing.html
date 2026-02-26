@@ -1,0 +1,130 @@
+<!DOCTYPE html> <!-- Standard HTML5 document type so browser knows how to render page -->
+<html lang="en"> <!-- Page language set to English -->
+<head>
+    <meta charset="UTF-8"> <!-- Character encoding so all symbols/letters show correctly -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- Makes layout responsive on phones/tablets -->
+    <title>ExperienceMe - Discover Amazing Experiences</title> <!-- Text that appears on browser tab -->
+    <link rel="stylesheet" href="styles.css"> <!-- Main CSS file for all styling on this page -->
+</head>
+<body>
+    <!-- Navigation bar at the top of the page -->
+    <nav>
+        <div class="nav-container">
+            <!-- Clicking logo brings user back to landing page -->
+            <a href="landing.html" class="logo">ExperienceMe</a>
+
+            <!-- Two nav states (guest vs logged-in) so we do NOT duplicate pages -->
+            <div class="nav-links" id="navGuest">
+                <a href="waitlist.html" class="btn btn-primary">Join waitlist</a>
+                <a href="#features">Features</a> <!-- Stays on same page, scrolls to Features section -->
+                <a href="experiences.html">Explore</a> <!-- Real experiences results page -->
+                <a href="finder.html">Experience Finder Tool</a> <!-- Experience Finder tool page -->
+                <a href="auth/login.html" class="btn btn-secondary">Login</a> <!-- Goes to login.html -->
+                <a href="auth/register.html" class="btn btn-primary">Sign Up</a> <!-- Goes to register.html -->
+            </div>
+
+            <!-- Logged-in nav (shown only when user is authenticated) -->
+            <div class="nav-links" id="navUser" style="display:none;">
+                <a href="experiences.html">Explore</a> <!-- Real experiences results page -->
+                <a href="dashboards/user.html">Favourites</a> <!-- Can later become proper favourites dashboard -->
+                <a href="finder.html">Experience Finder Tool</a> <!-- Experience Finder tool page -->
+                <button class="btn btn-secondary" id="btnSignOut">Sign Out</button> <!-- Sign out -->
+            </div>
+
+            <!-- Business nav Iteration 5 defect solution -->
+            <div class="nav-links" id="navBusiness" style="display:none;">
+                <a href="experiences.html">Explore</a>
+                <a href="finder.html">Experience Finder Tool</a> <!-- Experience Finder tool page -->
+                <a href="dashboards/business.html" class="btn btn-secondary">Dashboard</a>
+                <button class="btn btn-secondary" id="btnSignOutBusiness" type="button">Sign Out</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section with Search -->
+    <section class="hero">
+        <div class="hero-content">
+            <!-- Main slogan above the search bar -->
+            <h1>Turning Irish Experiences<br>into Unforgettable Adventures!</h1>
+            <p>Discover and book amazing local experiences across the country Ireland</p>
+
+            <!-- Search bar section  -->
+            <div class="hero-search">
+                <!-- Actual search input where user types what they’re looking for -->
+                <input
+                    type="text"
+                    id="heroSearch"
+                    placeholder="Find an experience..."
+                    class="search-input"
+                >
+                <!-- Search button calls handleSearch() function from landing.js -->
+                <button class="btn btn-primary btn-large" onclick="handleSearch()">Search</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Categories Section (search by type of experience) -->
+    <section id="categories" class="section">
+        <div class="container">
+            <h2 class="section-title">Search by Experience</h2>
+            <!-- Image cards of the categories will be injected here by JS -->
+            <div id="categoriesGrid" class="image-grid">
+                <!-- Categories will be loaded here from Supabase (via landing.js + supabaseClient.js) -->
+                <div class="loading">Loading experiences...</div> <!-- Placeholder message until data loads -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Counties Section (search by location) -->
+    <section id="counties" class="section" style="background-color: var(--surface);">
+        <div class="container">
+            <h2 class="section-title">Search by Location</h2>
+            <!-- Image cards of the counties will be injected here by JS -->
+            <div id="countiesGrid" class="image-grid">
+                <!-- Counties will be loaded here from Supabase (again handled in landing.js) -->
+                <div class="loading">Loading locations...</div> <!-- Placeholder while counties load -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section (explains why use ExperienceMe) -->
+    <section id="features" class="section">
+        <div class="container">
+            <h2 class="section-title">Why Choose ExperienceMe?</h2>
+            <div class="features-simple">
+                <div class="feature-item">
+                    <h3> Perfect Gifts</h3>
+                    <p>Give unforgettable experiences that create lasting memories</p>
+                </div>
+                <div class="feature-item">
+                    <h3>All of Ireland</h3>
+                    <p>Discover experiences across all 26 counties</p>
+                </div>
+                <div class="feature-item">
+                    <h3> Supporting Local</h3>
+                    <p>Local experiences by local Irish vendors</p>
+                </div>
+                <div class="feature-item">
+                    <h3> New and Exciting</h3>
+                    <p>New experiences to ExperienceMe platform, Discover NOW!</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer same on all pages, keeps my rights + short tagline -->
+    <footer>
+        <div class="footer-content">
+            <p>&copy; 2026 ExperienceMe. All rights reserved.</p> <!-- Copyright updated for 2026 -->
+            <p style="margin-top: 0.5rem;">Connecting people with unforgettable experiences.</p> <!-- Tagline -->
+        </div>
+    </footer>
+
+    <!-- Supabase CDN (Supabase JS SDK = my toolkit for talking to database/auth) -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- Supabase Client (creates supabaseClient with my project URL + API key, used in landing.js) -->
+    <script src="lib/supabaseClient.js"></script>
+    <!-- Landing Page Script (handles search, loading categories/counties from Supabase, etc.) -->
+    <script src="landing.js"></script>
+</body>
+</html>
